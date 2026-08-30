@@ -1,0 +1,235 @@
+@extends('admin.layouts.main')
+@section('title', 'Add User')
+@section('content')
+  <!-- push external head elements to head -->
+  @push('head')
+    <link rel="stylesheet" href="{{ asset('plugins/select2/dist/css/select2.min.css') }}">
+  @endpush
+
+
+  <div class="container-fluid">
+    <div class="page-header">
+      <div class="row align-items-end">
+        <div class="col-lg-8">
+          <div class="page-header-title">
+            <i class="ik ik-user-plus bg-blue"></i>
+            <div class="d-inline">
+              <h5>{{ __('Add User') }}</h5>
+              <span>{{ __('Create new user, assign roles & permissions') }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <nav class="breadcrumb-container" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item">
+                <a href="{{ url('dashboard') }}"><i class="ik ik-home"></i></a>
+              </li>
+              <li class="breadcrumb-item">
+                <a href="#">{{ __('Add User') }}</a>
+              </li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <!-- start message area-->
+      @include('admin.include.message')
+      <!-- end message area-->
+      <div class="col-md-12">
+        <div class="card ">
+          <div class="card-header">
+            <h3>{{ __('Add user') }}</h3>
+          </div>
+          <div class="card-body">
+            <form class="forms-sample" method="POST" action="{{ route('create-user') }}">
+              @csrf
+              <div class="row">
+                <div class="col-sm-6">
+
+                  <div class="form-group">
+                    <label for="name">{{ __('Username') }}<span class="text-red">*</span></label>
+                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror"
+                      name="name" value="{{ old('name') }}" placeholder="Enter user name" required>
+                    <div class="help-block with-errors"></div>
+
+                    @error('name')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror
+                  </div>
+                  <div class="form-group">
+                    <label for="email">{{ __('Email') }}<span class="text-red">*</span></label>
+                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                      name="email" value="{{ old('email') }}" placeholder="Enter email address" required>
+                    <div class="help-block with-errors"></div>
+
+                    @error('email')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror
+                  </div>
+
+                  <!-- Add New Field in user table -->
+
+
+                    <div class="form-group">
+                    <label for="mobile">{{ __('Mobile') }}<span class="text-red">*</span></label>
+                    <input id="mobile" type="text" class="form-control"
+                      name="mobile" value="{{ old('mobile') }}" placeholder="Enter Mobile Number" required>
+                    <div class="help-block with-errors"></div>
+                   {{-- 
+                    @error('email')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror --}}
+                  </div>
+
+  
+                    <div class="form-group">
+                    <label for="pin_code">{{ __('Pin Code') }}<span class="text-red">*</span></label>
+                    <input id="pin_code" type="text" class="form-control @error('pin_code') is-invalid @enderror"
+                      name="pin_code" value="{{ old('pin_code') }}" placeholder="Enter Pin Code" required>
+                    <div class="help-block with-errors"></div>
+
+                    {{-- @error('email')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror --}}
+                  </div>
+
+                  <!--End Add New Add Field -->
+
+                  <div class="form-group">
+                    <label for="password">{{ __('Password') }}<span class="text-red">*</span></label>
+                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
+                      name="password" placeholder="Enter password" required>
+                    <div class="help-block with-errors"></div>
+
+                    @error('password')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror
+                  </div>
+                  <div class="form-group">
+                    <label for="password-confirm">{{ __('Confirm Password') }}<span class="text-red">*</span></label>
+                    <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
+                      placeholder="Retype password" required>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+
+                  <div class="form-group">
+                    <label for="father_name">{{ __('Father Name') }}<span class="text-red"></span></label>
+                    <input id="father_name" type="text" class="form-control @error('father_name') is-invalid @enderror"
+                      name="father_name" value="{{ old('father_name') }}" placeholder="Enter father name">
+                    <div class="help-block with-errors"></div>
+
+                    {{-- @error('email')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror --}}
+                  </div>
+
+
+                  <div class="form-group">
+                    <label for="address">{{ __('Address') }}<span class="text-red"></span></label>
+                    <input id="address" type="text" class="form-control @error('address') is-invalid @enderror"
+                      name="address" value="{{ old('address') }}" placeholder="Enter address">
+                    <div class="help-block with-errors"></div>
+
+                    {{-- @error('email')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror --}}
+                  </div>
+                    <div class="form-group">
+                    <label for="city">{{ __('City') }}<span class="text-red"></span></label>
+                    <input id="city" type="text" class="form-control @error('city') is-invalid @enderror"
+                      name="city" value="{{ old('city') }}" placeholder="Enter City">
+                    <div class="help-block with-errors"></div>
+{{-- 
+                    @error('email')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror --}}
+                  </div>
+
+                    <div class="form-group">
+                    <label for="state">{{ __('State') }}<span class="text-red">*</span></label>
+                    <input id="state" type="text" class="form-control @error('state') is-invalid @enderror"
+                      name="state" value="{{ old('state') }}" placeholder="Enter state" required>
+                    <div class="help-block with-errors"></div>
+
+                    {{-- @error('email')
+                      <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror --}}
+                  </div>
+
+
+
+
+
+
+
+
+
+
+
+                  <!-- Assign role & view role permisions -->
+                  <div class="form-group">
+                    <label for="role">
+                      Assign Role <span class="text-danger">*</span>
+                    </label>
+
+                    <select name="role" id="role" class="form-control select2" required>
+                      <option value="">Select Role</option>
+
+                      @foreach ($roles as $key => $role)
+                        <option value="{{ $key }}">
+                          {{ $role }}
+                        </option>
+                      @endforeach
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="role">{{ __('Permissions') }}</label>
+                    <div id="permission" class="form-group" style="border-left: 2px solid #d1d1d1;">
+                      <span class="text-red pl-3">Select role first</span>
+                    </div>
+                    <input type="hidden" id="token" name="token" value="{{ csrf_token() }}">
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
+                  </div>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- push external js -->
+  @push('script')
+    <script src="{{ asset('backend_assets/plugins/select2/dist/js/select2.min.js') }}"></script>
+    <!--get role wise permissiom ajax script-->
+    <script src="{{ asset('backend_assets/js/get-role.js') }}"></script>
+  @endpush
+@endsection
