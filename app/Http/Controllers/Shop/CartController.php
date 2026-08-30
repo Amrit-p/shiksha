@@ -106,4 +106,15 @@ class CartController extends Controller
             'count' => $this->cart->count(),
         ]);
     }
+
+    public function mini(): JsonResponse
+    {
+        $items = array_values($this->cart->all());
+
+        return response()->json([
+            'success' => true,
+            'count' => $this->cart->count(),
+            'html' => view('shop.partials.mini-cart', ['items' => $items])->render(),
+        ]);
+    }
 }

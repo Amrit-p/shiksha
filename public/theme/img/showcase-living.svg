@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" width="900" height="640" role="img" aria-label="Warm living room lit by Shiksha pendants">
+  <defs>
+    <linearGradient id="sl-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1c33"/><stop offset="100%" stop-color="#160e1f"/>
+    </linearGradient>
+    <radialGradient id="sl-glow" cx="50%" cy="20%" r="70%">
+      <stop offset="0%" stop-color="#ffd9a0" stop-opacity=".5"/><stop offset="55%" stop-color="#e6007e" stop-opacity=".14"/><stop offset="100%" stop-color="#e6007e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sl-sofa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b3352"/><stop offset="100%" stop-color="#33203c"/>
+    </linearGradient>
+    <filter id="sl-blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="26"/></filter>
+  </defs>
+  <rect width="900" height="640" fill="url(#sl-wall)"/>
+  <rect width="900" height="640" fill="url(#sl-glow)"/>
+  <rect x="0" y="470" width="900" height="170" fill="#120b19"/>
+  <rect x="640" y="90" width="200" height="300" rx="10" fill="#0e0a17" stroke="#4a3355" stroke-width="4"/>
+  <path d="M640 390 L840 390 L800 470 L680 470 Z" fill="#ffd9a0" opacity=".08"/>
+  <g>
+    <path d="M250 0 v120 M420 0 v70" stroke="#e8c078" stroke-width="3"/>
+    <path d="M250 120 q66 0 66 66 h-132 q0 -66 66 -66z" fill="#ffe9c6" opacity=".92"/>
+    <rect x="182" y="182" width="136" height="10" rx="5" fill="#e6007e"/>
+    <ellipse cx="250" cy="202" rx="26" ry="12" fill="#fff6e2"/>
+    <ellipse cx="250" cy="210" rx="90" ry="40" fill="#ffc46b" opacity=".4" filter="url(#sl-blur)"/>
+    <path d="M250 196 L420 470 L80 470 Z" fill="#ffd9a0" opacity=".14"/>
+    <path d="M420 70 q54 0 54 54 h-108 q0 -54 54 -54z" fill="#ffe9c6" opacity=".92"/>
+    <rect x="364" y="120" width="112" height="9" rx="4.5" fill="#0089cf"/>
+    <ellipse cx="420" cy="138" rx="22" ry="10" fill="#fff6e2"/>
+    <ellipse cx="420" cy="146" rx="76" ry="34" fill="#ffc46b" opacity=".35" filter="url(#sl-blur)"/>
+  </g>
+  <path d="M120 470 v-84 q0 -26 26 -26 h228 q26 0 26 26 v84z" fill="url(#sl-sofa)"/>
+  <g fill="#7a4468">
+    <rect x="150" y="330" width="72" height="60" rx="14" transform="rotate(-8 186 360)"/>
+    <rect x="300" y="330" width="72" height="60" rx="14" transform="rotate(7 336 360)"/>
+  </g>
+  <rect x="112" y="452" width="308" height="18" rx="9" fill="#472a44"/>
+  <rect x="520" y="404" width="180" height="12" rx="6" fill="#4a3355"/>
+  <rect x="536" y="416" width="12" height="54" fill="#3a2842"/><rect x="672" y="416" width="12" height="54" fill="#3a2842"/>
+  <g>
+    <rect x="596" y="356" width="28" height="48" rx="6" fill="#e6007e"/>
+    <path d="M580 316 h60 l-8 40 h-44z" fill="#ffe9c6" opacity=".9"/>
+    <ellipse cx="610" cy="360" rx="52" ry="24" fill="#ffc46b" opacity=".35" filter="url(#sl-blur)"/>
+  </g>
+  <g fill="#28613f" opacity=".9">
+    <path d="M790 470 v-60 q-40 -10 -30 -60 q30 20 32 56 q6 -46 40 -60 q10 52 -28 66 v58z"/>
+  </g>
+  <rect x="762" y="452" width="60" height="20" rx="8" fill="#3a2842"/>
+  <ellipse cx="450" cy="480" rx="380" ry="30" fill="#ffb96b" opacity=".1"/>
+</svg>

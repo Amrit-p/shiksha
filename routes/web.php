@@ -25,6 +25,7 @@ use App\Http\Controllers\Shop\CartController as ShopCartController;
 use App\Http\Controllers\Shop\EnquiryController as ShopEnquiryController;
 use App\Http\Controllers\Shop\PageController as ShopPageController;
 use App\Http\Controllers\Admin\EnquiryController as AdminEnquiryController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CmsPageController;
 use App\Http\Controllers\Admin\WebsiteSettingController;
 use App\Http\Controllers\Admin\SmtpSettingController;
@@ -49,6 +50,7 @@ Route::name('shop.')->group(function () {
 
     Route::get('/products', [ShopProductController::class, 'index'])->name('products');
     Route::get('/search', [ShopProductController::class, 'search'])->name('search');
+    Route::get('/search/suggest', [ShopProductController::class, 'suggest'])->name('search.suggest');
     Route::get('/product/{slug}', [ShopProductController::class, 'show'])->name('product');
 
     Route::get('/cart', [ShopCartController::class, 'index'])->name('cart');
@@ -57,6 +59,7 @@ Route::name('shop.')->group(function () {
     Route::post('/cart/remove', [ShopCartController::class, 'remove'])->name('cart.remove');
     Route::post('/cart/clear', [ShopCartController::class, 'clear'])->name('cart.clear');
     Route::get('/cart/count', [ShopCartController::class, 'count'])->name('cart.count');
+    Route::get('/cart/mini', [ShopCartController::class, 'mini'])->name('cart.mini');
 
     Route::get('/enquiry', [ShopEnquiryController::class, 'create'])->name('enquiry.create');
     Route::post('/enquiry', [ShopEnquiryController::class, 'store'])->middleware('throttle:8,1')->name('enquiry.store');
@@ -368,6 +371,10 @@ Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
   Route::post('/enquiries/{id}/status', [AdminEnquiryController::class, 'updateStatus'])->name('admin.enquiries.status');
   Route::post('/enquiries/{id}/assign', [AdminEnquiryController::class, 'assign'])->name('admin.enquiries.assign');
   Route::post('/enquiries/{id}/note', [AdminEnquiryController::class, 'addNote'])->name('admin.enquiries.note');
+
+  Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('admin.contact-messages.index');
+  Route::get('/contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('admin.contact-messages.show');
+  Route::delete('/contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('admin.contact-messages.destroy');
 
   Route::get('/cms-pages', [CmsPageController::class, 'index'])->name('admin.cms.index');
   Route::get('/cms-pages/create', [CmsPageController::class, 'create'])->name('admin.cms.create');

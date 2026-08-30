@@ -79,6 +79,49 @@ class ProductController extends Controller
         return $this->index($request);
     }
 
+    /**
+     * Lightweight JSON autocomplete for the header search overlay.
+     */
+    public function suggest(Request $request): JsonResponse
+    {
+        $term = trim((string) $request->get('q'));
+
+        if (mb_strlen($term) < 2) {
+            return response()->json(['results' => [], 'more' => false, 'total' => 0]);
+        }
+
+        $base = Product::query()
+            ->where('status', 1)
+            ->where(function ($q) use ($term) {
+                $q->where('title', 'like', "%{$term}%")
+                    ->orWhere('slug', 'like', "%{$term}%")
+                    ->orWhere('short_description', 'like', "%{$term}%")
+                    ->orWhereHas('category', fn ($c) => $c->where('name', 'like', "%{$term}%"));
+            });
+
+        $total = (clone $base)->count();
+
+        $products = $base
+            ->with('category:id,name')
+            ->latest()
+            ->take(6)
+            ->get(['id', 'title', 'slug', 'image', 'category_id']);
+
+        $results = $products->map(fn ($p) => [
+            'title' => $p->title,
+            'category' => $p->category->name ?? 'Product',
+            'url' => route('shop.product', $p->slug),
+            'image' => $p->image ? asset('storage/'.$p->image) : asset('theme/img/logo.png'),
+        ]);
+
+        return response()->json([
+            'results' => $results,
+            'total' => $total,
+            'more' => $total > $results->count(),
+            'allUrl' => route('shop.search', ['q' => $term]),
+        ]);
+    }
+
     protected function filteredQuery(Request $request)
     {
         $query = Product::query()

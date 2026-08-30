@@ -21,6 +21,8 @@ class HomeController extends Controller
             ->where(function ($q) {
                 $q->whereNull('category_id')->orWhere('category_id', 0);
             })
+            ->withCount(['products' => fn ($q) => $q->where('status', 1)])
+            ->orderByDesc('products_count')
             ->orderBy('name')
             ->take(8)
             ->get();
@@ -54,6 +56,9 @@ class HomeController extends Controller
         $brands = Brand::query()->where('status', 1)->take(12)->get();
         $sections = HomepageSection::active()->get()->keyBy('key');
 
+        $productCount = Product::query()->where('status', 1)->count();
+        $categoryCount = Category::query()->where('status', 1)->count();
+
         return view('shop.home', [
             'banners' => $banners,
             'categories' => $categories,
@@ -61,6 +66,8 @@ class HomeController extends Controller
             'popular' => $popular,
             'brands' => $brands,
             'sections' => $sections,
+            'productCount' => $productCount,
+            'categoryCount' => $categoryCount,
             'settings' => $this->settings(),
         ]);
     }

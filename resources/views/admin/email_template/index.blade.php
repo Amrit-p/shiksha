@@ -28,7 +28,7 @@
           @endforeach
         </tbody>
       </table>
-      <p class="text-muted mt-3">Supported variables: {{ '{{customer_name}}' }}, {{ '{{enquiry_id}}' }}, {{ '{{customer_email}}' }}, {{ '{{customer_phone}}' }}, {{ '{{enquiry_status}}' }}, {{ '{{products}}' }}, {{ '{{enquiry_url}}' }}</p>
+      <p class="text-muted mt-3">Supported variables: @{{customer_name}}, @{{enquiry_id}}, @{{customer_email}}, @{{customer_phone}}, @{{enquiry_status}}, @{{products}}, @{{enquiry_url}}</p>
     </div>
   </div>
 </div>

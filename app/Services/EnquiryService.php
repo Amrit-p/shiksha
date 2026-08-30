@@ -37,7 +37,7 @@ class EnquiryService
             throw new \RuntimeException('Enquiry statuses are not configured.');
         }
 
-        return DB::transaction(function () use ($customerData, $items, $pending, $ip, $userAgent) {
+        $enquiry = DB::transaction(function () use ($customerData, $items, $pending, $ip, $userAgent) {
             $enquiry = Enquiry::create([
                 'enquiry_number' => $this->generateNumber(),
                 'name' => $customerData['name'],
@@ -76,10 +76,15 @@ class EnquiryService
 
             $enquiry->load(['items', 'status']);
 
-            $this->sendNotifications($enquiry);
-
             return $enquiry;
         });
+
+        // Notifications run AFTER the enquiry is committed. sendNotifications()
+        // already catches and logs its own errors, so a mail failure never
+        // affects the saved enquiry — the customer always reaches the thank-you page.
+        $this->sendNotifications($enquiry);
+
+        return $enquiry;
     }
 
     public function updateStatus(Enquiry $enquiry, int $statusId, ?string $note = null): Enquiry
@@ -146,25 +151,50 @@ class EnquiryService
         try {
             $this->smtp->apply();
 
-            $productsHtml = $enquiry->items->map(function ($item) {
-                $label = e($item->product_title);
+            $rows = $enquiry->items->map(function ($item) {
+                $meta = [];
                 if ($item->variation_label) {
-                    $label .= ' ('.e($item->variation_label).')';
+                    $meta[] = e($item->variation_label);
                 }
+                if ($item->product_sku) {
+                    $meta[] = 'SKU: '.e($item->product_sku);
+                }
+                $metaHtml = $meta
+                    ? '<br><span style="font-size:12px;color:#8a8098;">'.implode(' &middot; ', $meta).'</span>'
+                    : '';
 
-                return '<li>'.$label.' × '.(int) $item->qty.'</li>';
+                return '<tr>'
+                    .'<td style="padding:12px 16px;font-size:14px;color:#17101f;border-bottom:1px solid #f4effa;">'.e($item->product_title).$metaHtml.'</td>'
+                    .'<td align="center" style="padding:12px 16px;font-size:14px;color:#17101f;font-weight:700;border-bottom:1px solid #f4effa;">'.(int) $item->qty.'</td>'
+                    .'</tr>';
             })->implode('');
+
+            $totalUnits = (int) $enquiry->items->sum('qty');
+
+            $productsTable =
+                '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #ece7f2;border-radius:12px;overflow:hidden;">'
+                .'<tr style="background:#faf7fd;">'
+                .'<td style="padding:11px 16px;font-size:11px;font-weight:700;color:#17101f;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #ece7f2;">Product</td>'
+                .'<td align="center" style="padding:11px 16px;font-size:11px;font-weight:700;color:#17101f;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #ece7f2;">Qty</td>'
+                .'</tr>'
+                .$rows
+                .'<tr style="background:#faf7fd;">'
+                .'<td style="padding:12px 16px;font-size:13px;color:#8a8098;font-weight:600;">Total</td>'
+                .'<td align="center" style="padding:12px 16px;font-size:14px;color:#e6007e;font-weight:700;">'.$totalUnits.' unit'.($totalUnits === 1 ? '' : 's').'</td>'
+                .'</tr>'
+                .'</table>';
 
             $variables = [
                 'customer_name' => $enquiry->name,
                 'enquiry_id' => $enquiry->enquiry_number,
                 'customer_email' => $enquiry->email,
-                'customer_phone' => $enquiry->phone,
+                'customer_phone' => $enquiry->phone ?: '—',
                 'enquiry_status' => $enquiry->status?->name ?? 'Pending',
-                'products' => '<ul>'.$productsHtml.'</ul>',
+                'enquiry_date' => optional($enquiry->created_at)->format('d M Y, h:i A'),
+                'products' => $productsTable,
                 'enquiry_url' => url('/admin/enquiries/'.$enquiry->id),
-                'company' => $enquiry->company ?? '',
-                'message' => $enquiry->message ?? '',
+                'company' => $enquiry->company ?: '—',
+                'message' => $enquiry->message ?: '—',
             ];
 
             $customerMail = $this->mailTemplates->build('customer_enquiry_confirmation', $variables);

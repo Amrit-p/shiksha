@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 760" width="760" height="760" role="img" aria-label="Shiksha Lighting designer pendant cluster">
+  <defs>
+    <radialGradient id="hs-halo" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#ffd9a0" stop-opacity=".55"/>
+      <stop offset="45%" stop-color="#ff6ec7" stop-opacity=".2"/>
+      <stop offset="100%" stop-color="#0089cf" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hs-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e6007e"/><stop offset="50%" stop-color="#b23bb0"/><stop offset="100%" stop-color="#0089cf"/>
+    </linearGradient>
+    <linearGradient id="hs-shade" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset="50%" stop-color="#ffd9a0" stop-opacity=".75"/>
+      <stop offset="100%" stop-color="#e6007e" stop-opacity=".5"/>
+    </linearGradient>
+    <linearGradient id="hs-shade2" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset="50%" stop-color="#bfe6ff" stop-opacity=".72"/>
+      <stop offset="100%" stop-color="#0089cf" stop-opacity=".55"/>
+    </linearGradient>
+    <filter id="hs-soft" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="26"/></filter>
+  </defs>
+  <circle cx="380" cy="360" r="330" fill="url(#hs-halo)"/>
+  <circle cx="380" cy="360" r="252" fill="none" stroke="url(#hs-ring)" stroke-width="2" stroke-opacity=".55" stroke-dasharray="10 14"/>
+  <circle cx="380" cy="360" r="316" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity=".14"/>
+  <g stroke="#e8c078" stroke-width="2.5" stroke-opacity=".7">
+    <path d="M232 0 v206"/><path d="M380 0 v148"/><path d="M528 0 v250"/>
+  </g>
+  <g filter="url(#hs-soft)" opacity=".75">
+    <ellipse cx="380" cy="330" rx="120" ry="60" fill="#ff8dc7"/>
+    <ellipse cx="232" cy="400" rx="90" ry="46" fill="#ffc46b"/>
+    <ellipse cx="528" cy="440" rx="90" ry="46" fill="#7fd0ff"/>
+  </g>
+  <g>
+    <path d="M380 148 q104 0 104 104 h-208 q0 -104 104 -104z" fill="url(#hs-shade)"/>
+    <rect x="270" y="246" width="220" height="13" rx="6.5" fill="url(#hs-ring)"/>
+    <ellipse cx="380" cy="276" rx="42" ry="20" fill="#fff6e2"/>
+    <path d="M380 262 L470 470 L290 470 Z" fill="#ffd9a0" opacity=".22"/>
+  </g>
+  <g>
+    <path d="M232 206 q80 0 80 80 h-160 q0 -80 80 -80z" fill="url(#hs-shade2)"/>
+    <rect x="146" y="281" width="172" height="11" rx="5.5" fill="url(#hs-ring)"/>
+    <ellipse cx="232" cy="306" rx="32" ry="15" fill="#fff6e2"/>
+  </g>
+  <g>
+    <path d="M528 250 q68 0 68 68 h-136 q0 -68 68 -68z" fill="url(#hs-shade2)"/>
+    <rect x="454" y="314" width="148" height="11" rx="5.5" fill="url(#hs-ring)"/>
+    <ellipse cx="528" cy="336" rx="28" ry="13" fill="#fff6e2"/>
+  </g>
+  <g fill="#ffffff" opacity=".85">
+    <path d="M628 128 l7 26 26 7 -26 7 -7 26 -7 -26 -26 -7 26 -7z"/>
+    <path d="M124 486 l6 20 20 6 -20 6 -6 20 -6 -20 -20 -6 20 -6z"/>
+    <path d="M660 470 l5 16 16 5 -16 5 -5 16 -5 -16 -16 -5 16 -5z"/>
+  </g>
+  <ellipse cx="380" cy="640" rx="260" ry="36" fill="#ffb96b" opacity=".16" filter="url(#hs-soft)"/>
+</svg>

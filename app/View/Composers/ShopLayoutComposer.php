@@ -2,6 +2,7 @@
 
 namespace App\View\Composers;
 
+use App\Models\Category;
 use App\Models\CmsPage;
 use App\Models\WebsiteSetting;
 use App\Services\CustomerCartService;
@@ -38,7 +39,16 @@ class ShopLayoutComposer
                 'keywords' => WebsiteSetting::getValue('meta_keywords'),
             ],
             'shopCartCount' => $this->cart->count(),
+            'shopCartItems' => array_values($this->cart->all()),
             'footerPages' => CmsPage::footer()->get(),
+            'navCategories' => Category::query()
+                ->where('status', 1)
+                ->where(function ($q) {
+                    $q->whereNull('category_id')->orWhere('category_id', 0);
+                })
+                ->orderBy('name')
+                ->take(10)
+                ->get(['id', 'name', 'slug']),
         ]);
     }
 }

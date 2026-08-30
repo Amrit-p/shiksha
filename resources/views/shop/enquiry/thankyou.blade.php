@@ -1,18 +1,33 @@
-@extends('shop.layout')
+@extends('shop.theme')
 
 @section('content')
-<div class="page-wrap" style="padding:4rem 0;text-align:center;">
-    <div class="panel" style="padding:2.5rem;max-width:640px;margin:0 auto;">
-        <div class="chip" style="margin:0 auto 1rem;">Enquiry received</div>
-        <h1 style="font-family:var(--font-display);margin:0 0 .75rem;">Thank you!</h1>
-        <p style="color:var(--brand-muted);line-height:1.7;">
-            Your enquiry <strong>{{ $enquiryNumber }}</strong> has been submitted successfully.
-            Our team will contact you shortly.
-        </p>
-        <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
-            <a class="btn btn-primary" href="{{ route('shop.products') }}">Continue browsing</a>
-            <a class="btn btn-outline" href="{{ route('shop.home') }}">Back to home</a>
-        </div>
+
+<section class="page-hero">
+  <span class="glow-orb glow-orb--pink" style="width:420px;height:420px;top:-140px;left:-100px"></span>
+  <span class="glow-orb glow-orb--blue" style="width:400px;height:400px;bottom:-180px;right:-90px"></span>
+  <div class="container z-1 text-center">
+    <span class="eyebrow eyebrow-light" data-reveal="down"><i class="bi bi-check-circle"></i> Enquiry received</span>
+    <h1 data-reveal="up">Thank you</h1>
+  </div>
+</section>
+
+<section class="section pt-0">
+  <div class="container">
+    <div class="summary-card mx-auto text-center" style="max-width:640px" data-reveal="zoom">
+      <div class="mx-auto mb-4" style="width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--sl-grad);color:#fff">
+        <i class="bi bi-clipboard-check" style="font-size:2.6rem"></i>
+      </div>
+      <h2 class="mb-2">Your enquiry is in</h2>
+      <p class="text-muted-2 mb-3">
+        Reference <strong class="text-ink">{{ $enquiryNumber }}</strong> has been submitted successfully.
+        Our sales desk will reply with pricing and availability — usually within one business day.
+      </p>
+      <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+        <a class="btn btn-brand" href="{{ route('shop.products') }}">Continue browsing <i class="bi bi-arrow-right ms-1"></i></a>
+        <a class="btn btn-outline-brand" href="{{ route('shop.home') }}">Back to home</a>
+      </div>
     </div>
-</div>
+  </div>
+</section>
+
 @endsection

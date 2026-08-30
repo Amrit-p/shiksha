@@ -129,11 +129,20 @@
                     <a href="{{ route('admin.enquiries.index') }}"><i class="ik ik-mail"></i><span>{{ __('Enquiries')}}</span></a>
                </div>
 
-               <div class="nav-item {{ in_array($adminPage, ['cms-pages', 'website-settings', 'smtp-settings', 'email-templates', 'homepage-sections']) ? 'active open' : '' }} has-sub">
+               @php
+                   $unreadContacts = \Illuminate\Support\Facades\Schema::hasTable('contact_messages')
+                       ? \App\Models\ContactMessage::where('is_read', false)->count() : 0;
+               @endphp
+               <div class="nav-item {{ $adminPage == 'contact-messages' ? 'active' : '' }}">
+                    <a href="{{ route('admin.contact-messages.index') }}">
+                        <i class="ik ik-message-square"></i><span>{{ __('Contact Messages')}}</span>
+                        @if($unreadContacts)<span class="badge badge-danger">{{ $unreadContacts }}</span>@endif
+                    </a>
+               </div>
+
+               <div class="nav-item {{ in_array($adminPage, ['website-settings', 'smtp-settings', 'email-templates']) ? 'active open' : '' }} has-sub">
                     <a href="#"><i class="ik ik-globe"></i><span>{{ __('Website')}}</span></a>
                     <div class="submenu-content">
-                        <a href="{{ route('admin.homepage.index') }}" class="menu-item {{ $adminPage == 'homepage-sections' ? 'active' : '' }}">{{ __('Homepage')}}</a>
-                        <a href="{{ route('admin.cms.index') }}" class="menu-item {{ $adminPage == 'cms-pages' ? 'active' : '' }}">{{ __('CMS Pages')}}</a>
                         <a href="{{ route('admin.website-settings.edit') }}" class="menu-item {{ $adminPage == 'website-settings' ? 'active' : '' }}">{{ __('Settings')}}</a>
                         <a href="{{ route('admin.email-templates.index') }}" class="menu-item {{ $adminPage == 'email-templates' ? 'active' : '' }}">{{ __('Email Templates')}}</a>
                         <a href="{{ route('admin.smtp.edit') }}" class="menu-item {{ $adminPage == 'smtp-settings' ? 'active' : '' }}">{{ __('SMTP')}}</a>
