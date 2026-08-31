@@ -49,7 +49,14 @@ class ProductController extends Controller
                 'category',
                 'gallary_images',
                 'unit',
-                'variants' => fn ($q) => $q->where('status', 1)->with(['attributes.attribute', 'attributes.option', 'variantname', 'images']),
+                'variants' => fn ($q) => $q->where('status', 1)->with([
+                    'attributes.attribute',
+                    'attributes.option.attribute',
+                    'variantname',
+                    'productCodeType',
+                    'customFields.customFieldType',
+                    'images',
+                ]),
                 'attributePrices' => fn ($q) => $q->with(['attribute', 'option']),
             ])
             ->where('status', 1)
@@ -64,12 +71,87 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        return view('shop.products.show', [
+        return view('shop.products.show', array_merge([
             'product' => $product,
             'related' => $related,
             'metaTitle' => $product->title.' | '.WebsiteSetting::getValue('website_name', 'Shiksha'),
             'metaDescription' => $product->short_description ?: strip_tags((string) $product->description),
-        ]);
+        ], $this->variantSelectionData($product)));
+    }
+
+    /**
+     * Build the cascading variation selector payload for the public product page.
+     *
+     * Mirrors the salesman frontend cascade (code type -> variant -> custom fields
+     * -> attribute option) but deliberately carries no pricing: the customer site
+     * quotes on enquiry, so mrp / sell_price / POR flags are never exposed.
+     *
+     * @return array{variantsJson: \Illuminate\Support\Collection, hasCodeTypes: bool, codeTypes: array, disabledAttributeIds: array, hasVariantSelection: bool}
+     */
+    protected function variantSelectionData(Product $product): array
+    {
+        $fallbackImage = $product->image ? asset('storage/'.$product->image) : asset('theme/img/logo.png');
+
+        $variantsJson = $product->variants->map(function ($variant) use ($fallbackImage) {
+            return [
+                'id' => $variant->id,
+                'variantname_id' => $variant->variantname_id ?? null,
+                'variant_name' => $variant->variantname->name ?? $variant->name ?? 'Variant',
+                'product_code_type_id' => $variant->product_code_type_id,
+                'image' => $variant->image ? asset('storage/'.$variant->image) : $fallbackImage,
+                'sku' => $variant->sku ?: $variant->catalog_number,
+                'stock' => (int) ($variant->stock ?? 0),
+                'variant_description' => $variant->variant_description ?? '',
+                'custom_fields' => $variant->customFields->map(fn ($field) => [
+                    'type_id' => $field->custom_field_type_id,
+                    'type_name' => $field->customFieldType->name ?? 'Option',
+                    'value' => $field->field_value,
+                ])->values(),
+                // Label deliberately comes from the attribute name only. In this
+                // catalogue attribute_options.name is used as a free-text field that
+                // frequently holds price strings ("2500.00 (250 RFT)"), so it must
+                // never reach the customer site.
+                'attributes' => $variant->attributes->map(fn ($attribute) => [
+                    'id' => $attribute->id,
+                    'label' => $attribute->attribute?->name
+                        ?: ($attribute->option?->attribute?->name ?: 'Option'),
+                    'stock' => (int) ($attribute->stock ?? 0),
+                    'image' => $attribute->image ? asset('storage/'.$attribute->image) : '',
+                ])->values(),
+            ];
+        })->values();
+
+        $hasCodeTypes = $product->variants->whereNotNull('product_code_type_id')->isNotEmpty();
+
+        $codeTypes = [];
+        if ($hasCodeTypes) {
+            foreach ($product->variants->whereNotNull('product_code_type_id')->groupBy('product_code_type_id') as $codeTypeId => $variants) {
+                if (! $variants->first()?->productCodeType) {
+                    continue;
+                }
+
+                $codeTypes[] = [
+                    'id' => $codeTypeId,
+                    'name' => $variants->first()->productCodeType->name,
+                    'variant_ids' => $variants->pluck('id')->unique()->values()->all(),
+                ];
+            }
+        }
+
+        $disabledAttributeIds = $product->variants
+            ->flatMap->attributes
+            ->filter(fn ($attribute) => (int) ($attribute->stock ?? 0) <= 0)
+            ->pluck('id')
+            ->values()
+            ->all();
+
+        return [
+            'variantsJson' => $variantsJson,
+            'hasCodeTypes' => $hasCodeTypes,
+            'codeTypes' => $codeTypes,
+            'disabledAttributeIds' => $disabledAttributeIds,
+            'hasVariantSelection' => $variantsJson->isNotEmpty(),
+        ];
     }
 
     public function search(Request $request): View|JsonResponse

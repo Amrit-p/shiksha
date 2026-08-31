@@ -1,5 +1,28 @@
 @extends('shop.theme')
 
+@push('head')
+<style>
+  .pd-variants{margin:0 0 1.25rem}
+  .selector-row{margin-bottom:1rem}
+  .selector-row:last-child{margin-bottom:0}
+  .selector-label{display:block;font-family:"Outfit",sans-serif;font-weight:700;
+    color:var(--sl-ink);font-size:.95rem;margin-bottom:.55rem}
+  .selector-options{display:flex;flex-wrap:wrap;gap:.5rem}
+  .opt-pill{min-width:64px;padding:.5rem 1.05rem;border-radius:999px;
+    border:1.5px solid var(--sl-line-strong);background:#fff;color:var(--sl-ink);
+    font-size:.9rem;font-weight:600;line-height:1.35;cursor:pointer;
+    transition:all .25s var(--sl-ease)}
+  .opt-pill:hover:not(:disabled){border-color:var(--sl-brand);color:var(--sl-brand);
+    background:var(--sl-brand-tint)}
+  .opt-pill.active{background:var(--sl-brand);border-color:var(--sl-brand);color:#fff}
+  .opt-pill:disabled{opacity:.45;cursor:not-allowed;text-decoration:line-through}
+  .pd-variant-note{margin-top:.35rem;padding:.7rem 1rem;border-radius:var(--sl-r-sm);
+    background:var(--sl-paper-2);border:1px solid var(--sl-line);
+    color:var(--sl-body);font-size:.9rem;line-height:1.6}
+  .pd-variant-sku{margin-top:.5rem}
+</style>
+@endpush
+
 @section('content')
 @php
   $images = collect([$product->image])->merge($product->gallary_images->pluck('image'))->filter()->unique()->values();
@@ -50,7 +73,7 @@
         <h2 class="mb-2">{{ $product->title }}</h2>
 
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-          <span class="chip-static {{ $inStock ? '' : 'text-danger' }}">
+          <span class="chip-static {{ $inStock ? '' : 'text-danger' }}" id="pdAvailability">
             <i class="bi {{ $inStock ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>{{ $inStock ? 'Available' : 'Out of stock' }}
           </span>
           @if($product->unit)<span class="chip-static"><i class="bi bi-rulers me-1"></i>Unit: {{ $product->unit->name }}</span>@endif
@@ -67,25 +90,39 @@
           {{ $product->short_description ?: 'Pricing on this item depends on quantity, specification and current stock. Add it to your enquiry cart with the quantity you need and we will send a written quote — usually the same working day.' }}
         </p>
 
-        @if($product->variants->count())
-          <div class="mb-3">
-            <strong class="d-block mb-2">Choose a variation</strong>
-            <div class="d-grid gap-2">
-              @foreach($product->variants as $variant)
-                <div class="d-flex align-items-center justify-content-between gap-2 p-2 ps-3 rounded-xl" style="background:var(--sl-paper-2);border:1px solid var(--sl-line)">
-                  <span class="small">
-                    {{ $variant->variantname->name ?? $variant->name ?? 'Variant' }}
-                    @if($variant->sku)<span class="text-muted-2"> · {{ $variant->sku }}</span>@endif
-                  </span>
-                  <button type="button" class="btn btn-outline-brand btn-sm"
-                          data-add-to-cart="{{ route('shop.cart.add') }}"
-                          data-product-id="{{ $product->id }}"
-                          data-variant-id="{{ $variant->id }}"
-                          data-qty="1">
-                    <i class="bi bi-plus-lg"></i> Add
-                  </button>
+        @if($hasVariantSelection)
+          <div class="pd-variants" id="pdVariantSelector">
+            @if($hasCodeTypes)
+              <div class="selector-row" id="codeTypeRow">
+                <span class="selector-label">Select Type</span>
+                <div class="selector-options" id="codeTypeWrapper">
+                  @foreach($codeTypes as $i => $codeType)
+                    <button type="button" class="opt-pill code-type-btn {{ $i === 0 ? 'active' : '' }}"
+                            data-code-type-id="{{ $codeType['id'] }}">{{ $codeType['name'] }}</button>
+                  @endforeach
                 </div>
-              @endforeach
+              </div>
+            @endif
+
+            <div class="selector-row" id="variantRow">
+              <span class="selector-label">Select Variant</span>
+              <div class="selector-options" id="variantWrapper"></div>
+            </div>
+
+            {{-- Custom-field steps are injected here, one selector row per step --}}
+            <div id="customFieldSteps"></div>
+
+            <div class="selector-row" id="attributeBlock" hidden>
+              <span class="selector-label">Select Option</span>
+              <div class="selector-options" id="attributeList"></div>
+            </div>
+
+            <div class="pd-variant-note" id="variantDescriptionBlock" hidden>
+              <span id="variantDescriptionText"></span>
+            </div>
+
+            <div class="pd-variant-sku small text-muted-2" id="variantSkuBlock" hidden>
+              <i class="bi bi-upc-scan me-1"></i>Ref: <span class="text-ink" id="variantSkuText"></span>
             </div>
           </div>
         @endif
@@ -96,7 +133,7 @@
             <input type="number" id="pdQty" value="1" min="1" max="999" aria-label="Quantity" data-qty-input>
             <button type="button" data-qty-plus aria-label="Increase quantity"><i class="bi bi-plus-lg"></i></button>
           </div>
-          <button type="button" class="btn btn-brand btn-lg flex-grow-1"
+          <button type="button" class="btn btn-brand btn-lg flex-grow-1" id="pdAddToCart"
                   data-add-to-cart="{{ route('shop.cart.add') }}"
                   data-product-id="{{ $product->id }}">
             <i class="bi bi-clipboard-plus me-1"></i> Add to enquiry cart
@@ -266,3 +303,14 @@
 @endif
 
 @endsection
+
+@if($hasVariantSelection)
+@push('scripts')
+<script>
+window.__PRODUCT_VARIANTS__   = @json($variantsJson);
+window.__HAS_CODE_TYPES__     = @json($hasCodeTypes);
+window.__DISABLED_ATTR_IDS__  = @json($disabledAttributeIds);
+</script>
+<script src="{{ asset('shop_assets/js/product-variants.js') }}?v={{ filemtime(public_path('shop_assets/js/product-variants.js')) }}"></script>
+@endpush
+@endif

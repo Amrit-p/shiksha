@@ -67,9 +67,9 @@ class CustomerCartService
         }
 
         if ($variantAttributeId) {
+            // variant_attributes has no status column; soft deletes already scope this.
             $variantAttribute = VariantAttribute::query()
-                ->with(['option', 'attribute'])
-                ->where('status', 1)
+                ->with(['option.attribute', 'attribute'])
                 ->find($variantAttributeId);
 
             if (! $variantAttribute || ($variant && $variantAttribute->variant_id !== $variant->id)) {
@@ -78,10 +78,13 @@ class CustomerCartService
 
             $unitPrice = $variantAttribute->sell_price ?: $variantAttribute->mrp ?: $unitPrice;
             $image = $variantAttribute->image ?: $image;
+            // Label from the attribute name only: attribute_options.name is a free-text
+            // field that often holds price strings ("1805.00(250 RFT)"), which must not
+            // reach the customer-facing cart or the enquiry that is built from it.
             $parts = array_filter([
                 $variationLabel,
-                optional($variantAttribute->attribute)->name,
-                optional($variantAttribute->option)->name ?: $variantAttribute->attribute_value,
+                $variantAttribute->attribute?->name
+                    ?: ($variantAttribute->option?->attribute?->name ?: $variantAttribute->attribute_value),
             ]);
             $variationLabel = implode(' / ', $parts);
         }
