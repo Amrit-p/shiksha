@@ -35,6 +35,17 @@
     mainImage: document.querySelector('[data-gallery-main]')
   };
 
+  var isProgrammaticSelection = false;
+
+  function triggerProgrammaticSelection(callback) {
+    isProgrammaticSelection = true;
+    try {
+      callback();
+    } finally {
+      isProgrammaticSelection = false;
+    }
+  }
+
   // Current position in the cascade.
   var state = { variantId: null, group: null, attributeId: null };
 
@@ -55,6 +66,7 @@
 
   function setMainImage(url) {
     if (!url || !els.mainImage) return;
+    if (isProgrammaticSelection) return;
     els.mainImage.src = url;
     document.querySelectorAll('[data-thumb]').forEach(function (t) { t.classList.remove('active'); });
   }
@@ -199,7 +211,7 @@
       if (!first) first = btn;
     });
 
-    if (first) first.click();
+    if (first) triggerProgrammaticSelection(function () { first.click(); });
   }
 
   function selectVariant(group) {
@@ -299,7 +311,7 @@
     els.cfSteps.appendChild(row);
 
     var firstBtn = wrapper.querySelector('button');
-    if (firstBtn) firstBtn.click();
+    if (firstBtn) triggerProgrammaticSelection(function () { firstBtn.click(); });
   }
 
   /* -------------------------------------------- final step: attribute option */
@@ -363,7 +375,7 @@
     });
 
     if (firstSelectable) {
-      firstSelectable.click();
+      triggerProgrammaticSelection(function () { firstSelectable.click(); });
     } else {
       state.attributeId = attributes[0].id;
       setAvailability(attributes[0]);
