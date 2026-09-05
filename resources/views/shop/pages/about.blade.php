@@ -26,11 +26,11 @@
       <div class="col-lg-6" data-reveal="left">
         <div class="split-media-stack">
           <div class="sm-back showcase-media" data-tilt data-tilt-max="5">
-            <img src="{{ asset('theme/img/showcase-studio.svg') }}" alt="{{ $brand }} counter and warehouse" width="900" height="640">
+            <img src="{{ asset('theme/img/37892.jpg') }}" alt="{{ $brand }} counter and warehouse" width="900" height="640">
           </div>
-          <div class="sm-front d-none d-md-block">
+          <!-- <div class="sm-front d-none d-md-block">
             <img src="{{ asset('theme/img/showcase-living.svg') }}" alt="A space lit by {{ $brand }} fixtures" width="900" height="640">
-          </div>
+          </div> -->
         </div>
       </div>
 

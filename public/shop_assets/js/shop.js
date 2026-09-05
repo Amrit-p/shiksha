@@ -275,6 +275,7 @@
   const gridHost = document.querySelector('[data-product-grid]');
   const paginationHost = document.querySelector('[data-product-pagination]');
   const countHost = document.querySelector('[data-product-count]');
+  const categoryTitleHost = document.querySelector('[data-category-title]');
 
   async function loadProducts(url) {
     if (!gridHost) return;
@@ -291,6 +292,15 @@
       if (data.html) gridHost.innerHTML = data.html;
       if (paginationHost && data.pagination) paginationHost.innerHTML = data.pagination;
       if (countHost && typeof data.count !== 'undefined') countHost.textContent = data.count;
+      if (categoryTitleHost) {
+        if (data.categoryName) {
+          categoryTitleHost.textContent = data.categoryName;
+          categoryTitleHost.hidden = false;
+        } else {
+          categoryTitleHost.textContent = '';
+          categoryTitleHost.hidden = true;
+        }
+      }
       history.replaceState({}, '', url);
       window.scrollTo({ top: gridHost.offsetTop - 80, behavior: 'smooth' });
     } catch (err) {

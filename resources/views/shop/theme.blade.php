@@ -19,9 +19,9 @@
     @if(!empty($shopSettings['favicon']))
         <link rel="icon" href="{{ str_starts_with($shopSettings['favicon'], 'http') ? $shopSettings['favicon'] : asset('storage/'.$shopSettings['favicon']) }}">
     @else
-        <link rel="icon" href="{{ asset('theme/img/favicon.svg') }}" type="image/svg+xml">
+        <link rel="icon" href="{{ asset('theme/img/logo-fav.png') }}" type="image/svg+xml">
     @endif
-    <link rel="apple-touch-icon" href="{{ asset('theme/img/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('theme/img/logo-fav.png') }}">
 
     <link rel="preload" href="{{ asset('theme/fonts/outfit-1.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('theme/fonts/plusjakartasans-3.woff2') }}" as="font" type="font/woff2" crossorigin>
@@ -108,7 +108,7 @@
 </div>
 
 <div id="scroll-progress"></div>
-<div id="cursor-glow" aria-hidden="true"></div>
+<!-- <div id="cursor-glow" aria-hidden="true"></div> -->
 
 <x-shop.header
     :settings="$shopSettings"

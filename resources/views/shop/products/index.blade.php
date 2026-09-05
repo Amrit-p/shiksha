@@ -10,8 +10,7 @@
     <span class="eyebrow eyebrow-light" data-reveal="down"><i class="bi bi-grid-3x3-gap"></i> The full catalogue</span>
     <h1 data-reveal="up">Browse <span class="text-gradient-glow">all products</span></h1>
     <p data-reveal="up" style="--reveal-delay:90ms">
-      Filter by category, price or availability, add what you need to your enquiry cart, and send it in one go —
-      we come back with pricing, availability and delivery.
+      Browse, add to your enquiry cart, and get pricing and delivery details.
     </p>
     <div class="breadcrumb-pill" data-reveal="up" style="--reveal-delay:170ms">
       <a href="{{ route('shop.home') }}">Home</a><span class="sep">/</span><span class="current">Products</span>
@@ -29,10 +28,10 @@
         <div class="filter-panel" data-reveal="left" data-filters-panel>
           <form data-product-filters action="{{ route('shop.products') }}" method="GET">
 
-            <div class="filter-block">
+            <!-- <div class="filter-block search-filter">
               <div class="filter-title"><span><i class="bi bi-search me-2"></i>Search</span></div>
               <input type="search" class="form-control" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Name, SKU or model code…">
-            </div>
+            </div> -->
 
             <div class="filter-block">
               <div class="filter-title"><span>Category</span></div>
@@ -52,13 +51,13 @@
               </select>
             </div>
 
-            <div class="filter-block">
+            <!-- <div class="filter-block">
               <div class="filter-title"><span>Price range</span></div>
               <div class="d-flex gap-2">
                 <input type="number" class="form-control" name="min_price" value="{{ $filters['min_price'] ?? '' }}" min="0" step="0.01" placeholder="Min">
                 <input type="number" class="form-control" name="max_price" value="{{ $filters['max_price'] ?? '' }}" min="0" step="0.01" placeholder="Max">
               </div>
-            </div>
+            </div> -->
 
             <div class="filter-block">
               <div class="filter-title"><span>Sort by</span></div>
@@ -77,14 +76,14 @@
               </a>
             </div>
 
-            <div class="filter-block">
+            <!-- <div class="filter-block">
               <div class="p-3 rounded-xl text-center" style="background:var(--sl-grad);color:#fff">
                 <i class="bi bi-clipboard-check fs-3 d-block mb-2"></i>
                 <h6 class="text-white mb-1">Bulk or project?</h6>
                 <p class="small mb-3 opacity-85">Send us the list and quantities — we quote slab rates.</p>
                 <a href="{{ route('shop.cart') }}" class="btn btn-ghost-light btn-sm w-100">Your enquiry cart</a>
               </div>
-            </div>
+            </div> -->
 
           </form>
         </div>
@@ -94,12 +93,13 @@
       <div class="col-lg-8 col-xl-9">
         <div class="shop-toolbar" data-reveal="up">
           <div class="shop-count me-auto">
+            <h2 class="shop-category-title mb-1" data-category-title @if(!$selectedCategory) hidden @endif>{{ $selectedCategory->name ?? '' }}</h2>
             <strong data-product-count>{{ $products->total() }}</strong> products found
           </div>
           <button type="button" class="btn btn-outline-brand btn-sm d-lg-none" data-filter-toggle>
             <i class="bi bi-sliders me-1"></i> Filters
           </button>
-          <a class="btn btn-brand btn-sm" href="{{ route('shop.cart') }}"><i class="bi bi-clipboard-check me-1"></i> Enquiry cart</a>
+          <!-- <a class="btn btn-brand btn-sm" href="{{ route('shop.cart') }}"><i class="bi bi-clipboard-check me-1"></i> Enquiry cart</a> -->
         </div>
 
         <div class="row product-grid g-3 g-lg-4" data-product-grid>

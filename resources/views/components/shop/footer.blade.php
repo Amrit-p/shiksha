@@ -24,7 +24,7 @@
 <footer class="site-footer">
   <div class="container position-relative" style="z-index:2">
     <div class="row g-4 g-lg-5">
-      <div class="col-lg-4">
+      <div class="col-lg-3">
         <a class="footer-brand d-inline-block mb-3" href="{{ route('shop.home') }}">
           <img src="{{ asset('theme/img/logo.png') }}" alt="{{ $brandName }}">
         </a>
@@ -40,7 +40,7 @@
         @endif
       </div>
 
-      <div class="col-6 col-lg-2">
+      <div class="col-6 col-lg-3 ps-md-5">
         <h6>Categories</h6>
         <ul class="footer-links">
           @forelse($categories->take(5) as $category)
@@ -52,25 +52,23 @@
         </ul>
       </div>
 
-      <div class="col-6 col-lg-2">
+      <div class="col-6 col-lg-3">
         <h6>Company</h6>
         <ul class="footer-links">
           <li><a href="{{ route('shop.about') }}">About Us</a></li>
           <li><a href="{{ route('shop.contact') }}">Contact</a></li>
           <li><a href="{{ route('shop.cart') }}">Send an Enquiry</a></li>
-          @foreach($pages as $page)
-            <li><a href="{{ route('shop.page', $page->slug) }}">{{ $page->title }}</a></li>
-          @endforeach
+          <li><a href="{{ route('shop.page', 'terms-and-conditions') }}">Terms &amp; Conditions</a></li>
         </ul>
       </div>
 
-      <div class="col-lg-4">
+      <div class="col-lg-3">
         <h6>Get in touch</h6>
         <ul class="footer-contact">
-          <li>
+          <!-- <li>
             <i class="bi bi-geo-alt-fill"></i>
             <span>{{ $brandName }} Studio &amp; Showroom<br>{{ $address }}</span>
-          </li>
+          </li> -->
           @if($phone)
           <li>
             <i class="bi bi-telephone-fill"></i>
@@ -91,21 +89,27 @@
 
     <div class="footer-bottom">
       <div class="row align-items-center g-3">
-        <div class="col-md-6">
-          <p class="mb-0">© {{ date('Y') }} {{ $brandName }}®. All rights reserved.
-            @foreach($pages->take(2) as $page)
+        <div class="col-md-3">
+          <p class="mb-0 text-center text-md-start">© {{ date('Y') }} {{ $brandName }}®. All rights reserved.
+            <!-- @foreach($pages->take(2) as $page)
               <a href="{{ route('shop.page', $page->slug) }}" class="ms-2">{{ $page->title }}</a> @if(!$loop->last)·@endif
-            @endforeach
+            @endforeach -->
           </p>
         </div>
         <div class="col-md-6">
-          <div class="pay-row justify-content-md-end">
+          <div class="pay-row justify-content-center">
             <span class="pay-chip">GST Registered</span>
             <span class="pay-chip">Bulk Supply</span>
             <span class="pay-chip">Trade Pricing</span>
             <span class="pay-chip">Pan-India Dispatch</span>
           </div>
         </div>
+
+        <div class="col-md-3">
+          <p class="mb-0 text-center text-md-end">Website Designed By <a style="font-weight: bold;" href="https://peerinfotech.com/" target="_blank">Peer Infotech </a>
+          </p>
+        </div>
+
       </div>
     </div>
   </div>

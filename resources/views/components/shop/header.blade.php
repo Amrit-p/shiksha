@@ -25,7 +25,7 @@
         </div>
         <div class="topbar-links">
           <a href="tel:{{ $phoneHref }}"><i class="bi bi-telephone me-1"></i>{{ $phone }}</a>
-          <a href="{{ route('shop.contact') }}"><i class="bi bi-geo-alt me-1"></i>Visit showroom</a>
+          <!-- <a href="{{ route('shop.contact') }}"><i class="bi bi-geo-alt me-1"></i>Visit showroom</a> -->
           <a href="{{ route('shop.cart') }}"><i class="bi bi-clipboard-check me-1"></i>My enquiry list</a>
         </div>
       </div>

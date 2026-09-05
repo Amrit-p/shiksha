@@ -27,10 +27,10 @@
 
         <div class="hero-cta" data-reveal="up" style="--reveal-delay:260ms">
           <a href="{{ route('shop.products') }}" class="btn btn-brand btn-lg">Browse the catalogue <i class="bi bi-arrow-right ms-1"></i></a>
-          <a href="{{ route('shop.cart') }}" class="btn btn-ghost-light btn-lg">Send an enquiry</a>
+          <a href="{{ route('shop.cart') }}" class="btn btn-ghost-light btn-lg">Contact Us</a>
         </div>
 
-        <div class="hero-stats" data-reveal="up" style="--reveal-delay:340ms">
+        <!-- <div class="hero-stats" data-reveal="up" style="--reveal-delay:340ms">
           <div class="hero-stat">
             <div class="hs-num"><span data-count="{{ $productCount ?? 0 }}">0</span></div>
             <div class="hs-label">Products in the catalogue</div>
@@ -43,26 +43,26 @@
             <div class="hs-num"><span data-count="24">0</span><small>h</small></div>
             <div class="hs-label">Typical quote turnaround</div>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <div class="col-lg-6">
         <div class="hero-visual" data-reveal="zoom" style="--reveal-delay:180ms">
           <span class="hero-ring"></span>
-          <img src="{{ asset('theme/img/hero-scene.svg') }}" alt="Cluster of {{ $shopSettings['name'] ?? 'Shiksha' }} LED fixtures" width="760" height="760">
+          <img src="{{ asset('theme/img/325640.jpg') }}" alt="Cluster of {{ $shopSettings['name'] ?? 'Shiksha' }} LED fixtures" width="760" height="760">
 
-          <div class="float-card float-card--a">
+          <!-- <div class="float-card float-card--a">
             <i class="bi bi-clipboard-check"></i>
             <div><div class="fc-title">Written Quotes</div><div class="fc-sub">No hidden pricing</div></div>
-          </div>
-          <div class="float-card float-card--b">
+          </div> -->
+          <!-- <div class="float-card float-card--b">
             <i class="bi bi-boxes"></i>
             <div><div class="fc-title">Bulk Slab Rates</div><div class="fc-sub">Project quantities</div></div>
-          </div>
-          <div class="float-card float-card--c">
+          </div> -->
+          <!-- <div class="float-card float-card--c">
             <i class="bi bi-truck"></i>
             <div><div class="fc-title">Pan-India Dispatch</div><div class="fc-sub">Road &amp; courier</div></div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -178,10 +178,10 @@
       <div class="col-lg-6" data-reveal="left">
         <div class="split-media-stack">
           <div class="sm-back showcase-media" data-tilt data-tilt-max="5">
-            <img src="{{ asset('theme/img/showcase-living.svg') }}" alt="Interior lit with {{ $shopSettings['name'] ?? 'Shiksha' }} LED fixtures" width="900" height="640">
+            <img src="{{ asset('theme/img/656970.jpg') }}" alt="Interior lit with {{ $shopSettings['name'] ?? 'Shiksha' }} LED fixtures" width="900" height="640">
           </div>
           <div class="sm-front d-none d-md-block">
-            <img src="{{ asset('theme/img/showcase-studio.svg') }}" alt="{{ $shopSettings['name'] ?? 'Shiksha' }} warehouse and counter" width="900" height="640">
+            <img src="{{ asset('theme/img/980254.jpg') }}" alt="{{ $shopSettings['name'] ?? 'Shiksha' }} warehouse and counter" width="900" height="640">
           </div>
         </div>
       </div>

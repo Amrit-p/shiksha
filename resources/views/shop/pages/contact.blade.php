@@ -6,7 +6,6 @@
   $phone = $shopSettings['phone'] ?? null;
   $phoneHref = $phone ? preg_replace('/[^0-9+]/', '', $phone) : null;
   $email = $shopSettings['email'] ?? null;
-  $address = $shopSettings['address'] ?? 'India';
 @endphp
 
 <!-- ============================ Page hero ============================ -->
@@ -28,7 +27,7 @@
 <!-- ============================ Contact cards ============================ -->
 <section class="section">
   <div class="container">
-    <div class="row g-4">
+    <div class="row g-4 justify-content-center">
       @if($phone)
       <div class="col-md-6 col-lg-4" data-reveal="rise">
         <div class="contact-card">
@@ -49,14 +48,6 @@
         </div>
       </div>
       @endif
-      <div class="col-md-6 col-lg-4" data-reveal="rise" style="--reveal-delay:180ms">
-        <div class="contact-card">
-          <div class="contact-ico"><i class="bi bi-geo-alt"></i></div>
-          <h5>Visit the showroom</h5>
-          <p class="small mb-2">{{ $brand }} Studio &amp; Showroom</p>
-          <span class="link-underline-anim">{{ $address }}</span>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -64,9 +55,9 @@
 <!-- ============================ Form + info ============================ -->
 <section class="section pt-0">
   <div class="container">
-    <div class="row g-4 g-xl-5">
+    <div class="row g-4 g-xl-5 justify-content-center">
 
-      <div class="col-lg-7" data-reveal="left">
+      <div class="col-lg-8 col-xl-7" data-reveal="up">
         <div class="p-4 p-lg-5 rounded-2xl" style="background:#fff;border:1px solid var(--sl-line);box-shadow:var(--sl-shadow-sm)">
           <span class="eyebrow"><i class="bi bi-send"></i> Send a message</span>
           <h2 class="mb-2">How can we help?</h2>
@@ -121,26 +112,6 @@
               </div>
             </div>
           </form>
-        </div>
-      </div>
-
-      <div class="col-lg-5" data-reveal="right">
-        <div class="map-frame mb-4">
-          <div class="position-relative" style="z-index:2">
-            <div class="map-pin"><i class="bi bi-geo-alt-fill"></i></div>
-            <h5 class="mb-1">{{ $brand }} Studio</h5>
-            <p class="small mb-3">{{ $address }}</p>
-            <a href="https://www.openstreetmap.org/search?query={{ urlencode($address) }}" target="_blank" rel="noopener" class="btn btn-outline-brand btn-sm">
-              Open in maps <i class="bi bi-box-arrow-up-right ms-1"></i>
-            </a>
-          </div>
-        </div>
-
-        <div class="p-4 rounded-xl" style="background:var(--sl-paper-2);border:1px solid var(--sl-line)">
-          <h6 class="mb-3"><i class="bi bi-shop me-2 text-gradient"></i>Visiting us</h6>
-          <p class="small text-muted-2 mb-0">
-            Walk-ins welcome. For a bulk or project discussion, call ahead so the right person is free when you arrive.
-          </p>
         </div>
       </div>
 

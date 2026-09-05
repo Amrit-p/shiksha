@@ -106,7 +106,43 @@ class CustomerWebsiteSeeder extends Seeder
             [
                 'title' => 'Terms & Conditions',
                 'slug' => 'terms-and-conditions',
-                'content' => '<p>Please read these terms carefully before using our website or submitting an enquiry.</p>',
+                'content' => '<p>These Terms &amp; Conditions ("Terms") govern your use of the Shiksha website and any enquiry, quotation or order placed through it. By browsing this website or submitting an enquiry, you agree to be bound by these Terms. Please read them carefully.</p>
+
+<h3>1. About Shiksha</h3>
+<p>Shiksha supplies LED lighting, fans, geysers, MCBs, wires and electrical fittings to homes, contractors and dealers across India. We are a GST-registered supplier offering trade pricing and pan-India dispatch.</p>
+
+<h3>2. Product Listings &amp; Pricing</h3>
+<p>Products shown on this website are for reference only. Specifications, images and availability are updated regularly but may change without prior notice. Displayed prices, where shown, are indicative and not a final offer &mdash; actual pricing depends on quantity, specification, brand and current stock, and is confirmed in a written quotation.</p>
+
+<h3>3. Enquiries &amp; Quotations</h3>
+<p>Adding products to your enquiry cart and submitting the form creates an enquiry, not a confirmed order. Our sales team will review your enquiry and respond with a written quotation, usually within one business day. A sale is only confirmed once you accept a quotation and we acknowledge your order in writing.</p>
+
+<h3>4. Payment Terms</h3>
+<p>Payment terms (advance, partial or credit) are agreed with our sales team at the time an order is confirmed. Goods are dispatched only after payment terms agreed in the order confirmation are met, unless otherwise stated in writing.</p>
+
+<h3>5. Shipping &amp; Dispatch</h3>
+<p>We dispatch orders pan-India through our logistics partners. Estimated delivery timelines and freight charges are shared at the time of order confirmation and may vary by location, order size and courier availability. Title and risk in the goods pass to the customer on dispatch, and any transit damage or loss should be reported to us within 48 hours of delivery.</p>
+
+<h3>6. Returns, Refunds &amp; Warranty</h3>
+<p>Returns are accepted only for items that are defective, damaged in transit or incorrectly supplied, and must be reported within 7 days of delivery with photographic evidence. Approved refunds are processed to the original payment method within a reasonable time after the returned goods are inspected. Manufacturing defects are covered under the respective manufacturer&rsquo;s warranty, where applicable; warranty claims are subject to the manufacturer&rsquo;s own terms and conditions.</p>
+
+<h3>7. Accuracy of Information</h3>
+<p>While we make every effort to keep product details, images and stock information accurate, we do not guarantee that all content on the website is error-free, complete or current. We reserve the right to correct errors and update information at any time without prior notice.</p>
+
+<h3>8. Intellectual Property</h3>
+<p>All content on this website &mdash; including text, images, logos and design &mdash; is the property of Shiksha or its licensors and may not be copied, reproduced or used without prior written permission.</p>
+
+<h3>9. Limitation of Liability</h3>
+<p>Shiksha shall not be liable for any indirect, incidental or consequential loss arising from the use of this website or from delays, damage or loss occurring during shipping by third-party couriers, except where required by applicable law.</p>
+
+<h3>10. Governing Law</h3>
+<p>These Terms are governed by the laws of India, and any disputes arising from them shall be subject to the exclusive jurisdiction of the courts having jurisdiction over our registered place of business.</p>
+
+<h3>11. Changes to These Terms</h3>
+<p>We may update these Terms from time to time to reflect changes in our business or legal requirements. The updated Terms will be posted on this page with a revised effective date.</p>
+
+<h3>12. Contact Us</h3>
+<p>For any questions about these Terms, please contact us at <a href="mailto:info@shiksha.local">info@shiksha.local</a> or through our <a href="' . url('/contact') . '">Contact page</a>.</p>',
                 'show_in_footer' => true,
                 'sort_order' => 2,
             ],

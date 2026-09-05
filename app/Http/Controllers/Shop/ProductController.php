@@ -19,12 +19,21 @@ class ProductController extends Controller
 
         $products = $query->paginate(12)->withQueryString();
 
+        $selectedCategory = null;
+        if ($category = $request->get('category')) {
+            $selectedCategory = Category::query()
+                ->where('id', $category)
+                ->orWhere('slug', $category)
+                ->first();
+        }
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'html' => view('shop.products._grid', compact('products'))->render(),
                 'pagination' => view('shop.products._pagination', compact('products'))->render(),
                 'count' => $products->total(),
+                'categoryName' => $selectedCategory?->name,
             ]);
         }
 
@@ -36,6 +45,7 @@ class ProductController extends Controller
         return view('shop.products.index', [
             'products' => $products,
             'categories' => $categories,
+            'selectedCategory' => $selectedCategory,
             'filters' => $request->only(['q', 'category', 'type', 'min_price', 'max_price', 'availability', 'sort']),
             'metaTitle' => 'Products | '.WebsiteSetting::getValue('website_name', 'Shiksha'),
             'metaDescription' => 'Browse the Shiksha product catalogue.',

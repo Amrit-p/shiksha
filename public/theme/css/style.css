@@ -892,7 +892,8 @@ img {
 }
 
 .brand img {
-  height: 52px;
+  height: 65px;
+  border-radius: 2px;
   width: auto;
   transition: transform var(--sl-t) var(--sl-ease-spring), filter var(--sl-t) var(--sl-ease);
 }
@@ -915,13 +916,13 @@ img {
 .brand-name {
   font-family: "Outfit", sans-serif;
   font-weight: 800;
-  font-size: 1.28rem;
+  font-size: 1.48rem;
   letter-spacing: -.02em;
   color: var(--sl-ink);
 }
 
 .brand-sub {
-  font-size: .64rem;
+  font-size: .84rem;
   font-weight: 700;
   letter-spacing: .3em;
   text-transform: uppercase;
@@ -1167,7 +1168,7 @@ img {
   flex-direction: column;
   transform: translateX(-100%);
   transition: transform .62s cubic-bezier(.76, 0, .24, 1);
-  box-shadow: 22px 0 70px rgba(0, 0, 0, .4);
+  /* box-shadow: 22px 0 70px rgba(0, 0, 0, .4); */
   overflow: hidden;
 }
 
@@ -1762,7 +1763,7 @@ img {
 }
 
 .hero-lead {
-  font-size: clamp(1rem, 1.5vw, 1.14rem);
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
   max-width: 540px;
   color: rgba(255, 255, 255, .74);
 }
@@ -1841,6 +1842,9 @@ img {
 .hero-visual img {
   position: relative;
   z-index: 2;
+  height: 575px;
+  object-fit: cover;
+  border-radius: 20px;
 }
 
 .hero-visual .hero-ring {
@@ -3688,6 +3692,13 @@ img {
   font-family: "Outfit", sans-serif;
 }
 
+.shop-category-title {
+  font-family: "Outfit", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sl-ink);
+}
+
 .view-toggle {
   display: flex;
   gap: .3rem;
@@ -3830,6 +3841,17 @@ textarea.form-control {
   color: #fff;
   border-color: transparent;
   transform: translateY(-2px);
+}
+
+ul.pagination {
+  margin-bottom: 0;
+  margin-left: 20px;
+}
+
+ul.pagination .active>.page-link, ul.pagination .page-link.active {
+    color: var(--bs-pagination-active-color);
+    background-color: #e70883;
+    border-color: #e70883;
 }
 
 .pagination-pill {
@@ -4065,7 +4087,7 @@ textarea.form-control {
   font-weight: 700;
   color: var(--sl-ink);
   background: transparent;
-  -moz-appearance: textfield;
+  /* -moz-appearance: textfield; */
 }
 
 .qty-stepper input::-webkit-outer-spin-button,
@@ -5096,9 +5118,9 @@ textarea.form-control {
     width: 100%;
   }
 
-  .brand-name {
+  /* .brand-name {
     font-size: 1.1rem;
-  }
+  } */
 
   .brand img {
     height: 44px;
