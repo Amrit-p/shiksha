@@ -58,7 +58,6 @@
           <li><a href="{{ route('shop.about') }}">About Us</a></li>
           <li><a href="{{ route('shop.contact') }}">Contact</a></li>
           <li><a href="{{ route('shop.cart') }}">Send an Enquiry</a></li>
-          <li><a href="{{ route('shop.page', 'terms-and-conditions') }}">Terms &amp; Conditions</a></li>
         </ul>
       </div>
 
