@@ -87,6 +87,22 @@
         .sc-actions{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
         .side-cart-empty{flex:1;display:grid;place-content:center;justify-items:center;text-align:center;padding:2rem;color:var(--sl-muted)}
         .side-cart-empty i{font-size:2.6rem;margin-bottom:.6rem}
+        /* Back button — sits on the page hero, just below the fixed header */
+        main.has-back-btn{position:relative}
+        .page-back-bar{display:none;position:absolute;z-index:5;left:0;right:0;top:calc(var(--sl-header-h) + var(--sl-topbar-h) + 10px)}
+        .page-back-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .95rem;border-radius:999px;
+            background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;
+            font-size:.9rem;font-weight:600;text-decoration:none;backdrop-filter:blur(6px);
+            transition:.25s var(--sl-ease)}
+        .page-back-btn:hover,.page-back-btn:focus-visible{background:var(--sl-brand);border-color:var(--sl-brand);color:#fff}
+        /* Mobile only */
+        @media (max-width:767px){
+            .page-back-bar{display:block}
+            main.has-back-btn .page-hero{padding-top:calc(var(--sl-header-h) + var(--sl-topbar-h) + 64px)}
+        }
+        @media (max-width:575px){
+            .page-back-btn{padding:.35rem .8rem;font-size:.85rem}
+        }
     </style>
     @stack('head')
 </head>
@@ -124,7 +140,14 @@
     hidden
 ></span>
 
-<main>
+<main class="has-back-btn">
+    @unless(request()->routeIs('shop.home'))
+        <div class="page-back-bar container">
+            <a href="{{ route('shop.home') }}" class="page-back-btn" data-back-btn aria-label="Go back">
+                <i class="bi bi-arrow-left"></i> <span>Back</span>
+            </a>
+        </div>
+    @endunless
     @yield('content')
 </main>
 

@@ -621,9 +621,16 @@ select:focus,
     height: auto;
 }
 
-/* ===== Back button ===== */
+/* ===== Back button (mobile only) ===== */
 .back-bar {
+    display: none;
     padding: 12px 0 0;
+}
+
+@media (max-width: 767px) {
+    .back-bar {
+        display: block;
+    }
 }
 
 .back-bar .back-btn {

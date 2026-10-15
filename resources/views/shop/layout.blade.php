@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('shop_assets/css/style.css') }}?v=5">
+    <link rel="stylesheet" href="{{ asset('shop_assets/css/style.css') }}?v=4">
     <style>
         :root {
             --brand-pink: {{ $shopSettings['primary'] ?? '#E6007E' }};
@@ -104,13 +104,6 @@
         @if(session('error'))
             <div class="page-wrap" style="padding-top:1rem;"><div class="alert alert-error">{{ session('error') }}</div></div>
         @endif
-        @unless(request()->routeIs('shop.home'))
-            <div class="page-wrap back-bar">
-                <a href="{{ route('shop.home') }}" class="back-btn" data-back-btn>
-                    <i class="fa-solid fa-arrow-left"></i> Back
-                </a>
-            </div>
-        @endunless
         @yield('content')
     </main>
 
@@ -155,7 +148,7 @@
         </div>
     </footer>
 </div>
-<script src="{{ asset('shop_assets/js/shop.js') }}?v=5"></script>
+<script src="{{ asset('shop_assets/js/shop.js') }}?v=4"></script>
 @stack('scripts')
 </body>
 </html>
