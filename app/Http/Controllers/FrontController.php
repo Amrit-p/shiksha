@@ -17,6 +17,7 @@ use App\Models\VariantAttribute;
 use App\Models\WebsiteSetting;
 use App\Models\VariantCustomField;
 use App\Models\CustomFieldType;
+use App\Services\OrderNotificationService;
 
 use function Laravel\Prompts\table;
 
@@ -1289,6 +1290,10 @@ public function place_order(Request $request)
         ]);
 
         DB::commit();
+
+        if ($order->payment_type === 'credit') {
+            app(OrderNotificationService::class)->creditOrderPlaced($order->fresh());
+        }
 
         return response()->json([
             'status'   => 'success',

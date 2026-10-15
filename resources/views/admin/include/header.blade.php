@@ -58,6 +58,47 @@
                         <div class="footer"><a href="javascript:void(0);">{{ __('See all activity')}}</a></div>
                     </div>
                 </div> --}}
+                @auth
+                @php
+                    $adminUnreadCount = auth()->user()->unreadNotifications()->count();
+                    $adminNotifications = auth()->user()->notifications()->latest()->limit(10)->get();
+                @endphp
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="notiDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="ik ik-bell"></i>
+                        @if($adminUnreadCount)
+                            <span class="badge bg-danger">{{ $adminUnreadCount > 99 ? '99+' : $adminUnreadCount }}</span>
+                        @endif
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="notiDropdown">
+                        <h4 class="header">{{ __('Notifications')}}</h4>
+                        <div class="notifications-wrap">
+                            @forelse($adminNotifications as $notification)
+                                <a href="{{ route('admin.notifications.open', $notification->id) }}" class="media" @if($notification->read_at) style="opacity:.6" @endif>
+                                    <span class="d-flex">
+                                        <i class="ik {{ $notification->data['icon'] ?? 'ik-bell' }}"></i>
+                                    </span>
+                                    <span class="media-body">
+                                        <span class="heading-font-family media-heading">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                        <span class="media-content">{{ $notification->data['message'] ?? '' }}</span>
+                                        <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                    </span>
+                                </a>
+                            @empty
+                                <span class="media"><span class="media-body"><span class="media-content">{{ __('No notifications yet')}}</span></span></span>
+                            @endforelse
+                        </div>
+                        @if($adminUnreadCount)
+                            <div class="footer">
+                                <form method="POST" action="{{ route('admin.notifications.read_all') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-link p-0">{{ __('Mark all as read')}}</button>
+                                </form>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                @endauth
                 {{-- <button type="button" class="nav-link ml-10 right-sidebar-toggle"><i class="ik ik-message-square"></i><span class="badge bg-success">3</span></button>
                 <div class="dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="menuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="ik ik-plus"></i></a>

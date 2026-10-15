@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\WebsiteSettingController;
 use App\Http\Controllers\Admin\SmtpSettingController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\HomepageSectionController;
+use App\Http\Controllers\Admin\NotificationController;
 
 #test
 #test222
@@ -397,6 +398,9 @@ Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
   Route::get('/homepage-sections', [HomepageSectionController::class, 'index'])->name('admin.homepage.index');
   Route::get('/homepage-sections/{id}/edit', [HomepageSectionController::class, 'edit'])->name('admin.homepage.edit');
   Route::put('/homepage-sections/{id}', [HomepageSectionController::class, 'update'])->name('admin.homepage.update');
+
+  Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('admin.notifications.open');
+  Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('admin.notifications.read_all');
 });
 
 
