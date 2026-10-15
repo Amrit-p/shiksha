@@ -335,4 +335,14 @@
       loadProducts(link.href);
     });
   }
+  // Back button: return to the previous page when it was on this site, otherwise follow the link (home)
+  document.querySelectorAll('[data-back-btn]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const ref = document.referrer;
+      if (ref && ref.startsWith(window.location.origin + '/') && window.history.length > 1) {
+        e.preventDefault();
+        window.history.back();
+      }
+    });
+  });
 })();

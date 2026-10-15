@@ -621,6 +621,31 @@ select:focus,
     height: auto;
 }
 
+/* ===== Back button ===== */
+.back-bar {
+    padding: 12px 0 0;
+}
+
+.back-bar .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    color: var(--brand-dark);
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.back-bar .back-btn:hover,
+.back-bar .back-btn:focus {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    text-decoration: none;
+}
+
 </style>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -1006,6 +1031,17 @@ select:focus,
 
 
   <!-- / menu -->
+
+  @unless(request()->routeIs('front.index'))
+    <div class="back-bar">
+      <div class="container">
+        <a href="{{ route('front.index') }}" class="back-btn" data-back-btn>
+          <i class="fa fa-arrow-left"></i> Back
+        </a>
+      </div>
+    </div>
+  @endunless
+
   <!-- Start slider -->
 
   @section('container')
@@ -1328,6 +1364,18 @@ select:focus,
   <script type="text/javascript" src="{{asset('front_assets/js/slick.js')}}"></script>
   <script type="text/javascript" src="{{asset('front_assets/js/nouislider.js')}}"></script>
   <script src="{{asset('front_assets/js/custom.js')}}"></script>
+  <script>
+  // Back button: return to the previous page when it was on this site, otherwise follow the link (home)
+  document.querySelectorAll('[data-back-btn]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      var ref = document.referrer;
+      if (ref && ref.indexOf(window.location.origin + '/') === 0 && window.history.length > 1) {
+        e.preventDefault();
+        window.history.back();
+      }
+    });
+  });
+  </script>
   <script>
   (function () {
     var searchUrl = '{{ route("front.search") }}';
