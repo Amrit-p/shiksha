@@ -236,8 +236,8 @@ jQuery(function ($) {
   /* ----------------------------------------------------------- */
 
     jQuery(function () {
-        if ($("body").is(".productPage")) {
-            var skipSlider = document.getElementById("skipstep");
+        var skipSlider = document.getElementById("skipstep");
+        if (skipSlider) {
 
             var filter_price_start = jQuery("#filter_price_start").val();
             var filter_price_end = jQuery("#filter_price_end").val();

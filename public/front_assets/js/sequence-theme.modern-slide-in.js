@@ -31,4 +31,5 @@ var options = {
 }
 
 // Launch Sequence on the element, and with the options we specified above
-var mySequence = sequence(sequenceElement, options);
+// Guard: only run when the slider element exists (it isn't on every page)
+var mySequence = sequenceElement ? sequence(sequenceElement, options) : null;

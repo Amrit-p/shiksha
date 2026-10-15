@@ -602,6 +602,25 @@ select:focus,
     border-color: var(--brand-secondary);
 }
 
+/* ===== 2-column product grid on category/listing pages (grid view), all screens ===== */
+#aa-product-category .aa-product-catg-content .aa-product-catg-body .aa-product-catg:not(.list) {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 0;
+    gap: 20px;
+}
+
+#aa-product-category .aa-product-catg-content .aa-product-catg-body .aa-product-catg:not(.list) li {
+    float: none;
+    width: calc(50% - 10px);
+    margin: 0;
+    height: auto;
+}
+
+#aa-product-category .aa-product-catg-content .aa-product-catg-body .aa-product-catg:not(.list) li figure {
+    height: auto;
+}
+
 </style>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -1368,5 +1387,75 @@ select:focus,
     });
   })();
   </script>
+
+  <!-- Global floating cart button -->
+  <a href="{{ route('front.view.cart') }}" id="floating-cart" class="floating-cart" aria-label="View cart">
+    <span class="fa fa-shopping-cart" aria-hidden="true"></span>
+    <span class="aa-cart-notify floating-cart-badge">{{ $totalCartItem ?? 0 }}</span>
+  </a>
+  <style>
+    .floating-cart {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--brand-primary, #ec008c);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      z-index: 2147483647;
+      text-decoration: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .floating-cart:hover,
+    .floating-cart:focus {
+      color: #fff;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+    }
+
+    .floating-cart .floating-cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 5px;
+      border-radius: 11px;
+      background: #fff;
+      color: var(--brand-primary, #ec008c);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 22px;
+      text-align: center;
+      border: 2px solid var(--brand-primary, #ec008c);
+    }
+
+    /* Keep the scroll-to-top button stacked above the floating cart */
+    .scrollToTop {
+      bottom: 90px;
+      z-index: 2147483646;
+    }
+
+    @media (max-width: 575px) {
+      .floating-cart {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+        right: 20px;
+        bottom: 16px;
+      }
+
+      .scrollToTop {
+        bottom: 80px;
+      }
+    }
+  </style>
   </body>
 </html>

@@ -116,7 +116,7 @@
 
                                                 @endphp
 
-                                                <tr id="cart_row_{{ $item->cart_id }}">
+                                                <tr id="cart_row_{{ $item->cart_id }}" data-price="{{ $productPrice }}">
 
                                                     {{-- REMOVE --}}
                                                     <td>
@@ -224,7 +224,7 @@
                                                 <td colspan="5" class="text-right font-weight-bold">
                                                     Grand Total
                                                 </td>
-                                                <td class="font-weight-bold">
+                                                <td class="font-weight-bold" id="grand_total">
                                                     Rs {{ number_format($grandTotal, 2) }}
                                                 </td>
                                             </tr>
@@ -251,49 +251,74 @@
 
     {{-- ================= JS ================= --}}
     <script>
+        // Debounce timer per item (persisting the qty, not for display)
+        var qtySaveTimers = {};
+
         function qtyPlus(cartId) {
-            let el = document.getElementById('qty_' + cartId);
-            let qty = parseInt(el.innerText);
-            qty++;
-            el.innerText = qty;
-            updateCartQty(cartId, qty);
+            cartChangeQty(cartId, 1);
         }
 
         function qtyMinus(cartId) {
-            let el = document.getElementById('qty_' + cartId);
-            let qty = parseInt(el.innerText);
-            if (qty <= 1) return;
-            qty--;
-            el.innerText = qty;
-            updateCartQty(cartId, qty);
+            cartChangeQty(cartId, -1);
         }
 
-        function updateCartQty(cartId, qty) {
-
-            if (qty <= 0) {
-                alert('Quantity must be at least 1');
-                return;
-            }
-            console.log(qty);
-
-
-            $.ajax({
-                url: '/update-cart-qty',
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    cart_id: cartId,
-                    qty: qty
-                },
-                success: function() {
-                    location.reload();
-                },
-                error: function(xhr) {
-                    var msg = (xhr.responseJSON && xhr.responseJSON.msg) ? xhr.responseJSON.msg : 'Unable to update quantity.';
-                    alert(msg);
-                    location.reload();
-                }
+        function formatRs(value) {
+            return 'Rs ' + Number(value).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             });
+        }
+
+        // Recalculate every line total + the grand total in the browser,
+        // using each row's unit price (data-price) × its quantity.
+        function recalcCartTotals() {
+            var grand = 0;
+            document.querySelectorAll('tr[data-price]').forEach(function (row) {
+                var price = parseFloat(row.getAttribute('data-price')) || 0;
+                var qtyEl = row.querySelector('.qty-value');
+                var qty = qtyEl ? (parseInt(qtyEl.innerText, 10) || 0) : 0;
+                var line = price * qty;
+                grand += line;
+
+                var lineCell = row.querySelector('td[id^="line_total_"]');
+                if (lineCell) lineCell.innerText = formatRs(line);
+            });
+
+            var grandEl = document.getElementById('grand_total');
+            if (grandEl) grandEl.innerText = formatRs(grand);
+        }
+
+        function cartChangeQty(cartId, delta) {
+            var el = document.getElementById('qty_' + cartId);
+            if (!el) return;
+
+            var current = parseInt(el.innerText, 10) || 1;
+            var qty = current + delta;
+            if (qty < 1) qty = 1;
+            if (qty === current) return; // nothing changed (e.g. minus at 1)
+
+            // Instant: update the number and recompute totals in JS
+            el.innerText = qty;
+            recalcCartTotals();
+
+            // Persist the quantity in the background (debounced). The response
+            // isn't used for display — totals are already computed above.
+            if (qtySaveTimers[cartId]) clearTimeout(qtySaveTimers[cartId]);
+            qtySaveTimers[cartId] = setTimeout(function () {
+                $.ajax({
+                    url: "{{ route('front.cart.updateQty') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        cart_id: cartId,
+                        qty: qty
+                    },
+                    error: function(xhr) {
+                        var msg = (xhr.responseJSON && xhr.responseJSON.msg) ? xhr.responseJSON.msg : 'Unable to save quantity.';
+                        alert(msg);
+                    }
+                });
+            }, 400);
         }
 
         function removeCartItem(cartId) {

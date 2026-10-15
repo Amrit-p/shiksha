@@ -148,12 +148,13 @@
 
 
   <!-- my custom desin -->
+  {{-- Slider hidden on salesman page
 <section id="aa-slider">
     <div class="aa-slider-area">
       <div id="sequence" class="seq">
         <div class="seq-screen">
           <ul class="seq-canvas">
-            
+
             <!-- single slide item -->
           @foreach ($home_banner as  $item)
 
@@ -161,18 +162,18 @@
               <div class="seq-model">
                 <img data-seq src="{{asset('storage/'.$item->image)}}" alt="Products slide img" />
               </div>
-             
-            </li> 
+
+            </li>
 
           @endforeach
             <!-- single slide item -->
-         {{-- <li>
+          <li>
               <div class="seq-model">
                 <img data-seq src="storage/category/banner-one.jpg" alt="Products img" />
               </div>
-            
-            </li>  --}}
-           
+
+            </li>
+
           </ul>
         </div>
         <!-- slider navigation btn -->
@@ -183,6 +184,7 @@
       </div>
     </div>
   </section>
+  --}}
 
   <!--end my custom design -->
 

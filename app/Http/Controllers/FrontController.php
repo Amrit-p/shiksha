@@ -1385,55 +1385,12 @@ public function place_order(Request $request)
       ->where('user_id', $userId)
       ->firstOrFail();
 
-    // ✅ Update qty
+    // ✅ Persist the quantity. Totals are computed client-side from the
+    //    unit price already shown on the cart page.
     $cart->qty = $request->qty;
     $cart->save();
 
-    // ✅ Get price (attribute → variant → product fallback)
-    $item = DB::table('carts')
-      ->leftJoin('products', 'products.id', '=', 'carts.product_id')
-      ->leftJoin('variants', 'variants.id', '=', 'carts.variant_id')
-      ->leftJoin('variant_attributes', 'variant_attributes.id', '=', 'carts.variant_attribute_id')
-      ->where('carts.id', $cart->id)
-      ->select(
-        'carts.qty',
-        DB::raw('
-                COALESCE(
-                    variant_attributes.sell_price,
-                    variants.sell_price,
-                    variants.mrp,
-                    products.sale_price,
-                    products.price
-                ) as price
-            ')
-      )
-      ->first();
-
-    // ✅ Cart total
-    $cartTotal = DB::table('carts')
-      ->leftJoin('products', 'products.id', '=', 'carts.product_id')
-      ->leftJoin('variants', 'variants.id', '=', 'carts.variant_id')
-      ->leftJoin('variant_attributes', 'variant_attributes.id', '=', 'carts.variant_attribute_id')
-      ->where('carts.user_id', $userId)
-      ->select(DB::raw('SUM(
-            carts.qty *
-            COALESCE(
-                variant_attributes.sell_price,
-                variants.sell_price,
-                variants.mrp,
-                products.sale_price,
-                products.price
-            )
-        ) as total'))
-      ->value('total');
-
-    return response()->json([
-      'status'      => true,
-      'qty'         => $item->qty,
-      'price'       => (float)$item->price,
-      'row_total'   => $item->qty * $item->price,
-      'cart_total'  => $cartTotal ?? 0,
-    ]);
+    return response()->json(['status' => true]);
   }
 
   // app/Http/Controllers/FrontController.php
