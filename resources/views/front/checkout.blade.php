@@ -383,6 +383,12 @@
                     valid = false;
                 }
 
+                const paymentType = (form.querySelector('input[name="payment_type"]:checked') || {}).value;
+                if (paymentType === 'credit' && !(parseInt(form.credit_days.value, 10) > 0)) {
+                    document.querySelector('.error-credit_days').innerText = 'Required';
+                    valid = false;
+                }
+
                 if($('#transport_included').is(':checked')) {
                     // const landmark = form.landmark.value.trim();
                     // const transportName = form.transport_name.value.trim();

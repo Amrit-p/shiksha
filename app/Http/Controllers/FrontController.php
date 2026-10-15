@@ -496,7 +496,7 @@ public function product_old(Request $request, $slug)
 
         $attribute = DB::table('variant_attributes')
             ->where('id', $attrId)
-            ->select('sell_price', 'mrp', 'is_por', 'stock')
+            ->select('variant_id', 'sell_price', 'mrp', 'is_por', 'stock')
             ->first();
 
         if (!$attribute) {
@@ -504,6 +504,9 @@ public function product_old(Request $request, $slug)
                 'msg' => 'Invalid variant attribute'
             ], 422);
         }
+
+        // Always take the variant from the attribute so the cart row is never missing it
+        $variantId = $attribute->variant_id;
 
         $availableStock = (int) ($attribute->stock ?? 0);
 
@@ -1024,18 +1027,32 @@ public function place_order(Request $request)
         $cartItems = Cart::where('user_id', $salesmanId)->get();
 
         if ($cartItems->isEmpty()) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'msg' => 'Cart is empty'
             ]);
         }
 
+        if ($request->payment_type === 'credit' && (int) $request->credit_days <= 0) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'msg' => 'Credit days are required for credit orders'
+            ], 422);
+        }
+
         /*
         |--------------------------------------------------------------------------
         | PREFETCH + STOCK VALIDATION (before creating order)
         |--------------------------------------------------------------------------
+        | When stock is enforced, rows are locked so concurrent orders can't
+        | both pass the stock check. No lock is needed when the flag is on.
         */
+        $allowBeyondStock = WebsiteSetting::allowOrderBeyondStock();
+
         $products = Product::whereIn('id', $cartItems->pluck('product_id')->unique())
+            ->when(!$allowBeyondStock, fn ($q) => $q->lockForUpdate())
             ->get()->keyBy('id');
 
         $variants = Variant::with(['productCodeType'])
@@ -1044,12 +1061,11 @@ public function place_order(Request $request)
 
         $variantAttrs = VariantAttribute::with(['attribute', 'option'])
             ->whereIn('id', $cartItems->pluck('variant_attribute_id')->filter()->unique())
+            ->when(!$allowBeyondStock, fn ($q) => $q->lockForUpdate())
             ->get()->keyBy('id');
 
-        $allowBeyondStock = WebsiteSetting::allowOrderBeyondStock();
-
         // Validate stock: simple products
-        $simpleQtyByProduct = $cartItems->whereNull('variant_id')->groupBy('product_id')->map->sum('qty');
+        $simpleQtyByProduct = $cartItems->whereNull('variant_attribute_id')->groupBy('product_id')->map->sum('qty');
         foreach ($simpleQtyByProduct as $pid => $totalQty) {
             $p = $products->get($pid);
             if (!$allowBeyondStock && $p && (int) ($p->stock ?? 0) < $totalQty) {
@@ -1092,11 +1108,10 @@ public function place_order(Request $request)
             'payment_status' => 'pending',
             'order_status'   => $request->order_status ?? 'pending',
             'punch_in_time'  => $request->punch_in_time ?? now(),
-             'is_gst'         => $request->is_gst ?? 1,
-            'is_transport'    => $request->is_transport ?? 1,
-            'transport_details' => $request->transport_details ?? null,
+            'is_gst'         => $request->boolean('gst_included'),
+            'is_transport'   => $request->boolean('transport_included'),
             'landmark'        => $request->landmark ?? null,
-            'transport_name'     => $request->transport_name ?? null,
+            'transport_name'  => $request->boolean('transport_included') ? $request->transport_name : null,
             'credit_days'       => $request->credit_days ?? null,
         ]);
 
@@ -1200,7 +1215,7 @@ public function place_order(Request $request)
                 OrderDetails::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
-                    'variant_id' => $variant->id,
+                    'variant_id' => $variant?->id ?? $variantAttr->variant_id,
                     'variant_attribute_id' => $variantAttr->id,
                     'qty' => $item->qty,
                     'price' => $unitPrice,
