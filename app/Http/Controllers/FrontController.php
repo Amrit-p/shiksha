@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\VariantAttribute;
+use App\Models\WebsiteSetting;
 use App\Models\VariantCustomField;
 use App\Models\CustomFieldType;
 
@@ -213,10 +214,12 @@ public function product(Request $request, $slug)
         }
     }
 
+    $allowBeyondStock = WebsiteSetting::allowOrderBeyondStock();
     $disabledAttributeIds = [];
     foreach ($product->variants as $variant) {
         foreach ($variant->attributes as $attribute) {
-            if (($attribute->stock ?? 0) <= 0 || ($attribute->is_disabled ?? false)) {
+            $outOfStock = !$allowBeyondStock && ($attribute->stock ?? 0) <= 0;
+            if ($outOfStock || ($attribute->is_disabled ?? false)) {
                 $disabledAttributeIds[] = $attribute->id;
             }
         }
@@ -557,7 +560,7 @@ public function product_old(Request $request, $slug)
     | STOCK CHECK: available must be >= qty after add
     |--------------------------------------------------------------------------
     */
-    if ($availableStock !== null && $qtyAfterAdd > $availableStock) {
+    if (!WebsiteSetting::allowOrderBeyondStock() && $availableStock !== null && $qtyAfterAdd > $availableStock) {
         return response()->json([
             'msg' => 'Insufficient stock. Available: ' . $availableStock . ', requested: ' . $qtyAfterAdd
         ], 422);
@@ -1043,11 +1046,13 @@ public function place_order(Request $request)
             ->whereIn('id', $cartItems->pluck('variant_attribute_id')->filter()->unique())
             ->get()->keyBy('id');
 
+        $allowBeyondStock = WebsiteSetting::allowOrderBeyondStock();
+
         // Validate stock: simple products
         $simpleQtyByProduct = $cartItems->whereNull('variant_id')->groupBy('product_id')->map->sum('qty');
         foreach ($simpleQtyByProduct as $pid => $totalQty) {
             $p = $products->get($pid);
-            if ($p && (int) ($p->stock ?? 0) < $totalQty) {
+            if (!$allowBeyondStock && $p && (int) ($p->stock ?? 0) < $totalQty) {
                 DB::rollBack();
                 return response()->json([
                     'status' => 'error',
@@ -1060,7 +1065,7 @@ public function place_order(Request $request)
         $variantQtyByAttr = $cartItems->whereNotNull('variant_attribute_id')->groupBy('variant_attribute_id')->map->sum('qty');
         foreach ($variantQtyByAttr as $vaId => $totalQty) {
             $va = $variantAttrs->get($vaId);
-            if ($va && (int) ($va->stock ?? 0) < $totalQty) {
+            if (!$allowBeyondStock && $va && (int) ($va->stock ?? 0) < $totalQty) {
                 DB::rollBack();
                 $optName = $va->option->name ?? 'Option';
                 return response()->json([
@@ -1384,6 +1389,24 @@ public function place_order(Request $request)
     $cart = Cart::where('id', $request->cart_id)
       ->where('user_id', $userId)
       ->firstOrFail();
+
+    // Stock check (skipped when the "allow order beyond stock" flag is on)
+    if (!WebsiteSetting::allowOrderBeyondStock()) {
+      $availableStock = null;
+      if ($cart->variant_attribute_id) {
+        $availableStock = (int) (VariantAttribute::where('id', $cart->variant_attribute_id)->value('stock') ?? 0);
+      } elseif (!$cart->variant_id) {
+        $availableStock = (int) (Product::where('id', $cart->product_id)->value('stock') ?? 0);
+      }
+
+      if ($availableStock !== null && (int) $request->qty > $availableStock) {
+        return response()->json([
+          'status' => false,
+          'msg'    => 'Insufficient stock. Available: ' . $availableStock . ', requested: ' . (int) $request->qty,
+          'qty'    => (int) $cart->qty,
+        ], 422);
+      }
+    }
 
     // ✅ Persist the quantity. Totals are computed client-side from the
     //    unit price already shown on the cart page.

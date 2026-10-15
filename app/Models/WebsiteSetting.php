@@ -33,6 +33,14 @@ class WebsiteSetting extends Model
         Cache::forget('website_settings_map');
     }
 
+    /**
+     * Feature flag: when on, cart and checkout skip stock checks so any quantity can be ordered.
+     */
+    public static function allowOrderBeyondStock(): bool
+    {
+        return (bool) static::getValue('allow_order_beyond_stock', false);
+    }
+
     public static function flushCache(): void
     {
         Cache::forget('website_settings_map');

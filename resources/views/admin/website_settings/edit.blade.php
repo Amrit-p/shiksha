@@ -33,6 +33,16 @@
         <h5 class="mt-4">SEO</h5>
         <div class="form-group"><label>Meta Keywords</label><input class="form-control" name="meta_keywords" value="{{ old('meta_keywords', optional($settings->get('meta_keywords'))->value) }}"></div>
 
+        <h5 class="mt-4">Orders</h5>
+        <div class="form-group">
+          <input type="hidden" name="allow_order_beyond_stock" value="0">
+          <label class="mb-0">
+            <input type="checkbox" name="allow_order_beyond_stock" value="1" @checked(old('allow_order_beyond_stock', optional($settings->get('allow_order_beyond_stock'))->value))>
+            Allow ordering more than available stock
+          </label>
+          <small class="form-text text-muted">When on, customers and salesmen can add any quantity to the cart and place the order even if stock is short. Stock is still deducted and can go negative.</small>
+        </div>
+
         <button class="btn btn-primary" type="submit">Save Settings</button>
       </form>
     </div>

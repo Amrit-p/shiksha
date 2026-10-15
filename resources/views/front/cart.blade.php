@@ -315,6 +315,11 @@
                     },
                     error: function(xhr) {
                         var msg = (xhr.responseJSON && xhr.responseJSON.msg) ? xhr.responseJSON.msg : 'Unable to save quantity.';
+                        // Roll the display back to the quantity the server kept
+                        if (xhr.responseJSON && xhr.responseJSON.qty) {
+                            el.innerText = xhr.responseJSON.qty;
+                            recalcCartTotals();
+                        }
                         alert(msg);
                     }
                 });

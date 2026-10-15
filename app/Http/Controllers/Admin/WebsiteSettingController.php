@@ -33,6 +33,7 @@ class WebsiteSettingController extends Controller
             'youtube' => ['social', 'url'],
             'linkedin' => ['social', 'url'],
             'meta_keywords' => ['seo', 'text'],
+            'allow_order_beyond_stock' => ['orders', 'boolean'],
         ];
 
         foreach ($fields as $key => [$group, $type]) {
