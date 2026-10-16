@@ -170,7 +170,7 @@
                                 <div class="row">
 
                                     <div class="col-md-5">
-                                        <img id="mainProductImage" src="{{ asset('storage/' . $product->image) }}"
+                                        <img id="mainProductImage" src="{{ $productImage }}"
                                             alt="{{ $product->title }}"
                                             style="width:100%;max-height:420px;object-fit:contain;border:1px solid #ddd;">
                                     </div>

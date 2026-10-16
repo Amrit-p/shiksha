@@ -8,6 +8,7 @@ use App\Models\SmtpSetting;
 use App\Models\User;
 use App\Models\WebsiteSetting;
 use App\Notifications\CreditOrderPlaced;
+use App\Notifications\OutOfStockOrdered;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -73,6 +74,19 @@ class OrderNotificationService
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
             ]);
+        }
+    }
+
+    /** Tell admins (bell only) which items an order pushed to 0 stock. Never throws. */
+    public function outOfStock(Order $order, array $items): void
+    {
+        try {
+            $admins = User::permission('admin')->get();
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new OutOfStockOrdered($order, $items));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Out of stock notification failed', ['order_id' => $order->id, 'error' => $e->getMessage()]);
         }
     }
 }

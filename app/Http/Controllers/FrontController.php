@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\VariantAttribute;
 use App\Models\WebsiteSetting;
@@ -144,7 +145,12 @@ public function product(Request $request, $slug)
         ])
         ->firstOrFail();
 
-    $variantsJson = $product->variants->map(function ($v) use ($product) {
+    // asset('storage/') on a missing image hits the /storage directory => 403
+    $productImage = $product->image
+        ? asset('storage/' . $product->image)
+        : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+    $variantsJson = $product->variants->map(function ($v) use ($productImage) {
         return [
             'id'                      => $v->id,
             'name'                    => $v->name,
@@ -152,7 +158,7 @@ public function product(Request $request, $slug)
             'variant_name'            => $v->variantname ? $v->variantname->name : '',
             'product_code_type_id'    => $v->product_code_type_id,
             'product_code_type_name'  => $v->productCodeType ? $v->productCodeType->name : null,
-            'image'                   => $v->image ? asset('storage/' . $v->image) : asset('storage/' . $product->image),
+            'image'                   => ($v->image && Storage::disk('public')->exists($v->image)) ? asset('storage/' . $v->image) : $productImage,
             'mrp'                     => (float)($v->mrp ?? 0),
             'sell_price'              => ($v->sell_price > 0) ? (float)$v->sell_price : null,
             'stock'                   => (int)($v->stock ?? 0),
@@ -188,7 +194,7 @@ public function product(Request $request, $slug)
                     'sell_price'                   => ($a->sell_price > 0) ? (float)$a->sell_price : null,
                     'is_por'                       => (bool)($a->is_por ?? false),
                     'stock'                        => (int)($a->stock ?? 0),
-                    'image'                        => $a->image ? asset('storage/' . $a->image) : '',
+                    'image'                        => ($a->image && Storage::disk('public')->exists($a->image)) ? asset('storage/' . $a->image) : '',
                     'required_custom_field_id'     => $a->custom_field_required_id ?? null,
                 ];
             })->values(),
@@ -228,6 +234,7 @@ public function product(Request $request, $slug)
 
     return view('front.product', compact(
         'product',
+        'productImage',
         'variantsJson',
         'disabledAttributeIds',
         'hasCodeTypes',
@@ -1128,6 +1135,7 @@ public function place_order(Request $request)
         */
 
         $productSnapshots = [];
+        $outOfStock = [];
         $grandTotal = 0;
         $totalQty = 0;
 
@@ -1170,7 +1178,11 @@ public function place_order(Request $request)
                 ]);
 
                 // Deduct simple product stock
-                $product->decrement('stock', $qty);
+                // GREATEST: stock column is unsigned; overselling (feature flag) must floor at 0
+                if ((int) $product->stock - $qty <= 0) {
+                    $outOfStock[] = ['name' => $product->title, 'short' => max($qty - (int) $product->stock, 0)];
+                }
+                $product->update(['stock' => DB::raw('GREATEST(stock - ' . (int) $qty . ', 0)')]);
 
                 $productSnapshots[] = [
                     'product' => [
@@ -1229,7 +1241,13 @@ public function place_order(Request $request)
                 ]);
 
                 // Deduct variant attribute stock (e.g. per color)
-                $variantAttr->decrement('stock', (int) $item->qty);
+                if ((int) $variantAttr->stock - (int) $item->qty <= 0) {
+                    $outOfStock[] = [
+                        'name'  => $product->title . ' - ' . ($variantAttr->option->name ?? ('#' . $variantAttr->id)),
+                        'short' => max((int) $item->qty - (int) $variantAttr->stock, 0),
+                    ];
+                }
+                $variantAttr->update(['stock' => DB::raw('GREATEST(stock - ' . (int) $item->qty . ', 0)')]);
 
                 $attributes[] = [
                     'attribute_name' => $variantAttr->attribute->name ?? null,
@@ -1295,6 +1313,10 @@ public function place_order(Request $request)
         ]);
 
         DB::commit();
+
+        if ($outOfStock) {
+            app(OrderNotificationService::class)->outOfStock($order, $outOfStock);
+        }
 
         if ($order->payment_type === 'credit') {
             app(OrderNotificationService::class)->creditOrderPlaced($order->fresh());
