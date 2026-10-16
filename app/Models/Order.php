@@ -39,6 +39,11 @@ class Order extends Model
         'is_transport',
         'transport_name',
         'landmark',
+        'transport_gst',
+        'transport_mobile',
+        'contact_person',
+        'delivery_type',
+        'dispatch_date',
         'credit_days',
 
         'cancel_note',

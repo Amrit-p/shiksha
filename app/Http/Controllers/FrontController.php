@@ -1113,6 +1113,11 @@ public function place_order(Request $request)
             'is_transport'   => $request->boolean('transport_included'),
             'landmark'        => $request->landmark ?? null,
             'transport_name'  => $request->boolean('transport_included') ? $request->transport_name : null,
+            'transport_gst'    => $request->boolean('transport_included') ? $request->transport_gst : null,
+            'transport_mobile' => $request->boolean('transport_included') ? $request->transport_mobile : null,
+            'contact_person'   => $request->boolean('transport_included') ? $request->contact_person : null,
+            'delivery_type'    => $request->boolean('transport_included') && in_array($request->delivery_type, ['partial', 'single_lot']) ? $request->delivery_type : null,
+            'dispatch_date'    => $request->boolean('transport_included') ? ($request->dispatch_date ?: null) : null,
             'credit_days'       => $request->credit_days ?? null,
         ]);
 

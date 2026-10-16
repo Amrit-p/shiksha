@@ -130,31 +130,58 @@
                                                     <label style="font-weight:bold;">
                                                         <input type="checkbox" name="transport_included"
                                                             id="transport_included">
-                                                        Transportation Included
+                                                        Transportation Details
                                                     </label>
                                                 </div>
                                                 <div class="row mt-2" style="width:100%; margin-left:0px;">
-                                                    <!-- Landmark (hidden by default) -->
-
                                                     <!-- GST Number (always visible) -->
                                                     <div class="col-md-4">
                                                         <input type="text" name="gst_number" class="form-control"
                                                             placeholder="GST Number">
                                                         <small class="text-danger error-gst_number"></small>
                                                     </div>
-                                                    <div class="col-md-4" {{-- id="landmark_field" style="display:none;"
-                                                        --}}>
-                                                        <input type="text" name="landmark" class="form-control"
-                                                            placeholder="Landmark *" required>
-                                                        <small class="text-danger error-landmark"></small>
+                                                </div>
+
+                                                <!-- Transportation Details (hidden by default) -->
+                                                <div id="transport_field" style="display:none; width:100%; margin-top:10px;">
+                                                    <div class="row" style="margin:0;">
+                                                        <div class="col-md-4">
+                                                            <input type="text" name="transport_name" class="form-control"
+                                                                placeholder="Name of Transportation *">
+                                                            <small class="text-danger error-transport_name"></small>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <input type="text" name="transport_gst" class="form-control"
+                                                                placeholder="GST">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <input type="text" name="landmark" class="form-control"
+                                                                placeholder="Landmark *">
+                                                            <small class="text-danger error-landmark"></small>
+                                                        </div>
                                                     </div>
-
-
-                                                    <!-- Transport Name (hidden by default) -->
-                                                    <div class="col-md-4" id="transport_field" style="display:none;">
-                                                        <input type="text" name="transport_name" class="form-control"
-                                                            placeholder="Transport Name *" required>
-                                                        <small class="text-danger error-transport_name"></small>
+                                                    <div class="row" style="margin:10px 0 0;">
+                                                        <div class="col-md-4">
+                                                            <input type="text" name="transport_mobile" class="form-control"
+                                                                placeholder="Mobile No" maxlength="10" inputmode="numeric"
+                                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <input type="text" name="contact_person" class="form-control"
+                                                                placeholder="Contact Person">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <input type="date" name="dispatch_date" class="form-control"
+                                                                title="Dispatch Date">
+                                                        </div>
+                                                    </div>
+                                                    <div style="margin-top:10px;">
+                                                        <label style="margin-right:20px;">
+                                                            <input type="radio" name="delivery_type" value="partial"> Partial Delivery
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" name="delivery_type" value="single_lot"> Single lot Delivery
+                                                        </label>
                                                     </div>
                                                 </div>
 
