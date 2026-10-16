@@ -1182,7 +1182,7 @@ public function place_order(Request $request)
                 if ((int) $product->stock - $qty <= 0) {
                     $outOfStock[] = ['name' => $product->title, 'short' => max($qty - (int) $product->stock, 0)];
                 }
-                $product->update(['stock' => DB::raw('GREATEST(stock - ' . (int) $qty . ', 0)')]);
+                $product->update(['stock' => DB::raw('GREATEST(CAST(stock AS SIGNED) - ' . (int) $qty . ', 0)')]);
 
                 $productSnapshots[] = [
                     'product' => [
@@ -1247,7 +1247,7 @@ public function place_order(Request $request)
                         'short' => max((int) $item->qty - (int) $variantAttr->stock, 0),
                     ];
                 }
-                $variantAttr->update(['stock' => DB::raw('GREATEST(stock - ' . (int) $item->qty . ', 0)')]);
+                $variantAttr->update(['stock' => DB::raw('GREATEST(CAST(stock AS SIGNED) - ' . (int) $item->qty . ', 0)')]);
 
                 $attributes[] = [
                     'attribute_name' => $variantAttr->attribute->name ?? null,
