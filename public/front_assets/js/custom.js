@@ -517,7 +517,6 @@ function changeQty(change) {
     let newQty = currentQty + change;
     // limits
     if (newQty < 1) newQty = 1;
-    if (newQty > 10) newQty = 10;
     qtyInput.value = newQty;
     qtyChanged(); // trigger event
 }

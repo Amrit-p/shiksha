@@ -289,7 +289,7 @@
                                                 <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
 
                                                 <input type="number" id="qty" name="qty" value="1"
-                                                    min="1" max="10" oninput="qtyChanged()">
+                                                    min="1" oninput="qtyChanged()">
 
                                                 <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
                                             </div>
@@ -1464,7 +1464,6 @@
                 var val = parseInt(input.value) || 1;
                 val += delta;
                 if (val < 1) val = 1;
-                if (val > 10) val = 10;
                 input.value = val;
             }
 
@@ -1472,7 +1471,6 @@
                 var input = document.getElementById('qty');
                 var val = parseInt(input.value);
                 if (isNaN(val) || val < 1) input.value = 1;
-                if (val > 10) input.value = 10;
             }
 
             function updateVariantDescription(text) {
