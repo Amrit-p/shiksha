@@ -33,9 +33,9 @@
                     <h3>Order Information</h3>
 
                     <b>Order ID:</b> #{{ $order->id }} <br>
-                    <b>Order Status:</b> {{ $order->order_status }} <br>
+                    <b>Order Status:</b> {{ orderStatusLabel($order->order_status) }} <br>
                     <b>Payment Type:</b> {{ $order->payment_type }} <br>
-                    <b>Payment Status:</b> {{ $order->payment_status }} <br>
+                    <b>Payment Status:</b> {{ paymentStatusLabel($order->payment_status) }} <br>
                     <b>Punched At:</b> {{ $order->punch_in_time ?? $order->created_at }}
                 </div>
             </div>
@@ -184,11 +184,36 @@
                                         <td><b>{{ $totalQty }}</b></td>
                                         <td><b>₹{{ number_format($totalAmt, 2) }}</b></td>
                                     </tr>
+                                    @if ((float) $order->discount_amount > 0)
+                                    <tr>
+                                        <td colspan="5" class="text-right"><b>Discount ({{ $order->coupon_code }})</b></td>
+                                        <td><b>-₹{{ number_format($order->discount_amount, 2) }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" class="text-right"><b>Payable</b></td>
+                                        <td><b>₹{{ number_format($totalAmt - (float) $order->discount_amount, 2) }}</b></td>
+                                    </tr>
+                                    @endif
 
                                 </tbody>
                             </table>
 
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- PAYMENTS COLLECTED --}}
+            <div class="col-md-12">
+                @include('front.partials.order_payments')
+            </div>
+
+            {{-- DELIVERY STATUS (read-only) --}}
+            <div class="col-md-12">
+                <div class="cart-view-area">
+                    <h3>Delivery Status</h3>
+                    <div class="table-responsive">
+                        @include('partials.order_delivery', ['editable' => false])
                     </div>
                 </div>
             </div>

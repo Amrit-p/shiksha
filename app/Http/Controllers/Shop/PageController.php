@@ -8,6 +8,7 @@ use App\Models\ContactMessage;
 use App\Models\SmtpSetting;
 use App\Models\WebsiteSetting;
 use App\Services\SmtpConfigurator;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -31,7 +32,7 @@ class PageController extends Controller
         ]);
     }
 
-    public function contactSubmit(Request $request, SmtpConfigurator $smtp)
+    public function contactSubmit(Request $request, SmtpConfigurator $smtp, WhatsAppService $whatsApp)
     {
         $data = $request->validate([
             'name' => 'required|string|max:120',
@@ -39,6 +40,8 @@ class PageController extends Controller
             'phone' => 'nullable|string|max:30',
             'message' => 'required|string|max:2000',
         ]);
+
+        $phone = ($data['phone'] ?? null) ?: '-';
 
         // Persist the message first, so we always have a record even if mail fails.
         ContactMessage::create([
@@ -65,7 +68,7 @@ class PageController extends Controller
                 $body = "New contact message from the website\n\n"
                     ."Name: {$data['name']}\n"
                     ."Email: {$data['email']}\n"
-                    .'Phone: '.($data['phone'] ?: '-')."\n\n"
+                    ."Phone: {$phone}\n\n"
                     ."Message:\n{$data['message']}\n";
 
                 Mail::raw($body, function ($message) use ($adminEmail, $data) {
@@ -76,6 +79,19 @@ class PageController extends Controller
             }
         } catch (\Throwable $e) {
             Log::warning('Contact form mail failed: '.$e->getMessage());
+        }
+
+        try {
+            $whatsApp->notifyAdmin(
+                [$data['name'], $phone, $data['email'], $data['message']],
+                "New contact message from the website\n\n"
+                    ."Name: {$data['name']}\n"
+                    ."Phone: {$phone}\n"
+                    ."Email: {$data['email']}\n\n"
+                    ."Message:\n{$data['message']}"
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Contact form WhatsApp failed: '.$e->getMessage());
         }
 
         return back()->with('success', 'Thank you. We have received your message.');

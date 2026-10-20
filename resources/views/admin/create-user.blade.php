@@ -105,23 +105,8 @@
 
                   <!--End Add New Add Field -->
 
-                  <div class="form-group">
-                    <label for="password">{{ __('Password') }}<span class="text-red">*</span></label>
-                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                      name="password" placeholder="Enter password" required>
-                    <div class="help-block with-errors"></div>
-
-                    @error('password')
-                      <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
-                      </span>
-                    @enderror
-                  </div>
-                  <div class="form-group">
-                    <label for="password-confirm">{{ __('Confirm Password') }}<span class="text-red">*</span></label>
-                    <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
-                      placeholder="Retype password" required>
-                    <div class="help-block with-errors"></div>
+                  <div class="alert alert-info">
+                    {{ __('No password needed: the user will receive an email with a link to set their own password (valid for 72 hours).') }}
                   </div>
                 </div>
                 <div class="col-md-6">

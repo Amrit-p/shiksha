@@ -258,7 +258,30 @@
                                                     <th>{{ $totalQty }}</th>
                                                     <th>₹{{ number_format($totalAmount, 2) }}</th>
                                                 </tr>
+                                                <tr id="coupon_discount_row" style="display:none;">
+                                                    <th colspan="2">Discount <small id="coupon_applied_label"></small></th>
+                                                    <th class="text-success">-₹<span id="coupon_discount_amt">0.00</span></th>
+                                                </tr>
+                                                <tr id="coupon_payable_row" style="display:none;">
+                                                    <th colspan="2">Payable</th>
+                                                    <th>₹<span id="coupon_payable_amt">{{ number_format($totalAmount, 2) }}</span></th>
+                                                </tr>
                                             </table>
+
+                                            {{-- COUPON: the hidden coupon_code is only set after a successful Apply; place_order re-checks it. --}}
+                                            <div style="margin-bottom:12px;">
+                                                <div class="input-group">
+                                                    <input type="text" id="coupon_input" class="form-control" placeholder="Coupon code"
+                                                        maxlength="40" style="text-transform:uppercase;">
+                                                    <span class="input-group-btn">
+                                                        <button type="button" class="btn btn-default" id="coupon_apply_btn">Apply</button>
+                                                        <button type="button" class="btn btn-default" id="coupon_remove_btn" style="display:none;">Remove</button>
+                                                    </span>
+                                                </div>
+                                                <input type="hidden" name="coupon_code" id="coupon_code" value="">
+                                                <small class="text-danger error-coupon_code"></small>
+                                                <small class="text-success" id="coupon_success"></small>
+                                            </div>
 
                                             <input type="hidden" name="punch_in_time" value="{{ now() }}">
                                             <input type="hidden" name="order_status" value="Punch In">
@@ -362,6 +385,74 @@
                 msg.innerText = '';
                 document.querySelectorAll('small.text-danger').forEach(el => el.innerText = '');
             }
+
+            // ---- Coupon apply / remove ----
+            const couponInput = document.getElementById('coupon_input');
+            const couponCode = document.getElementById('coupon_code');
+            const couponApplyBtn = document.getElementById('coupon_apply_btn');
+            const couponRemoveBtn = document.getElementById('coupon_remove_btn');
+            const couponError = document.querySelector('.error-coupon_code');
+            const couponSuccess = document.getElementById('coupon_success');
+
+            function resetCoupon() {
+                couponCode.value = '';
+                couponInput.readOnly = false;
+                couponApplyBtn.style.display = '';
+                couponRemoveBtn.style.display = 'none';
+                couponSuccess.innerText = '';
+                document.getElementById('coupon_discount_row').style.display = 'none';
+                document.getElementById('coupon_payable_row').style.display = 'none';
+            }
+
+            couponApplyBtn.addEventListener('click', function () {
+                const code = couponInput.value.trim();
+                couponError.innerText = '';
+                if (!code) {
+                    couponError.innerText = 'Enter a coupon code';
+                    return;
+                }
+
+                const data = new FormData();
+                data.append('coupon_code', code);
+                data.append('owner_phone', form.owner_phone.value.trim());
+                data.append('gst_number', form.gst_number ? form.gst_number.value.trim() : '');
+
+                couponApplyBtn.disabled = true;
+                fetch("{{ route('front.coupon.apply') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': form.querySelector('[name=_token]').value, 'Accept': 'application/json' },
+                    body: data
+                })
+                    .then(res => res.json())
+                    .then(res => {
+                        couponApplyBtn.disabled = false;
+                        if (res.status !== 'success') {
+                            resetCoupon();
+                            couponError.innerText = res.msg || (res.errors && res.errors.coupon_code ? res.errors.coupon_code[0] : 'Invalid coupon');
+                            return;
+                        }
+                        couponCode.value = res.code;
+                        couponInput.value = res.code;
+                        couponInput.readOnly = true;
+                        couponApplyBtn.style.display = 'none';
+                        couponRemoveBtn.style.display = '';
+                        couponSuccess.innerText = res.code + ' applied: ' + res.summary;
+                        document.getElementById('coupon_applied_label').innerText = '(' + res.code + ')';
+                        document.getElementById('coupon_discount_amt').innerText = Number(res.discount).toFixed(2);
+                        document.getElementById('coupon_payable_amt').innerText = Number(res.total).toFixed(2);
+                        document.getElementById('coupon_discount_row').style.display = '';
+                        document.getElementById('coupon_payable_row').style.display = '';
+                    })
+                    .catch(() => {
+                        couponApplyBtn.disabled = false;
+                        couponError.innerText = 'Could not apply coupon. Try again.';
+                    });
+            });
+
+            couponRemoveBtn.addEventListener('click', function () {
+                couponInput.value = '';
+                resetCoupon();
+            });
 
             btn.addEventListener('click', function () {
 

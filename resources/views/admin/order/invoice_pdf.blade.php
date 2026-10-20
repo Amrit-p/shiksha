@@ -118,9 +118,19 @@
             @endforeach
         </tbody>
         <tfoot>
+            @if ((float) $order->discount_amount > 0)
+            <tr>
+                <th colspan="4" style="text-align: right;">Subtotal</th>
+                <th>₹{{ number_format($grandTotal, 2) }}</th>
+            </tr>
+            <tr>
+                <th colspan="4" style="text-align: right;">Discount ({{ $order->coupon_code }})</th>
+                <th>-₹{{ number_format($order->discount_amount, 2) }}</th>
+            </tr>
+            @endif
             <tr>
                 <th colspan="4" style="text-align: right;">Grand Total</th>
-                <th>₹{{ number_format($grandTotal, 2) }}</th>
+                <th>₹{{ number_format($grandTotal - (float) $order->discount_amount, 2) }}</th>
             </tr>
         </tfoot>
     </table>

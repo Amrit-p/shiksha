@@ -20,6 +20,15 @@
     background:var(--sl-paper-2);border:1px solid var(--sl-line);
     color:var(--sl-body);font-size:.9rem;line-height:1.6}
   .pd-variant-sku{margin-top:.5rem}
+  /* Portrait product video inside the square gallery frame (public/js/product-video.js) */
+  .pd-gallery-main.is-video{cursor:default}
+  .pd-video{position:absolute;inset:0;display:flex;justify-content:center;background:#000}
+  .pd-video[hidden]{display:none!important}
+  .pd-video video{height:100%;aspect-ratio:9/16;max-width:100%;object-fit:contain;background:#000}
+  .pd-video-thumb{position:relative;width:76px;height:76px;padding:0;border-radius:14px;border:2px solid var(--sl-line);overflow:hidden;background:#111;cursor:pointer}
+  .pd-video-thumb.active,.pd-video-thumb:hover{border-color:var(--sl-brand)}
+  .pd-video-thumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+  .pd-video-thumb__play{position:absolute;inset:0;margin:auto;width:30px;height:30px;border-radius:50%;background:rgba(230,0,126,.92);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
 </style>
 @endpush
 
@@ -52,17 +61,28 @@
     <div class="row g-4 g-xl-5">
 
       <!-- Gallery -->
-      <div class="col-lg-6" data-reveal="left">
-        <div class="pd-gallery-main" id="pdMain">
-          <img data-gallery-main src="{{ $mainImage }}" alt="{{ $product->title }}">
+      <div class="col-lg-6" data-reveal="left" data-media-scope>
+        <div class="pd-gallery-main" id="pdMain" data-media-frame>
+          <img data-gallery-main data-media-image src="{{ $mainImage }}" alt="{{ $product->title }}">
+          @if($product->video)
+            <div class="pd-video" data-media-video hidden>
+              <video src="{{ asset('storage/'.$product->video) }}" controls playsinline preload="metadata" controlslist="nodownload"></video>
+            </div>
+          @endif
         </div>
-        @if($images->count() > 1)
+        @if($images->count() > 1 || $product->video)
           <div class="d-flex flex-wrap gap-2 mt-3">
             @foreach($images as $i => $image)
               <img data-thumb src="{{ asset('storage/'.$image) }}" alt="{{ $product->title }}"
                    class="{{ $i === 0 ? 'active' : '' }}"
                    style="width:76px;height:76px;object-fit:cover;border-radius:14px;border:2px solid var(--sl-line);cursor:pointer;background:#fff">
             @endforeach
+            @if($product->video)
+              <button type="button" class="pd-video-thumb" data-show-video aria-label="Play product video">
+                <video src="{{ asset('storage/'.$product->video) }}#t=0.5" muted playsinline preload="metadata" tabindex="-1"></video>
+                <span class="pd-video-thumb__play"><i class="bi bi-play-fill"></i></span>
+              </button>
+            @endif
           </div>
         @endif
       </div>
@@ -303,6 +323,12 @@
 @endif
 
 @endsection
+
+@if($product->video)
+@push('scripts')
+<script src="{{ asset('js/product-video.js') }}?v={{ filemtime(public_path('js/product-video.js')) }}"></script>
+@endpush
+@endif
 
 @if($hasVariantSelection)
 @push('scripts')

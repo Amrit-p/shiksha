@@ -41,8 +41,8 @@
                         <i class="ik ik-eye"></i> View Order
                       </a>
                     </td>
-                        <td>{{$list->order_status}}</td>
-                        <td>{{$list->payment_status}}</td>
+                        <td>{{ orderStatusLabel($list->order_status) }}</td>
+                        <td>{{ paymentStatusLabel($list->payment_status) }}</td>
                         <td>{{$list->total_amount}}</td>
                         {{-- <td>{{$list->payment_id}}</td> --}}
                         <td>{{dmyHelper($list->created_at)}}</td>

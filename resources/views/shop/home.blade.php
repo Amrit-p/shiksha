@@ -11,7 +11,6 @@
   <div class="container z-1">
     <div class="row align-items-center g-5">
       <div class="col-lg-6">
-        <span class="eyebrow eyebrow-light" data-reveal="down"><i class="bi bi-stars"></i> Lighting &amp; electricals · Est. 2001</span>
 
         <h1 class="hero-title" data-reveal="up" style="--reveal-delay:80ms">
           Tell us what you<br>

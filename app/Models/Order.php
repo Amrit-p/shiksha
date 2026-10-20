@@ -19,7 +19,11 @@ class Order extends Model
 
         // amounts
         'total_qty',
+        'subtotal_amount',
+        'discount_amount',
         'total_amount',
+        'coupon_id',
+        'coupon_code',
 
         // payment
         'payment_type',
@@ -72,5 +76,43 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderDetails::class);
+    }
+
+    public function deliveries()
+    {
+        return $this->hasMany(OrderDelivery::class)->latest('delivered_on')->latest('id');
+    }
+
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(OrderPayment::class)->latest('paid_on')->latest('id');
+    }
+
+    /* ================= PAYMENTS ================= */
+
+    public function isCancelled(): bool
+    {
+        return strtolower((string) $this->order_status) === 'cancelled';
+    }
+
+    public function verifiedPaid(): float
+    {
+        return (float) $this->payments()->verified()->sum('amount');
+    }
+
+    public function pendingPaid(): float
+    {
+        return (float) $this->payments()->pending()->sum('amount');
+    }
+
+    /** Amount still to be verified as received. */
+    public function balance(): float
+    {
+        return max(0, round((float) $this->total_amount - $this->verifiedPaid(), 2));
     }
 }

@@ -26,8 +26,8 @@ return new class extends Migration
                 $table->string('state')->nullable();
                 $table->string('pin_code')->nullable();
 
-                $table->integer('is_sales_executive');
-                $table->integer('is_admin_executive');
+                $table->string('is_sales_executive', 10)->default('0');
+                $table->integer('is_admin')->default(0);
                 $table->timestamp('email_verified_at')->nullable();
                 $table->string('password');
                 $table->rememberToken();

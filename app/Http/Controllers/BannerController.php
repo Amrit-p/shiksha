@@ -3,105 +3,90 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
-use App\Models\Category;
-use App\Models\Product;
-use App\Models\ProductImage;
-use App\Models\Variant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Storage;
 
+/** Banners / current schemes shown on the salesman home page (slider + daily popup). */
 class BannerController extends Controller
 {
   public function index()
   {
-    return view('admin.banner.index');
+    $banners = Banner::orderBy('sort_order')->orderByDesc('id')->paginate(25);
+
+    return view('admin.banner.index', compact('banners'));
   }
-  public function getBannerList()
-  {
 
-    $query = Banner::get();
-    return DataTables::of($query)
-      ->addColumn('action', function ($data) {
-        return '
-        <a href="#" title="Edit">
-            <i class="ik ik-edit f-16 mr-15 text-green"></i>
-        </a>
-        <a href="javascript:void(0);" 
-           class="delete_btn" 
-           data-id="' . $data->id . '" 
-           title="Delete">
-            <i class="ik ik-trash-2 f-16 text-red"></i>
-        </a>
-    ';
-      })
-      ->editColumn('image', function ($data) {
-        // Prepare image URL
-        $imageUrl = $data->image ? asset('storage/' . $data->image) : asset('images/default.png');
-
-        // Return HTML for clickable image
-        return '
-            <img src="' . $imageUrl . '" 
-                 class="table-banner-thumb" 
-                 style="width:40px;  object-fit:cover; cursor:pointer;" 
-                 onclick="openImageUpload(' . $data->id . ')">
-        ';
-      })
-
-
-
-
-      ->editColumn('status',function($data){
-        if($data->status == 1){
-          return "Active";
-        }else{
-          return "Deactive";
-        }
-      })
-      ->addColumn('checkbox', function ($data) {
-        return '<label class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input select_all_child" id="" name="" value="option2">
-          <span class="custom-control-label">&nbsp;</span>
-        </label>';
-      })
-      ->rawColumns(['image','checkbox', 'action'])
-      ->make(true);
-  }
   public function create()
   {
-     return view('admin.banner.create', compact('data'));
+    return view('admin.banner.form', ['banner' => new Banner(['status' => 1, 'sort_order' => 0])]);
   }
+
   public function store(Request $request)
   {
+    $data = $this->validated($request, true);
+    $data['image'] = $request->file('image')->store('banners', 'public');
 
-    $imagePath="";
+    Banner::create($data);
 
-    if($request->hasFile('image')){
-    $imagePath = $request->file('image')->store('banners', 'public');
-    }
-
-    $create=Banner::create([
-      'btn_text' => $request->btn_text,
-      'btn_link' => $request->btn_link,
-      'image' => $imagePath,
-      'status'=>1
-    ]);
-
-    if($create){
-      MessageFlashHelper('success', 'Banner Store Successfully');
-    }else{
-      MessageFlashHelper('error', 'Something went wrong!');
-    }
-    return redirect()->back();
-   }
-  public function delete($id){
-    $delete = Banner::find($id)->delete();
-    if($delete){
-      return response()->json(['message'=>'Banner Deleted Successfully!','success'=>true],200);
-    }else{
-      return response()->json(['message'=>'something went wrong!','success'=>false],500);
-    }
+    return redirect()->route('admin.banner')->with('success', 'Banner saved.');
   }
 
+  public function edit(Banner $banner)
+  {
+    return view('admin.banner.form', compact('banner'));
+  }
+
+  public function update(Request $request, Banner $banner)
+  {
+    $data = $this->validated($request, false);
+
+    if ($request->hasFile('image')) {
+      $old = $banner->image;
+      $data['image'] = $request->file('image')->store('banners', 'public');
+      if ($old) {
+        Storage::disk('public')->delete($old);
+      }
+    }
+
+    $banner->update($data);
+
+    return redirect()->route('admin.banner')->with('success', 'Banner updated.');
+  }
+
+  public function toggle(Banner $banner)
+  {
+    $banner->update(['status' => (int) $banner->status === 1 ? 0 : 1]);
+
+    return back()->with('success', 'Banner ' . ((int) $banner->status === 1 ? 'activated' : 'deactivated') . '.');
+  }
+
+  public function delete(Banner $banner)
+  {
+    if ($banner->image) {
+      Storage::disk('public')->delete($banner->image);
+    }
+    $banner->delete();
+
+    return back()->with('success', 'Banner deleted.');
+  }
+
+  protected function validated(Request $request, bool $imageRequired): array
+  {
+    $data = $request->validate([
+      'title' => 'nullable|string|max:255',
+      'btn_text' => 'nullable|string|max:50',
+      'btn_link' => 'nullable|url|max:255',
+      'image' => [$imageRequired ? 'required' : 'nullable', 'image', 'max:4096'],
+      'starts_at' => 'nullable|date',
+      'ends_at' => 'nullable|date|after_or_equal:starts_at',
+      'sort_order' => 'nullable|integer|min:0',
+    ]);
+    unset($data['image']);
+
+    $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
+    $data['status'] = $request->boolean('status') ? 1 : 0;
+    $data['show_in_popup'] = $request->boolean('show_in_popup');
+
+    return $data;
+  }
 }

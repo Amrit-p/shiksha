@@ -1,93 +1,58 @@
 @extends('admin.layouts.main')
-@section('title', 'Products')
+@section('title', 'Banners & Schemes')
 @section('content')
-@include('admin.include.message')
-
-    <div class="container-fluid">
-       <div class="page-header">
-        <div class="row align-items-end">
-          <div class="col-lg-8">
-            <div class="page-header-title">
-              <i class="ik ik-image bg-blue"></i>
-              <div class="d-inline">
-                <h5>Banner</h5>
-                <span>View, delete and update Banner</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <nav class="breadcrumb-container" aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                  <a href="/dashboard"><i class="ik ik-home"></i></a>
-                </li>
-                <li class="breadcrumb-item">
-                  <a href="#">Banner</a>
-                </li>
-              </ol>
-            </nav>
-          </div>
-        </div>
+<div class="container-fluid">
+  <div class="row">@include('admin.include.message')</div>
+  <div class="card">
+    <div class="card-header d-flex justify-content-between">
+      <div>
+        <h3 class="mb-0">Banners &amp; Schemes</h3>
+        <small class="text-muted">Active banners within their dates show in the salesman home slider. Tick "Schemes popup" to also show one in the daily popup after login.</small>
       </div>
-      <div class="row">
-      @include('admin.banner.create')
-        <!-- list layout 1 start -->
-        <div class="col-md-12">
-          <div class="card">
-            <div class="card-header row">
-              <div class="col col-sm-1">
-                <div class="card-options d-inline-block">
-                  <div class="dropdown d-inline-block">
-                    <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                        class="ik ik-more-horizontal"></i></a>
-                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="moreDropdown">
-                      <a class="dropdown-item" href="#">Delete</a>
-                      <a class="dropdown-item" href="#">More Action</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col col-sm-6">
-                @include('admin.banner.search')
-              </div>
-              <div class="col col-sm-5">
-                <div class="card-options text-right">
-                  <a href="javascript:void(0)" class="btn btn-outline-primary btn-semi-rounded" data-toggle="modal"
-                    data-target="#addBannerModal">
-                    Add Banner
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <table id="my-datatable" class="table">
-                <thead>
-                  <tr>
-                    <th class="nosort" width="10">
-                      <label class="custom-control custom-checkbox m-0">
-                        <input type="checkbox" class="custom-control-input" id="selectall" name=""
-                          value="option2">
-                        <span class="custom-control-label">&nbsp;</span>
-                      </label>
-                    </th>
-                    <th class="nosort">Image</th>
-                    <th>Btn Text</th>
-                    <th>Btn Link</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <a href="{{ route('admin.banner.create') }}" class="btn btn-primary btn-sm align-self-start"><i class="ik ik-plus"></i> Add Banner</a>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-bordered mb-0">
+          <thead>
+            <tr><th style="width:110px;">Image</th><th>Title / Button</th><th>Dates</th><th>Order</th><th>Popup</th><th>Status</th><th style="width:120px;">Action</th></tr>
+          </thead>
+          <tbody>
+            @forelse ($banners as $banner)
+              <tr>
+                <td><img src="{{ asset('storage/'.$banner->image) }}" alt="" style="width:100px;height:50px;object-fit:cover;"></td>
+                <td>
+                  <b>{{ $banner->title ?: '-' }}</b>
+                  @if ($banner->btn_text)<div><small>{{ $banner->btn_text }} &rarr; {{ $banner->btn_link ?: 'no link' }}</small></div>@endif
+                </td>
+                <td>
+                  {{ $banner->starts_at?->format('d M Y') ?? 'Any time' }} &ndash; {{ $banner->ends_at?->format('d M Y') ?? 'No end' }}
+                  @if ($banner->ends_at && $banner->ends_at->lt(today()))<span class="badge badge-secondary">Expired</span>
+                  @elseif ($banner->starts_at && $banner->starts_at->gt(today()))<span class="badge badge-info">Scheduled</span>@endif
+                </td>
+                <td>{{ $banner->sort_order }}</td>
+                <td>{!! $banner->show_in_popup ? '<span class="badge badge-primary">Yes</span>' : '-' !!}</td>
+                <td>
+                  <span class="badge {{ $banner->isCurrent() ? 'badge-success' : 'badge-secondary' }}">{{ (int) $banner->status === 1 ? ($banner->isCurrent() ? 'Live' : 'Active') : 'Inactive' }}</span>
+                </td>
+                <td>
+                  <a href="{{ route('admin.banner.edit', $banner) }}" title="Edit"><i class="ik ik-edit-2 f-16 mr-10 text-green"></i></a>
+                  <form method="POST" action="{{ route('admin.banner.toggle', $banner) }}" class="d-inline">@csrf
+                    <button class="btn btn-link p-0 mr-10" title="{{ (int) $banner->status === 1 ? 'Deactivate' : 'Activate' }}"><i class="ik {{ (int) $banner->status === 1 ? 'ik-slash text-orange' : 'ik-check-circle text-green' }} f-16"></i></button>
+                  </form>
+                  <form method="POST" action="{{ route('admin.banner.delete', $banner) }}" class="d-inline" onsubmit="return confirm('Delete this banner?')">@csrf @method('DELETE')
+                    <button class="btn btn-link p-0" title="Delete"><i class="ik ik-trash-2 f-16 text-red"></i></button>
+                  </form>
+                </td>
+              </tr>
+            @empty
+              <tr><td colspan="7" class="text-center text-muted p-4">No banners yet.</td></tr>
+            @endforelse
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="modal fade edit-layout-modal pr-0" id="productView" tabindex="-1" role="dialog"
-      aria-labelledby="productViewLabel" aria-hidden="true">
-    @include('admin.banner.list') 
-    @include('admin.banner.delete')
+    <div class="card-footer">{{ $banners->links() }}</div>
+  </div>
+</div>
 @endsection

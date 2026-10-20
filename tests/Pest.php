@@ -45,3 +45,48 @@ function something()
 {
     // ..
 }
+
+/*
+|--------------------------------------------------------------------------
+| App helpers
+|--------------------------------------------------------------------------
+*/
+
+/** Roles as they exist in production (Manager comes from its migration). */
+function seedAppRoles(): void
+{
+    $admin = \Spatie\Permission\Models\Permission::findOrCreate('admin', 'web');
+    $shop = \Spatie\Permission\Models\Permission::findOrCreate('frontend_shop', 'web');
+    \Spatie\Permission\Models\Role::findOrCreate('Admin', 'web')->givePermissionTo($admin);
+    \Spatie\Permission\Models\Role::findOrCreate('Sales Executive', 'web')->givePermissionTo($shop);
+    app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+}
+
+function userWithRole(string $role, array $attributes = []): \App\Models\User
+{
+    seedAppRoles();
+
+    return tap(\App\Models\User::factory()->create($attributes + ['mobile' => '9999999999']))->assignRole($role);
+}
+
+/** Order with one simple product (qty 10) and one variant product with two options (qty 5 + 3). */
+function orderWithSnapshot(array $attributes = []): \App\Models\Order
+{
+    return \App\Models\Order::create($attributes + [
+        'user_id' => $attributes['user_id'] ?? \App\Models\User::factory()->create(['mobile' => '1'])->id,
+        'owner_name' => 'Owner',
+        'owner_phone' => '9876543210',
+        'shop_name' => 'Shop',
+        'order_status' => 'pending',
+        'payment_status' => 'pending',
+        'total_qty' => 18,
+        'total_amount' => 1000,
+        'product_json' => json_encode([
+            ['product' => ['id' => 1, 'name' => 'Bulb'], 'variant' => null, 'attributes' => [], 'qty' => 10, 'unit_price' => 50, 'total' => 500],
+            ['product' => ['id' => 2, 'name' => 'Wire'], 'variant' => ['id' => 7, 'name' => '1.5mm'], 'attributes' => [
+                ['attribute_name' => 'Colour', 'option_name' => 'Red', 'is_por' => 0, 'qty' => 5, 'unit_price' => 50, 'total' => 250],
+                ['attribute_name' => 'Colour', 'option_name' => 'Black', 'is_por' => 0, 'qty' => 3, 'unit_price' => 50, 'total' => 150],
+            ]],
+        ]),
+    ]);
+}

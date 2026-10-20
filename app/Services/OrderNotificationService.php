@@ -4,11 +4,14 @@ namespace App\Services;
 
 use App\Mail\TemplatedMail;
 use App\Models\Order;
+use App\Models\OrderPayment;
 use App\Models\SmtpSetting;
 use App\Models\User;
 use App\Models\WebsiteSetting;
 use App\Notifications\CreditOrderPlaced;
 use App\Notifications\OutOfStockOrdered;
+use App\Notifications\PaymentLogged;
+use App\Notifications\PaymentReviewed;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -29,7 +32,7 @@ class OrderNotificationService
         $order->loadMissing('user');
 
         try {
-            $admins = User::permission('admin')->get();
+            $admins = User::permission(['admin', 'manage_orders'])->get();
             if ($admins->isNotEmpty()) {
                 Notification::send($admins, new CreditOrderPlaced($order));
             }
@@ -77,11 +80,67 @@ class OrderNotificationService
         }
     }
 
+    /** A salesman logged a payment: admin bell + admin email. Never throws. */
+    public function paymentLogged(OrderPayment $payment): void
+    {
+        $payment->loadMissing('order', 'salesman');
+
+        try {
+            $admins = User::permission('admin')->get();
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new PaymentLogged($payment));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Payment logged in-app notification failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+        }
+
+        try {
+            $adminEmail = SmtpSetting::current()?->admin_email
+                ?: WebsiteSetting::getValue('admin_notification_email');
+
+            if (! $adminEmail) {
+                return;
+            }
+
+            $order = $payment->order;
+
+            $mail = $this->mailTemplates->build('admin_payment_logged', [
+                'salesman_name' => $payment->salesman?->name ?? 'A salesman',
+                'amount' => number_format((float) $payment->amount, 2),
+                'order_id' => $payment->order_id,
+                'shop_name' => $order?->shop_name ?: '—',
+                'paid_on' => $payment->paid_on?->format('d M Y'),
+                'mode' => $payment->modeLabel(),
+                'reference' => $payment->reference ?: '—',
+                'order_total' => number_format((float) $order?->total_amount, 2),
+                'balance' => number_format(max(0, (float) $order?->total_amount - $order?->verifiedPaid() - $order?->pendingPaid()), 2),
+                'review_url' => route('admin.payments.index', ['status' => 'pending']),
+            ]);
+
+            if ($mail) {
+                $this->smtp->apply();
+                Mail::to($adminEmail)->send(new TemplatedMail($mail['subject'], $mail['body']));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Payment logged email failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /** Tell the salesman (bell) that their payment was verified, rejected or reversed. Never throws. */
+    public function paymentReviewed(OrderPayment $payment): void
+    {
+        try {
+            $payment->salesman?->notify(new PaymentReviewed($payment));
+        } catch (\Throwable $e) {
+            Log::error('Payment reviewed notification failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+        }
+    }
+
     /** Tell admins (bell only) which items an order pushed to 0 stock. Never throws. */
     public function outOfStock(Order $order, array $items): void
     {
         try {
-            $admins = User::permission('admin')->get();
+            $admins = User::permission(['admin', 'manage_orders'])->get();
             if ($admins->isNotEmpty()) {
                 Notification::send($admins, new OutOfStockOrdered($order, $items));
             }

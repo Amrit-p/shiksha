@@ -6,7 +6,10 @@ use App\Models\Attribute;
 use App\Models\Color;
 use App\Models\Order;
 use App\Models\OrderDetails;
+use App\Models\OrderPayment;
 use App\Models\User;
+use App\Services\OrderDeliveryService;
+use App\Services\OrderPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -24,6 +27,7 @@ class OrderController extends Controller
         'dispatched',
         'on_the_way',
         'rto',
+        'partially_delivered',
         'delivered',
         'cancelled',
     ];
@@ -80,7 +84,13 @@ public function getList(Request $request)
             'orders.payment_status',
             'orders.created_at',
             'orders.product_json as product_snapshot',
-            DB::raw('users.name as user_name')
+            'orders.total_qty',
+            DB::raw('users.name as user_name'),
+            DB::raw("(SELECT COALESCE(SUM(op.amount), 0) FROM order_payments op
+                WHERE op.order_id = orders.id AND op.status = 'verified') as verified_paid"),
+            DB::raw('(SELECT COALESCE(SUM(odi.qty), 0) FROM order_delivery_items odi
+                INNER JOIN order_deliveries od ON od.id = odi.order_delivery_id
+                WHERE od.order_id = orders.id) as delivered_qty')
         )
         ->orderByDesc('orders.id');
 
@@ -188,14 +198,45 @@ public function getList(Request $request)
             return dmyHelper($data->created_at);
         })
 
+        ->editColumn('payment_status', fn ($data) => paymentStatusBadge($data->payment_status))
+
+        ->editColumn('order_status', function ($data) {
+            $slug = (string) $data->order_status;
+            $badge = match ($slug) {
+                OrderDeliveryService::STATUS_PARTIAL => 'badge-warning',
+                'delivered' => 'badge-success',
+                'cancelled', 'rto' => 'badge-danger',
+                default => 'badge-secondary',
+            };
+            $html = '<span class="badge ' . $badge . '">' . e(orderStatusLabel($slug)) . '</span>';
+            if ($slug === OrderDeliveryService::STATUS_PARTIAL) {
+                $pending = max((int) $data->total_qty - (int) $data->delivered_qty, 0);
+                $html .= '<div><small class="text-danger">' . $pending . ' pending</small></div>';
+            }
+            return $html;
+        })
+
+        // Delivered / ordered quantity (sum of all delivery rounds vs orders.total_qty).
+        ->addColumn('delivery', function ($data) {
+            $ordered = (int) $data->total_qty;
+            $delivered = min((int) $data->delivered_qty, $ordered);
+            if ($ordered <= 0) {
+                return '-';
+            }
+            $class = $delivered >= $ordered ? 'text-success' : ($delivered > 0 ? 'text-warning' : 'text-muted');
+            return '<a href="javascript:void(0)" class="delivery-details-btn ' . $class . '" data-id="' . $data->id . '" title="Delivery details">'
+                . '<b>' . $delivered . '</b> / ' . $ordered . '</a>';
+        })
+
         ->addColumn('action', function ($data) {
             $isPaid = strtolower((string) $data->payment_status) === 'paid';
             $isCancelled = strtolower((string) $data->order_status) === 'cancelled';
+            $balance = max(0, round((float) $data->total_amount - (float) $data->verified_paid, 2));
 
             $makePaid = $isPaid || $isCancelled
                 ? ''
-                : '<a class="dropdown-item make-paid-btn" href="javascript:void(0)" data-id="' . $data->id . '">
-                        <i class="ik ik-dollar-sign text-success"></i> Make Paid
+                : '<a class="dropdown-item make-paid-btn" href="javascript:void(0)" data-id="' . $data->id . '" data-balance="' . $balance . '">
+                        <i class="ik ik-dollar-sign text-success"></i> Record Payment
                    </a>';
 
             $cancelOrder = $isCancelled
@@ -227,12 +268,15 @@ public function getList(Request $request)
                         <a class="dropdown-item" href="' . route('admin.order_detail', $data->id) . '">
                             <i class="ik ik-eye"></i> Order Detail
                         </a>
+                        <a class="dropdown-item delivery-details-btn" href="javascript:void(0)" data-id="' . $data->id . '">
+                            <i class="ik ik-truck"></i> Delivery Details
+                        </a>
                     </div>
                 </div>
             ';
         })
 
-        ->rawColumns(['customer_detail', 'address_detail', 'product_meta', 'action'])
+        ->rawColumns(['customer_detail', 'address_detail', 'product_meta', 'order_status', 'payment_status', 'delivery', 'action'])
         ->make(true);
 }
 
@@ -264,13 +308,22 @@ public function getList(Request $request)
   {
     $data = Order::find($id);
     if ($data) {
-      return response()->json(['data' => $data, 'success' => true], 200);
+      $deliveries = app(OrderDeliveryService::class);
+      $lines = $deliveries->lines($data);
+
+      return response()->json([
+        'data' => $data,
+        'lines' => $lines,
+        'pending' => array_sum(array_column($lines, 'pending')),
+        'is_cancelled' => strtolower((string) $data->order_status) === 'cancelled',
+        'success' => true,
+      ], 200);
     } else {
       return response()->json(['success' => false], 500);
     }
   }
 
-  public function update(Request $request)
+  public function update(Request $request, OrderDeliveryService $deliveries)
   {
     $request->validate([
       'edit_id' => 'required|integer|exists:orders,id',
@@ -278,31 +331,93 @@ public function getList(Request $request)
     ]);
 
     $order = Order::findOrFail($request->edit_id);
-    $payload = ['order_status' => $request->order_status];
+    $isDeliveryStatus = in_array($request->order_status, [OrderDeliveryService::STATUS_PARTIAL, 'delivered'], true);
 
-    if ($request->order_status === 'delivered' || $request->order_status === 'completed') {
-      $payload['payment_status'] = 'paid';
+    // Partial Pending / Delivered with items still pending: record a delivery round from the per-item qty form.
+    if ($isDeliveryStatus && ($pending = $deliveries->pendingQty($order)) > 0) {
+      return $this->recordDeliveryFromStatus($request, $order, $deliveries);
     }
 
-    $order->update($payload);
+    if ($request->order_status === OrderDeliveryService::STATUS_PARTIAL) {
+      MessageFlashHelper('error', "Order #{$order->id} has no pending items, so it cannot be Partial Pending.");
+      return redirect()->back();
+    }
+
+    // Payment status is driven only by verified payments (OrderPaymentService), never by delivery.
+    $order->update(['order_status' => $request->order_status]);
 
     MessageFlashHelper('success', 'Order Updated Successfully!');
     return redirect()->back();
   }
 
-  public function makePaid(Request $request)
+  /** Status popup submit for Partial Pending / Delivered: deliver the entered qty, then status follows what is left. */
+  private function recordDeliveryFromStatus(Request $request, Order $order, OrderDeliveryService $deliveries)
   {
-    $request->validate([
-      'order_id' => 'required|integer|exists:orders,id',
+    $data = $request->validate([
+      'delivered_on' => 'required|date|before_or_equal:today',
+      'note' => 'nullable|string|max:1000',
+      'qty' => 'required|array',
+      'qty.*' => 'nullable|integer|min:0',
     ]);
 
-    $order = Order::findOrFail($request->order_id);
-    $order->update(['payment_status' => 'paid']);
+    $qty = array_map('intval', $data['qty']);
 
-    return response()->json(['success' => true, 'message' => 'Payment status updated to paid.']);
+    if ($request->order_status === 'delivered') {
+      foreach ($deliveries->lines($order) as $line) {
+        if ($line['pending'] > 0 && ($qty[$line['key']] ?? 0) < $line['pending']) {
+          MessageFlashHelper('error', "Order #{$order->id}: \"{$line['name']}\" still has items pending. Choose Partial Pending if not everything was delivered.");
+          return redirect()->back();
+        }
+      }
+    }
+
+    try {
+      $deliveries->record($order, $qty, $data['delivered_on'], $data['note'] ?? null, $request->user());
+    } catch (\Illuminate\Validation\ValidationException $e) {
+      MessageFlashHelper('error', "Order #{$order->id}: " . $e->validator->errors()->first());
+      return redirect()->back();
+    }
+
+    $order->refresh();
+    $left = $deliveries->pendingQty($order);
+    MessageFlashHelper('success', "Order #{$order->id} is now " . orderStatusLabel($order->order_status)
+      . ($left > 0 ? " ({$left} item(s) still pending)." : '.'));
+
+    return redirect()->back();
   }
 
-  public function cancelOrder(Request $request)
+  /** HTML for the "Delivery Details" popup on the order list. */
+  public function deliveryDetails($id, OrderDeliveryService $deliveries)
+  {
+    $order = Order::findOrFail($id);
+    $deliveryLines = $deliveries->lines($order);
+    $order->load('deliveries.items', 'deliveries.creator');
+
+    return view('admin.order.delivery_details', compact('order', 'deliveryLines'));
+  }
+
+  /** "Record Payment" from the order list: an admin-entered payment is verified straight away. */
+  public function makePaid(Request $request, OrderPaymentService $payments)
+  {
+    $data = $request->validate([
+      'order_id' => 'required|integer|exists:orders,id',
+      'amount' => 'required|numeric|min:0.01',
+      'paid_on' => 'required|date|before_or_equal:today',
+      'mode' => ['required', Rule::in(array_keys(OrderPayment::MODES))],
+      'reference' => 'nullable|string|max:100',
+      'note' => 'nullable|string|max:1000',
+    ]);
+
+    $order = Order::findOrFail($data['order_id']);
+    $payments->log($order, $data, $request->user());
+
+    return response()->json([
+      'success' => true,
+      'message' => 'Payment recorded. Order is now ' . paymentStatusLabel($order->fresh()->payment_status) . '.',
+    ]);
+  }
+
+  public function cancelOrder(Request $request, OrderPaymentService $payments)
   {
     $request->validate([
       'order_id' => 'required|integer|exists:orders,id',
@@ -317,6 +432,9 @@ public function getList(Request $request)
       return response()->json(['success' => false, 'message' => 'Order is already cancelled.'], 422);
     }
 
+    // Throws (422) while verified payments exist; auto-rejects pending ones.
+    $payments->prepareCancel($order, $request->user());
+
     $order->update([
       'order_status' => 'cancelled',
       'cancel_note' => $request->cancel_note,
@@ -325,7 +443,7 @@ public function getList(Request $request)
 
     return response()->json(['success' => true, 'message' => 'Order cancelled.']);
   }
-public function order_detail($id)
+public function order_detail($id, OrderDeliveryService $deliveries)
 {
     $order = Order::findOrFail($id);
 
@@ -343,7 +461,30 @@ public function order_detail($id)
             ->with('error', 'Order snapshot not found');
     }
 
-    return view('admin.order.order_detail', compact('order', 'items'));
+    $deliveryLines = $deliveries->lines($order);
+    $order->load('deliveries.items', 'deliveries.creator', 'payments.recorder');
+
+    return view('admin.order.order_detail', compact('order', 'items', 'deliveryLines'));
+}
+
+/** Record one delivery round (partial or final) from the order detail page. */
+public function storeDelivery(Request $request, $id, OrderDeliveryService $deliveries)
+{
+    $order = Order::findOrFail($id);
+
+    $data = $request->validate([
+        'delivered_on' => 'required|date|before_or_equal:today',
+        'note' => 'nullable|string|max:1000',
+        'qty' => 'required|array',
+        'qty.*' => 'nullable|integer|min:0',
+    ]);
+
+    $deliveries->record($order, $data['qty'], $data['delivered_on'], $data['note'] ?? null, $request->user());
+
+    $order->refresh();
+    MessageFlashHelper('success', 'Delivery recorded. Order is now ' . orderStatusLabel($order->order_status) . '.');
+
+    return redirect()->route('admin.order_detail', $order->id);
 }
 
 public function invoicePreview($id)

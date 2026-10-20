@@ -110,7 +110,8 @@ class ProductController extends Controller
                 'product_code_type_id' => $variant->product_code_type_id,
                 'image' => $variant->image ? asset('storage/'.$variant->image) : $fallbackImage,
                 'sku' => $variant->sku ?: $variant->catalog_number,
-                'stock' => (int) ($variant->stock ?? 0),
+                // Public site only needs in/out of stock; never expose the actual count.
+                'stock' => (int) ($variant->stock ?? 0) > 0 ? 1 : 0,
                 'variant_description' => $variant->variant_description ?? '',
                 'custom_fields' => $variant->customFields->map(fn ($field) => [
                     'type_id' => $field->custom_field_type_id,
@@ -125,7 +126,7 @@ class ProductController extends Controller
                     'id' => $attribute->id,
                     'label' => $attribute->attribute?->name
                         ?: ($attribute->option?->attribute?->name ?: 'Option'),
-                    'stock' => (int) ($attribute->stock ?? 0),
+                    'stock' => (int) ($attribute->stock ?? 0) > 0 ? 1 : 0,
                     'image' => $attribute->image ? asset('storage/'.$attribute->image) : '',
                 ])->values(),
             ];

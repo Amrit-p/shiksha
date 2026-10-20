@@ -67,6 +67,9 @@
                             </div>
                             <h3>{{ __('Sign In to Shiksha Light') }}</h3>
                             <p>{{ __('Happy to see you again!') }}</p>
+                            @if (session('status'))
+                                <div class="alert alert-success">{{ session('status') }}</div>
+                            @endif
                             <form method="POST" action="{{ route($loginRouteName ?? 'login') }}">
                             @csrf
                                 <div class="form-group">
@@ -102,7 +105,7 @@
                                         </label>
                                     </div>
                                     <div class="col text-right">
-                                        <a class="btn btn-link" href="">
+                                        <a class="btn btn-link" href="{{ route('password.request') }}">
                                             {{ __('Forgot Your Password?') }}
                                         </a>
                                     </div>
