@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('variant_attributes', function (Blueprint $table) {
-            //
-            // $table->decimal('mrp', 10, 2)->nullable()->after('attribute_value');
-            $table->tinyInteger('is_por')->default(0)->after('sell_price')->comment('1 = Price on Request, 0 = Normal pricing');
+            if (!Schema::hasColumn('variant_attributes', 'mrp')) {
+                $table->decimal('mrp', 10, 2)->nullable()->after('attribute_value');
+            }
+            if (!Schema::hasColumn('variant_attributes', 'sell_price')) {
+                $table->decimal('sell_price', 10, 2)->nullable()->after('mrp');
+            }
+            if (!Schema::hasColumn('variant_attributes', 'is_por')) {
+                $table->tinyInteger('is_por')->default(0)->after('sell_price')->comment('1 = Price on Request, 0 = Normal pricing');
+            }
         });
     }
 
