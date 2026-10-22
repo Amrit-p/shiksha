@@ -41,6 +41,12 @@ class WebsiteSetting extends Model
         return (bool) static::getValue('allow_order_beyond_stock', false);
     }
 
+    /** Show exact stock counts ("12 available") on product pages; otherwise only In stock / Out of stock. */
+    public static function showStockQuantity(): bool
+    {
+        return (bool) static::getValue('show_stock_quantity', false);
+    }
+
     public static function flushCache(): void
     {
         Cache::forget('website_settings_map');

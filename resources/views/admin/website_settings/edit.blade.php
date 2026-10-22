@@ -42,6 +42,40 @@
           </label>
           <small class="form-text text-muted">When on, customers and salesmen can add any quantity to the cart and place the order even if stock is short. Stock is still deducted and can go negative.</small>
         </div>
+        <div class="form-group">
+          <input type="hidden" name="show_stock_quantity" value="0">
+          <label class="mb-0">
+            <input type="checkbox" name="show_stock_quantity" value="1" @checked(old('show_stock_quantity', optional($settings->get('show_stock_quantity'))->value))>
+            Show stock quantity on product pages
+          </label>
+          <small class="form-text text-muted">When off, salesmen and website visitors only see "In stock" / "Out of stock", never the number of units available.</small>
+        </div>
+
+        <h5 class="mt-4">WhatsApp Notifications</h5>
+        <p class="text-muted small mb-2">New contact form messages are sent to this WhatsApp number through the Meta WhatsApp Cloud API, alongside the admin email. Leave the number empty to turn WhatsApp alerts off.</p>
+        <div class="form-group">
+          <label>Admin WhatsApp Number</label>
+          <input class="form-control" name="whatsapp_notification_number" placeholder="919876543210" value="{{ old('whatsapp_notification_number', optional($settings->get('whatsapp_notification_number'))->value) }}">
+          <small class="form-text text-muted">The number that receives alerts. Include the country code, e.g. 91 for India.</small>
+        </div>
+        <div class="form-group">
+          <label>Phone Number ID</label>
+          <input class="form-control" name="whatsapp_phone_number_id" value="{{ old('whatsapp_phone_number_id', optional($settings->get('whatsapp_phone_number_id'))->value) }}">
+          <small class="form-text text-muted">From Meta Developers &rarr; your app &rarr; WhatsApp &rarr; API Setup (the business number that sends the alerts).</small>
+        </div>
+        <div class="form-group">
+          <label>Access Token</label>
+          <input type="password" class="form-control" name="whatsapp_access_token" autocomplete="new-password" placeholder="{{ optional($settings->get('whatsapp_access_token'))->value ? 'Saved. Leave blank to keep it' : 'Permanent system user access token' }}">
+        </div>
+        <div class="form-group">
+          <label>Message Template Name</label>
+          <input class="form-control" name="whatsapp_template_name" placeholder="contact_message_alert" value="{{ old('whatsapp_template_name', optional($settings->get('whatsapp_template_name'))->value) }}">
+          <small class="form-text text-muted">An approved template whose body has 4 variables: @{{1}} name, @{{2}} phone, @{{3}} email, @{{4}} message. Without a template, WhatsApp only delivers if the admin number has messaged the business number in the last 24 hours.</small>
+        </div>
+        <div class="form-group">
+          <label>Template Language Code</label>
+          <input class="form-control" name="whatsapp_template_language" placeholder="en" value="{{ old('whatsapp_template_language', optional($settings->get('whatsapp_template_language'))->value) }}">
+        </div>
 
         <button class="btn btn-primary" type="submit">Save Settings</button>
       </form>

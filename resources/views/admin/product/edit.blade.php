@@ -213,6 +213,33 @@
                         </div> --}}
                     </div>
 
+                    {{-- ================= PRODUCT VIDEO ================= --}}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Product Video <small class="text-muted">(optional)</small></label>
+                            <input type="file" name="video" class="form-control @error('video') is-invalid @enderror"
+                                accept="video/mp4,video/webm"
+                                onchange="if (this.files[0] && this.files[0].size > 50 * 1024 * 1024) { alert('Video is larger than 50 MB. Please compress it and try again.'); this.value = ''; }">
+                            <small class="text-muted d-block mt-1">
+                                One <strong>portrait (vertical)</strong> video, MP4 or WebM, max <strong>50 MB</strong>.
+                                Uploading a new file replaces the current video.
+                            </small>
+                            @error('video')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        @if ($product->video)
+                            <div class="col-md-6">
+                                <label class="fw-bold d-block">Current video</label>
+                                <video src="{{ asset('storage/' . $product->video) }}" controls preload="metadata" playsinline
+                                    style="height:220px;aspect-ratio:9/16;background:#000;border-radius:8px;object-fit:contain;"></video>
+                                <label class="d-block mt-2 mb-0">
+                                    <input type="checkbox" name="remove_video" value="1"> Remove this video
+                                </label>
+                            </div>
+                        @endif
+                    </div>
+
                     {{-- ================= SIMPLE SECTION ================= --}}
                     <div id="simple-section" class="{{ (int) $product->product_type === 1 ? '' : 'd-none' }}">
                         <hr>

@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
-use App\Models\Category;
 use App\Models\User;
+use App\Services\AccountMailService;
 use Auth;
-use BcMath\Number;
 use DataTables;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
+/**
+ * Users screen. Admins manage Admin / Manager / Sales Executive accounts;
+ * Managers only see and manage Sales Executives (see User::manageableRoleNames()).
+ */
 class UserController extends Controller
 {
-
   /**
    * Show the users dashboard.
    *
@@ -25,8 +27,6 @@ class UserController extends Controller
    */
   public function index() //: View
   {
-  
-
     return view('admin.users');
   }
 
@@ -38,45 +38,53 @@ class UserController extends Controller
    */
   public function getUserList(Request $request): mixed
   {
-    $data = User::get();
+    $actor = Auth::user();
+    $query = User::query()->with('roles');
 
-    // $hasManageUser = Auth::user()->can('manage_user');
-    $hasManageUser = Auth::user()->can('admin');
-    $i = 1;
+    if (! $actor->isAdminLevel()) {
+      $query->role(User::MANAGER_MANAGEABLE_ROLES);
+    }
+
+    $data = $query->get();
+
     return Datatables::of($data)
-      ->addIndexColumn($i++)
+      ->addIndexColumn()
       ->addColumn('roles', function ($data) {
-        $roles = $data->getRoleNames()->toArray();
-        $badge = '';
-        if ($roles) {
-          $badge = implode(' , ', $roles);
+        $badge = implode(' , ', $data->getRoleNames()->toArray());
+        if ($data->is_active === false) {
+          $badge .= ' <span class="badge badge-danger">Inactive</span>';
         }
         return $badge;
       })
- 
+
       ->addColumn('permissions', function ($data) {
-        $roles = $data->getAllPermissions();
         $badges = '';
-        foreach ($roles as $key => $role) {
-          $badges .= '<span class="badge badge-dark m-1">' . $role->name . '</span>';
+        foreach ($data->getAllPermissions() as $permission) {
+          $badges .= '<span class="badge badge-dark m-1">' . e($permission->name) . '</span>';
         }
 
         return $badges;
       })
-    
-      ->addColumn('action', function ($data) use ($hasManageUser) {
-        $output = '';
-        if ($data->name == 'Super Admin') {
+
+      ->addColumn('action', function ($data) use ($actor) {
+        if (! $actor->canManageUser($data)) {
           return '';
         }
-        if ($hasManageUser) {
-          $output = '<div class="table-actions">
-                                <a href="' . url('user/' . $data->id) . '" ><i class="ik ik-edit-2 f-16 mr-15 text-green"></i></a>
-                                <a href="' . url('user/delete/' . $data->id) . '"><i class="ik ik-trash-2 f-16 text-red"></i></a>
-                            </div>';
-        }
 
-        return $output;
+        $csrf = csrf_field();
+        $toggleLabel = $data->is_active === false ? 'Activate' : 'Deactivate';
+        $toggleIcon = $data->is_active === false ? 'ik-check-circle text-green' : 'ik-slash text-orange';
+
+        return '<div class="table-actions">
+                    <a href="' . url('user/' . $data->id) . '" title="Edit"><i class="ik ik-edit-2 f-16 mr-15 text-green"></i></a>
+                    <form method="POST" action="' . route('users.toggle_active', $data->id) . '" class="d-inline" onsubmit="return confirm(\'' . $toggleLabel . ' this user?\')">' . $csrf . '
+                        <button type="submit" class="btn btn-link p-0 mr-15" title="' . $toggleLabel . '"><i class="ik ' . $toggleIcon . ' f-16"></i></button>
+                    </form>
+                    <form method="POST" action="' . route('users.resend_invite', $data->id) . '" class="d-inline">' . $csrf . '
+                        <button type="submit" class="btn btn-link p-0 mr-15" title="Resend set-password email"><i class="ik ik-mail f-16 text-blue"></i></button>
+                    </form>
+                    <a href="' . url('user/delete/' . $data->id) . '" title="Delete" onclick="return confirm(\'Delete this user?\')"><i class="ik ik-trash-2 f-16 text-red"></i></a>
+                </div>';
       })
       ->rawColumns(['roles', 'permissions', 'action'])
       ->make(true);
@@ -89,88 +97,55 @@ class UserController extends Controller
    */
   public function create(): mixed
   {
-    try {
-      $roles = Role::whereIn('name',['Admin','Sales Executive'])->pluck('name', 'id');
+    $roles = $this->assignableRoles();
 
-      return view('admin.create-user', compact('roles'));
-    } catch (\Exception $e) {
-      return redirect()->back()->with('error', $e->getMessage());
-    }
+    return view('admin.create-user', compact('roles'));
   }
 
   /**
-   * Store User
+   * Store User. No password is typed: the user gets an email link to set their own.
    *
-   * @param UserRequest $request
+   * @param Request $request
    * @return \Illuminate\Http\RedirectResponse
    */
-  public function store(UserRequest $request) //: RedirectResponse
+  public function store(Request $request, AccountMailService $mailer): RedirectResponse
   {
+    $roles = $this->assignableRoles();
 
-    $name="";
-    $email="";
-    $father_name="";
-    $address="";
-    $pin_code="";
-    $mobile="";
-    $city="";
-    $state="";
-    // return $request->all();
-    try {
-      $name = $request->name;
-      $email = $request->email;
-      $father_name = $request->father_name;
-      $address = $request->address;
-      $pin_code = $request->pin_code;
-      $mobile = $request->mobile;
-      $city = $request->city;
-      $state = $request->state;
-    
-    $is_sales_executive = 0;
-    $role_name = Role::find(intval($request->role))->name;
-
-   if($role_name == 'Sales Executive'){
-    $is_sales_executive=1;
-   }
-
-      $validator = Validator::make($request->all(), [
-        'email' => 'required|email|unique:users,email',
-      ]);
-      if ($validator->fails()) {
-        return redirect()->back()
-          ->withErrors($validator)
-          ->withInput();
-      }
-      // store user information
-      $user = User::create([
-        'name' => $name,
-        'email' => $email,
-
-        'mobile'=>$mobile,
-        'father_name'=>$father_name,
-        'city'=>$city,
-        'address'=>$address,
-        'state'=>$state,
-        'pin_code'=>$pin_code,
-
-        'password' => $request->password,
-        'is_sale_executive'=> $is_sales_executive
-      ]);
-      if ($user) {
-        // assign new role to the user
-
- 
-        $user->syncRoles(intval($request->role));
-
-        return redirect('users')->with('success', 'New user created!');
-      }
-
-      return redirect('users')->with('error', 'Failed to create new user! Try again.');
-    } catch (\Exception $e) {
-      $bug = $e->getMessage();
-
-      return redirect()->back()->with('error', $bug);
+    $validator = Validator::make($request->all(), [
+      'name' => 'required|string|max:255',
+      'email' => 'required|email|max:255|unique:users,email',
+      'mobile' => 'required|string|max:50',
+      'role' => ['required', 'integer', 'in:' . $roles->keys()->implode(',')],
+    ]);
+    if ($validator->fails()) {
+      return redirect()->back()->withErrors($validator)->withInput();
     }
+
+    $roleName = $roles[(int) $request->role];
+
+    $user = User::create([
+      'name' => $request->name,
+      'email' => $request->email,
+      'mobile' => $request->mobile,
+      'father_name' => $request->father_name,
+      'city' => $request->city,
+      'address' => $request->address,
+      'state' => $request->state,
+      'pin_code' => $request->pin_code,
+      // Unusable until the user sets their own password from the invite email.
+      'password' => Str::random(40),
+      'is_sales_executive' => $roleName === 'Sales Executive' ? 1 : 0,
+      'is_admin' => in_array($roleName, ['Admin', 'Manager'], true) ? 1 : 0,
+      'is_active' => true,
+    ]);
+    $user->syncRoles([$roleName]);
+
+    if ($mailer->sendInvite($user)) {
+      return redirect('users')->with('success', "User created. A set-password email has been sent to {$user->email}.");
+    }
+
+    return redirect('users')->with('error', 'User created, but the set-password email could not be sent. Check SMTP settings, then use "Resend" on the users list.');
   }
 
   /**
@@ -181,20 +156,15 @@ class UserController extends Controller
    */
   public function edit($id): mixed
   {
-    try {
-      $user = User::with('roles', 'permissions')->find($id);
-      if ($user) {
-        $user_role = $user->roles->first();
-        $roles = Role::whereIn('name',['Admin','Sales Executive'])->pluck('name', 'id');
-        return view('admin.user-edit', compact('user', 'user_role', 'roles'));
-      }
-
-      return redirect('404');
-    } catch (\Exception $e) {
-      $bug = $e->getMessage();
-
-      return redirect()->back()->with('error', $bug);
+    $user = User::with('roles', 'permissions')->find($id);
+    if (! $user || ! Auth::user()->canManageUser($user)) {
+      return redirect('users')->with('error', 'You cannot edit this user.');
     }
+
+    $user_role = $user->roles->first();
+    $roles = $this->assignableRoles();
+
+    return view('admin.user-edit', compact('user', 'user_role', 'roles'));
   }
 
   /**
@@ -205,74 +175,68 @@ class UserController extends Controller
    */
   public function update(Request $request): RedirectResponse
   {
-    $name = "";
-    $email = "";
-    $father_name = "";
-    $address = "";
-    $pin_code = "";
-    $mobile = "";
-    $city = "";
-    $state = "";
+    $roles = $this->assignableRoles();
 
-    $name = $request->name;
-    $email = $request->email;
-    $father_name = $request->father_name;
-    $address = $request->address;
-    $pin_code = $request->pin_code;
-    $mobile = $request->mobile;
-    $city = $request->city;
-    $state = $request->state;
-    // update user info
     $validator = Validator::make($request->all(), [
-      'id' => 'required',
-      'name' => 'required | string ',
+      'id' => 'required|integer',
+      'name' => 'required|string|max:255',
       'email' => 'required|email|unique:users,email,' . $request->id,
-      'role' => 'required',
+      'role' => ['required', 'integer', 'in:' . $roles->keys()->implode(',')],
+      'password' => 'nullable|confirmed|min:8',
     ]);
-
-    // check validation for password match
-    if (isset($request->password)) {
-      $validator = Validator::make($request->all(), [
-        'password' => 'required | confirmed',
-      ]);
-    }
-
     if ($validator->fails()) {
       return redirect()->back()->withInput()->with('error', $validator->messages()->first());
     }
 
-    try {
-      if ($user = User::find($request->id)) {
-        $payload = [
-          'name' => $request->name,
-          'email' => $request->email,
-
-          'mobile' => $mobile,
-          'father_name' => $father_name,
-          'city' => $city,
-          'address' => $address,
-          'state' => $state,
-          'pin_code' => $pin_code,
-
-        ];
-        // update password if user input a new password
-        if (isset($request->password) && $request->password) {
-          $payload['password'] = $request->password;
-        }
-
-        $update = $user->update($payload);
-        // sync user role
-        $user->syncRoles(intval($request->role));
-
-        return redirect()->back()->with('success', 'User information updated succesfully!');
-      }
-
-      return redirect()->back()->with('error', 'Failed to update user! Try again.');
-    } catch (\Exception $e) {
-      $bug = $e->getMessage();
-
-      return redirect()->back()->with('error', $bug);
+    $user = User::find($request->id);
+    if (! $user || ! Auth::user()->canManageUser($user)) {
+      return redirect('users')->with('error', 'You cannot edit this user.');
     }
+
+    $roleName = $roles[(int) $request->role];
+    $payload = [
+      'name' => $request->name,
+      'email' => $request->email,
+      'mobile' => $request->mobile ?? $user->mobile,
+      'father_name' => $request->father_name,
+      'city' => $request->city,
+      'address' => $request->address,
+      'state' => $request->state,
+      'pin_code' => $request->pin_code,
+      'is_sales_executive' => $roleName === 'Sales Executive' ? 1 : 0,
+    ];
+    if ($request->filled('password')) {
+      $payload['password'] = $request->password;
+    }
+
+    $user->update($payload);
+    $user->syncRoles([$roleName]);
+
+    return redirect()->back()->with('success', 'User information updated succesfully!');
+  }
+
+  public function toggleActive($id): RedirectResponse
+  {
+    $user = User::find($id);
+    if (! $user || ! Auth::user()->canManageUser($user)) {
+      return redirect('users')->with('error', 'You cannot change this user.');
+    }
+
+    $user->update(['is_active' => $user->is_active === false]);
+
+    return redirect('users')->with('success', $user->is_active ? 'User activated.' : 'User deactivated. They can no longer sign in.');
+  }
+
+  public function resendInvite($id, AccountMailService $mailer): RedirectResponse
+  {
+    $user = User::find($id);
+    if (! $user || ! Auth::user()->canManageUser($user)) {
+      return redirect('users')->with('error', 'You cannot change this user.');
+    }
+
+    return $mailer->sendInvite($user)
+      ? redirect('users')->with('success', "Set-password email sent to {$user->email}.")
+      : redirect('users')->with('error', 'Email could not be sent. Check SMTP settings.');
   }
 
   /**
@@ -283,13 +247,17 @@ class UserController extends Controller
    */
   public function delete($id): RedirectResponse
   {
-    if ($user = User::find($id)) {
-      $user->delete();
-
-      return redirect('users')->with('success', 'User removed!');
+    $user = User::find($id);
+    if (! $user) {
+      return redirect('users')->with('error', 'User not found');
+    }
+    if (! Auth::user()->canManageUser($user)) {
+      return redirect('users')->with('error', 'You cannot delete this user.');
     }
 
-    return redirect('users')->with('error', 'User not found');
+    $user->delete();
+
+    return redirect('users')->with('success', 'User removed!');
   }
 
   public function clearCache(): View
@@ -297,5 +265,11 @@ class UserController extends Controller
     Artisan::call('cache:clear');
 
     return view('admin.clear-cache');
+  }
+
+  /** Roles the current user may assign, as [id => name]. */
+  protected function assignableRoles()
+  {
+    return Role::whereIn('name', Auth::user()->manageableRoleNames())->pluck('name', 'id');
   }
 }

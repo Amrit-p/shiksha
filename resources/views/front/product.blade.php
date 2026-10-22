@@ -2,6 +2,31 @@
     @section('title', $product->title)
 
     <style>
+        /* Product photo / portrait video switcher */
+        .product-video-wrap { display: flex; justify-content: center; height: 420px; background: #111; border-radius: 8px; overflow: hidden; }
+        .product-video-wrap[hidden] { display: none !important; }
+        .product-video-wrap video { height: 100%; aspect-ratio: 9 / 16; max-width: 100%; object-fit: contain; background: #000; }
+        .product-media-thumbs { display: flex; gap: 10px; margin-top: 12px; }
+        .media-thumb {
+            position: relative; width: 64px; height: 64px; padding: 0; border: 2px solid #ddd; border-radius: 8px;
+            overflow: hidden; background: #fff; cursor: pointer; transition: border-color .2s;
+        }
+        .media-thumb.active, .media-thumb:hover { border-color: #ec008c; }
+        .media-thumb img, .media-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+        .media-thumb--video { background: #111; }
+        .media-thumb-play {
+            position: absolute; top: 50%; left: 50%; width: 26px; height: 26px; margin: -17px 0 0 -13px; border-radius: 50%;
+            background: rgba(236, 0, 140, .92); color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center;
+        }
+        .media-thumb-play .fa { margin-left: 2px; }
+        .media-thumb-label {
+            position: absolute; left: 0; right: 0; bottom: 0; padding: 1px 0; font-size: 10px; font-weight: 600;
+            color: #fff; background: rgba(0, 0, 0, .55); text-align: center; letter-spacing: .3px;
+        }
+        @media (max-width: 767px) {
+            .product-video-wrap { height: 70vh; max-height: 520px; }
+        }
+
         .qty-wrapper {
             display: inline-flex;
             align-items: center;
@@ -169,10 +194,34 @@
                             <div class="aa-product-details-content">
                                 <div class="row">
 
-                                    <div class="col-md-5">
-                                        <img id="mainProductImage" src="{{ $productImage }}"
-                                            alt="{{ $product->title }}"
-                                            style="width:100%;max-height:420px;object-fit:contain;border:1px solid #ddd;">
+                                    <div class="col-md-5" data-media-scope>
+                                        <div class="product-media-frame" data-media-frame>
+                                            <img id="mainProductImage" data-media-image src="{{ $productImage }}"
+                                                alt="{{ $product->title }}"
+                                                style="width:100%;max-height:420px;object-fit:contain;border:1px solid #ddd;">
+                                            @if ($product->video)
+                                                <div class="product-video-wrap" data-media-video hidden>
+                                                    <video src="{{ asset('storage/' . $product->video) }}" controls playsinline
+                                                        preload="metadata" controlslist="nodownload"></video>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Photo / portrait video switcher (public/js/product-video.js) --}}
+                                        @if ($product->video)
+                                            <div class="product-media-thumbs">
+                                                <button type="button" class="media-thumb active" data-show-image aria-label="Show product image">
+                                                    <img data-mirror-main src="{{ $productImage }}" alt="">
+                                                </button>
+                                                <button type="button" class="media-thumb media-thumb--video" data-show-video aria-label="Play product video">
+                                                    <video src="{{ asset('storage/' . $product->video) }}#t=0.5" muted playsinline
+                                                        preload="metadata" tabindex="-1"></video>
+                                                    <span class="media-thumb-play"><span class="fa fa-play"></span></span>
+                                                    <span class="media-thumb-label">Video</span>
+                                                </button>
+                                            </div>
+                                            <script src="{{ asset('js/product-video.js') }}?v={{ filemtime(public_path('js/product-video.js')) }}" defer></script>
+                                        @endif
                                     </div>
 
                                     <div class="col-md-7">
@@ -201,7 +250,7 @@
                                             <span id="showStockText">
                                                 @if ($isSimple)
                                                     @if ((int) ($product->stock ?? 0) > 0)
-                                                        In Stock ({{ (int) $product->stock }} available)
+                                                        In Stock @if ($showStockQty)({{ (int) $product->stock }} available)@endif
                                                     @else
                                                         <span class="text-danger">Out of stock</span>
                                                     @endif
@@ -306,6 +355,9 @@
                                                 ADD TO CART
                                             </button>
                                         </div>
+
+                                        {{-- Trust badges (Admin > Trust Badges) --}}
+                                        @include('front.partials.trust_badges', ['variant' => 'compact'])
                                     </div>
 
                                     <div class="col-md-12  mt-6">
@@ -335,6 +387,7 @@
                 window.__PRODUCT_VARIANTS__ = @json($variantsJson);
                 window.__HAS_CODE_TYPES__ = @json($hasCodeTypes ?? false);
                 window.__DISABLED_ATTR_IDS__ = @json($disabledAttributeIds ?? []);
+                window.__SHOW_STOCK_QTY__ = @json((bool) ($showStockQty ?? false));
             </script>
         @endif
 
@@ -433,7 +486,7 @@
                 }
                 var stock = parseInt(attr.stock, 10) || 0;
                 if (stock > 0) {
-                    el.innerHTML = 'In Stock (' + stock + ' available)';
+                    el.innerHTML = window.__SHOW_STOCK_QTY__ ? 'In Stock (' + stock + ' available)' : 'In Stock';
                 } else {
                     el.innerHTML = '<span class="text-danger">Out of stock</span>';
                 }
@@ -1281,7 +1334,7 @@
                         if (!firstSelectable) firstSelectable = btn;
                     }
                     // Show stock in label if available (e.g. "White ₹100 (5 in stock)")
-                    var stockLabel = (attr.stock != null && attr.stock > 0) ? ' (' + attr.stock + ' in stock)' : '';
+                    var stockLabel = (window.__SHOW_STOCK_QTY__ && attr.stock != null && attr.stock > 0) ? ' (' + attr.stock + ' in stock)' : '';
                     if (!isDisabled && stockLabel) btn.innerText += stockLabel;
 
                     btn.addEventListener('click', function(event) {

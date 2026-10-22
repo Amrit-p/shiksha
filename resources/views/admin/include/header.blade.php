@@ -14,11 +14,13 @@
                         <span class="input-group-addon search-btn"><i class="ik ik-search"></i></span>
                     </div>
                 </div>--}}
+                @can('admin')
                 <button class="nav-link" title="clear cache">
                     <a  href="{{url('clear-cache')}}">
                     <i class="ik ik-battery-charging"></i> 
                 </a>
                 </button> &nbsp;&nbsp;
+                @endcan
                 <button type="button" id="navbar-fullscreen" class="nav-link"><i class="ik ik-maximize"></i></button>
             </div>
             <div class="top-menu d-flex align-items-center">
@@ -122,7 +124,7 @@
                     <a class="dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhtMRbtowke9ZnnGtyYJmIuJaB2Q1y5I-3IA&s" alt=""></a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                         {{-- <a class="dropdown-item" href="{{url('profile')}}"><i class="ik ik-user dropdown-icon"></i> {{ __('Profile')}}</a> --}}
-                        <a class="dropdown-item" href="#"><i class="ik ik-navigation dropdown-icon"></i> {{ __('Message')}}</a>
+                        <a class="dropdown-item" href="{{ route('admin.password.edit') }}"><i class="ik ik-lock dropdown-icon"></i> {{ __('Change Password')}}</a>
                         <a class="dropdown-item" href="{{ url('logout') }}">
                             <i class="ik ik-power dropdown-icon"></i> 
                             {{ __('Logout')}}

@@ -83,6 +83,9 @@ class UpdateProductRequest extends FormRequest
             // Main image optional on update (already exists)
             'images'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:width=600,height=600',
             'product_images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:width=600,height=600',
+            // One portrait product video, max 50 MB.
+            'video'            => 'nullable|file|mimetypes:video/mp4,video/webm|max:51200',
+            'remove_video'     => 'nullable|boolean',
         ];
 
         /* ================= SIMPLE PRODUCT ================= */
@@ -138,6 +141,8 @@ class UpdateProductRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'video.mimetypes' => 'Product video must be an MP4 or WebM file',
+            'video.max' => 'Product video may not be larger than 50 MB',
             'title.required'        => 'Product title is required',
             'category_id.required'  => 'Category is required',
             'product_type.required' => 'Product type is required',

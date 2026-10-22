@@ -270,6 +270,11 @@ class ProductController extends Controller
         );
       }
 
+      /* PRODUCT VIDEO (portrait, optional) */
+      $productVideo = $request->hasFile('video')
+        ? FileHelper::upload($request->file('video'), 'product-videos')
+        : null;
+
       /* CREATE PRODUCT */
       $product = Product::create([
         'title'             => $request->title,
@@ -279,6 +284,7 @@ class ProductController extends Controller
         'short_description' => $request->short_description,
         'description'       => $request->description,
         'image'             => $productImage,
+        'video'             => $productVideo,
         'status'            => 1,
         'unit_id'           => $request->unit_id ?? null,
       ]);
@@ -578,6 +584,17 @@ class ProductController extends Controller
           Storage::disk('public')->delete($product->image);
         }
         $product->image = $request->file('images')->store('products', 'public');
+      }
+
+      /* =============================
+                   PRODUCT VIDEO (replace / remove)
+                ============================== */
+      if ($request->hasFile('video')) {
+        FileHelper::delete($product->video);
+        $product->video = FileHelper::upload($request->file('video'), 'product-videos');
+      } elseif ($request->boolean('remove_video')) {
+        FileHelper::delete($product->video);
+        $product->video = null;
       }
 
       /* =============================
@@ -989,6 +1006,7 @@ class ProductController extends Controller
       if ($product->image && Storage::disk('public')->exists($product->image)) {
         Storage::disk('public')->delete($product->image);
       }
+      FileHelper::delete($product->video);
 
       /*
         |--------------------------------------------------------------------------

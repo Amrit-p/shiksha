@@ -188,6 +188,128 @@
 
   <!--end my custom design -->
 
+  {{-- Current schemes / banners (admin > Banner). Bootstrap 3 carousel, no Sequence.js. --}}
+  @if ($home_banner->isNotEmpty())
+  <style>
+    /* The theme floats #aa-header and #menu, so this section must clear them or it slides underneath. */
+    #scheme-banners { clear: both; width: 100%; padding: 24px 0 8px; }
+    #scheme-banners .scheme-carousel { border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(23, 16, 31, .12); background: #f4effa; }
+    #scheme-banners .item { position: relative; aspect-ratio: 1920 / 700; }
+    #scheme-banners .item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    #scheme-banners .scheme-caption {
+      position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 40px 34px; text-align: left;
+      background: linear-gradient(180deg, rgba(23, 16, 31, 0) 0%, rgba(23, 16, 31, .72) 100%);
+    }
+    #scheme-banners .scheme-caption h3 { margin: 0 0 12px; color: #fff; font-size: 28px; font-weight: 700; line-height: 1.25; max-width: 70%; }
+    #scheme-banners .scheme-caption .scheme-btn {
+      display: inline-block; padding: 9px 22px; border-radius: 999px; background: #ec008c; color: #fff;
+      font-weight: 600; font-size: 14px; letter-spacing: .3px; transition: background .2s;
+    }
+    #scheme-banners .scheme-caption .scheme-btn:hover { background: #c20073; color: #fff; text-decoration: none; }
+    #scheme-banners .carousel-control {
+      width: 44px; height: 44px; top: 50%; margin-top: -22px; border-radius: 50%; opacity: .9;
+      background: rgba(255, 255, 255, .9) !important; color: #ec008c; text-shadow: none;
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .18); transition: background .2s, color .2s;
+    }
+    #scheme-banners .carousel-control.left { left: 16px; }
+    #scheme-banners .carousel-control.right { right: 16px; }
+    #scheme-banners .carousel-control:hover { background: #ec008c !important; color: #fff; opacity: 1; }
+    #scheme-banners .carousel-indicators { bottom: 10px; margin-bottom: 0; }
+    #scheme-banners .carousel-indicators li { width: 9px; height: 9px; margin: 0 3px; border: 0; background: rgba(255, 255, 255, .55); transition: width .2s; }
+    #scheme-banners .carousel-indicators .active { width: 24px; height: 9px; margin: 0 3px; border-radius: 5px; background: #ec008c; }
+    @media (max-width: 767px) {
+      #scheme-banners { padding: 14px 0 4px; }
+      #scheme-banners .scheme-carousel { border-radius: 10px; }
+      #scheme-banners .item { aspect-ratio: 16 / 9; }
+      #scheme-banners .scheme-caption { padding: 36px 16px 30px; }
+      #scheme-banners .scheme-caption h3 { font-size: 17px; max-width: 100%; margin-bottom: 8px; }
+      #scheme-banners .scheme-caption .scheme-btn { padding: 6px 16px; font-size: 13px; }
+      #scheme-banners .carousel-control { width: 34px; height: 34px; margin-top: -17px; font-size: 20px; }
+      #scheme-banners .carousel-control.left { left: 8px; }
+      #scheme-banners .carousel-control.right { right: 8px; }
+    }
+  </style>
+  <section id="scheme-banners">
+    <div class="container">
+      <div id="schemeCarousel" class="carousel slide scheme-carousel" data-ride="carousel" data-interval="5000">
+        <div class="carousel-inner" role="listbox">
+          @foreach ($home_banner as $i => $banner)
+            <div class="item {{ $i === 0 ? 'active' : '' }}">
+              @if ($banner->btn_link && ! $banner->btn_text)<a href="{{ $banner->btn_link }}">@endif
+              <img src="{{ asset('storage/'.$banner->image) }}" alt="{{ $banner->title ?: 'Current scheme' }}">
+              @if ($banner->btn_link && ! $banner->btn_text)</a>@endif
+              @if ($banner->title || ($banner->btn_text && $banner->btn_link))
+              <div class="scheme-caption">
+                @if ($banner->title)<h3>{{ $banner->title }}</h3>@endif
+                @if ($banner->btn_text && $banner->btn_link)
+                  <a href="{{ $banner->btn_link }}" class="scheme-btn">{{ $banner->btn_text }} <span class="fa fa-angle-right"></span></a>
+                @endif
+              </div>
+              @endif
+            </div>
+          @endforeach
+        </div>
+        @if ($home_banner->count() > 1)
+        <ol class="carousel-indicators">
+          @foreach ($home_banner as $i => $banner)
+            <li data-target="#schemeCarousel" data-slide-to="{{ $i }}" class="{{ $i === 0 ? 'active' : '' }}"></li>
+          @endforeach
+        </ol>
+        <a class="left carousel-control" href="#schemeCarousel" role="button" data-slide="prev" aria-label="Previous"><span class="fa fa-angle-left"></span></a>
+        <a class="right carousel-control" href="#schemeCarousel" role="button" data-slide="next" aria-label="Next"><span class="fa fa-angle-right"></span></a>
+        @endif
+      </div>
+    </div>
+  </section>
+  @endif
+
+  {{-- Trust badges strip (Admin > Trust Badges) --}}
+  @include('front.partials.trust_badges', ['variant' => 'full'])
+
+  {{-- "Current Schemes" popup: once per day per browser, after the page loader fades out. --}}
+  @if ($scheme_banners->isNotEmpty())
+  <div class="modal fade" id="schemesModal" tabindex="-1" role="dialog" aria-labelledby="schemesModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="schemesModalLabel">Current Schemes</h4>
+        </div>
+        <div class="modal-body">
+          @foreach ($scheme_banners as $banner)
+            <div style="{{ $loop->last ? '' : 'margin-bottom:20px;' }}">
+              <img src="{{ asset('storage/'.$banner->image) }}" alt="{{ $banner->title }}" style="width:100%;border-radius:4px;">
+              @if ($banner->title)<h4 style="margin:10px 0 4px;">{{ $banner->title }}</h4>@endif
+              @if ($banner->ends_at)<small class="text-muted">Valid till {{ $banner->ends_at->format('d M Y') }}</small>@endif
+              @if ($banner->btn_text && $banner->btn_link)
+                <div style="margin-top:8px;"><a href="{{ $banner->btn_link }}" class="aa-secondary-btn" style="display:inline-block;padding:6px 16px;">{{ $banner->btn_text }}</a></div>
+              @endif
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var key = 'schemes_popup_seen_{{ auth()->id() }}';
+      var today = new Date().toISOString().slice(0, 10);
+      var seen = null;
+      try { seen = localStorage.getItem(key); } catch (e) {}
+      if (seen === today) return;
+      // jQuery/Bootstrap load at the end of the layout, so wait for window load.
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          if (!window.jQuery || !jQuery.fn.modal) return;
+          jQuery('#schemesModal').modal('show');
+          try { localStorage.setItem(key, today); } catch (e) {}
+        }, 900);
+      });
+    })();
+  </script>
+  @endif
+
 
 
 

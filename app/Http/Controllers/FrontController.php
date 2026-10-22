@@ -19,6 +19,9 @@ use App\Models\WebsiteSetting;
 use App\Models\VariantCustomField;
 use App\Models\CustomFieldType;
 use App\Services\OrderNotificationService;
+use App\Services\OrderDeliveryService;
+use App\Services\CouponService;
+use App\Models\Banner;
 
 use function Laravel\Prompts\table;
 
@@ -79,7 +82,8 @@ class FrontController extends Controller
       ->where(['status' => 1])
       // ->where(['is_home' => 1])
       ->get();
-    $result['home_banner'] = DB::table('banners')->where(['status' => 1])->get();
+    $result['home_banner'] = Banner::current()->get();
+    $result['scheme_banners'] = $result['home_banner']->where('show_in_popup', true)->values();
     return view('front.index', $result);
   }
 
@@ -150,7 +154,11 @@ public function product(Request $request, $slug)
         ? asset('storage/' . $product->image)
         : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
-    $variantsJson = $product->variants->map(function ($v) use ($productImage) {
+    // When counts are hidden, only send in/out of stock (1/0) so the real number never reaches the page.
+    $showStockQty = WebsiteSetting::showStockQuantity();
+    $stockOut = fn ($stock) => $showStockQty ? (int) ($stock ?? 0) : ((int) ($stock ?? 0) > 0 ? 1 : 0);
+
+    $variantsJson = $product->variants->map(function ($v) use ($productImage, $stockOut) {
         return [
             'id'                      => $v->id,
             'name'                    => $v->name,
@@ -161,7 +169,7 @@ public function product(Request $request, $slug)
             'image'                   => ($v->image && Storage::disk('public')->exists($v->image)) ? asset('storage/' . $v->image) : $productImage,
             'mrp'                     => (float)($v->mrp ?? 0),
             'sell_price'              => ($v->sell_price > 0) ? (float)$v->sell_price : null,
-            'stock'                   => (int)($v->stock ?? 0),
+            'stock'                   => $stockOut($v->stock),
             // ✅ ADD THIS LINE
             'variant_description'             => $v->variant_description ?? '',
 
@@ -185,7 +193,7 @@ public function product(Request $request, $slug)
                 ];
             })->values(),
 
-            'attributes'              => $v->attributes->map(function ($a) {
+            'attributes'              => $v->attributes->map(function ($a) use ($stockOut) {
                 return [
                     'id'                           => $a->id,
                     'label_name'                   => $a->option->attribute ? $a->option->attribute->name : '',
@@ -193,7 +201,7 @@ public function product(Request $request, $slug)
                     'mrp'                          => (float)($a->mrp ?? 0),
                     'sell_price'                   => ($a->sell_price > 0) ? (float)$a->sell_price : null,
                     'is_por'                       => (bool)($a->is_por ?? false),
-                    'stock'                        => (int)($a->stock ?? 0),
+                    'stock'                        => $stockOut($a->stock),
                     'image'                        => ($a->image && Storage::disk('public')->exists($a->image)) ? asset('storage/' . $a->image) : '',
                     'required_custom_field_id'     => $a->custom_field_required_id ?? null,
                 ];
@@ -238,7 +246,8 @@ public function product(Request $request, $slug)
         'variantsJson',
         'disabledAttributeIds',
         'hasCodeTypes',
-        'codeTypes'
+        'codeTypes',
+        'showStockQty'
     ));
 }
 
@@ -573,7 +582,9 @@ public function product_old(Request $request, $slug)
     */
     if (!WebsiteSetting::allowOrderBeyondStock() && $availableStock !== null && $qtyAfterAdd > $availableStock) {
         return response()->json([
-            'msg' => 'Insufficient stock. Available: ' . $availableStock . ', requested: ' . $qtyAfterAdd
+            'msg' => WebsiteSetting::showStockQuantity()
+                ? 'Insufficient stock. Available: ' . $availableStock . ', requested: ' . $qtyAfterAdd
+                : 'Insufficient stock for the requested quantity.'
         ], 422);
     }
 
@@ -1080,7 +1091,8 @@ public function place_order(Request $request)
                 DB::rollBack();
                 return response()->json([
                     'status' => 'error',
-                    'msg' => 'Insufficient stock for product: ' . $p->title . ' (available: ' . (int) $p->stock . ', required: ' . $totalQty . ')'
+                    'msg' => 'Insufficient stock for product: ' . $p->title
+                        . (WebsiteSetting::showStockQuantity() ? ' (available: ' . (int) $p->stock . ', required: ' . $totalQty . ')' : '')
                 ], 422);
             }
         }
@@ -1094,7 +1106,8 @@ public function place_order(Request $request)
                 $optName = $va->option->name ?? 'Option';
                 return response()->json([
                     'status' => 'error',
-                    'msg' => 'Insufficient stock for ' . $optName . ' (available: ' . (int) $va->stock . ', required: ' . $totalQty . ')'
+                    'msg' => 'Insufficient stock for ' . $optName
+                        . (WebsiteSetting::showStockQuantity() ? ' (available: ' . (int) $va->stock . ', required: ' . $totalQty . ')' : '')
                 ], 422);
             }
         }
@@ -1304,11 +1317,34 @@ public function place_order(Request $request)
             ];
         }
 
+        // Coupon: re-validated here with the final server-side total (row locked so limits hold under concurrency).
+        $coupon = null;
+        $discount = 0.0;
+        if (filled($request->coupon_code)) {
+            try {
+                $result = app(CouponService::class)->evaluate(
+                    (string) $request->coupon_code, (float) $grandTotal, $request->owner_phone, $request->gst_number, true
+                );
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'msg' => $e->validator->errors()->first('coupon_code'),
+                ], 422);
+            }
+            $coupon = $result['coupon'];
+            $discount = $result['discount'];
+        }
+
         Cart::where('user_id', $salesmanId)->delete();
 
         $order->update([
             'total_qty' => $totalQty,
-            'total_amount' => $grandTotal,
+            'subtotal_amount' => $grandTotal,
+            'discount_amount' => $discount,
+            'coupon_id' => $coupon?->id,
+            'coupon_code' => $coupon?->code,
+            'total_amount' => round($grandTotal - $discount, 2),
             'product_json' => json_encode($productSnapshots),
         ]);
 
@@ -1338,6 +1374,64 @@ public function place_order(Request $request)
         ]);
     }
 }
+
+  /** Preview a coupon on the checkout page (AJAX). place_order re-validates it. */
+  public function applyCoupon(Request $request, CouponService $coupons)
+  {
+    $request->validate(['coupon_code' => 'required|string|max:40']);
+
+    $subtotal = $this->cartSubtotal(Auth::id());
+    if ($subtotal <= 0) {
+      return response()->json(['status' => 'error', 'msg' => 'Cart is empty'], 422);
+    }
+
+    try {
+      $result = $coupons->evaluate($request->coupon_code, $subtotal, $request->owner_phone, $request->gst_number);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+      return response()->json(['status' => 'error', 'msg' => $e->validator->errors()->first('coupon_code')], 422);
+    }
+
+    return response()->json([
+      'status' => 'success',
+      'code' => $result['coupon']->code,
+      'summary' => $result['coupon']->summary(),
+      'subtotal' => round($subtotal, 2),
+      'discount' => $result['discount'],
+      'total' => round($subtotal - $result['discount'], 2),
+    ]);
+  }
+
+  /** Cart total using the same unit-price rules as place_order(). */
+  private function cartSubtotal(int $userId): float
+  {
+    $cartItems = Cart::where('user_id', $userId)->get();
+    $products = Product::whereIn('id', $cartItems->pluck('product_id')->unique())->get()->keyBy('id');
+    $variantAttrs = VariantAttribute::whereIn('id', $cartItems->pluck('variant_attribute_id')->filter()->unique())->get()->keyBy('id');
+
+    $total = 0.0;
+    foreach ($cartItems as $item) {
+      $product = $products->get($item->product_id);
+      if (!$product) continue;
+
+      if ((int) $product->product_type === 1) {
+        $unit = (!is_null($product->sale_price) && $product->sale_price > 0 && $product->sale_price <= $product->price)
+          ? (float) $product->sale_price : (float) $product->price;
+      } else {
+        $va = $variantAttrs->get($item->variant_attribute_id);
+        if (!$va) continue;
+        if (!empty($va->is_por) && $va->is_por == 1) {
+          $unit = (float) $item->price;
+        } else {
+          $unit = (!is_null($va->sell_price) && $va->sell_price > 0 && $va->sell_price <= $va->mrp)
+            ? (float) $va->sell_price : (float) $va->mrp;
+        }
+      }
+
+      $total += $unit * (int) $item->qty;
+    }
+
+    return $total;
+  }
 
   public function order_placed(Request $request)
   {
@@ -1404,7 +1498,10 @@ public function place_order(Request $request)
       return redirect('/')->with('error', 'No order items found');
     }
 
-    return view('front.order_detail', compact('order', 'items'));
+    $deliveryLines = app(OrderDeliveryService::class)->lines($order);
+    $order->load('deliveries.items', 'payments');
+
+    return view('front.order_detail', compact('order', 'items', 'deliveryLines'));
   }
 
   public function removeCartItem(Request $request)
@@ -1449,7 +1546,9 @@ public function place_order(Request $request)
       if ($availableStock !== null && (int) $request->qty > $availableStock) {
         return response()->json([
           'status' => false,
-          'msg'    => 'Insufficient stock. Available: ' . $availableStock . ', requested: ' . (int) $request->qty,
+          'msg'    => WebsiteSetting::showStockQuantity()
+            ? 'Insufficient stock. Available: ' . $availableStock . ', requested: ' . (int) $request->qty
+            : 'Insufficient stock for the requested quantity.',
           'qty'    => (int) $cart->qty,
         ], 422);
       }

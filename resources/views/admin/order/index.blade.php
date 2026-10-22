@@ -57,7 +57,7 @@
                   <select id="order_status_filter" class="form-control form-control-sm" style="max-width:200px;">
                     <option value="">All</option>
                     @foreach ($orderStatusOptions ?? [] as $slug)
-                      <option value="{{ $slug }}">{{ str_replace('_', ' ', ucfirst($slug)) }}</option>
+                      <option value="{{ $slug }}">{{ orderStatusLabel($slug) }}</option>
                     @endforeach
                   </select>
                 </div>
@@ -87,6 +87,7 @@
                      <th>Address Detail</th>
                      <th>Total Amount</th>
                       <th>Order Status</th>
+                      <th>Delivered</th>
                       <th>Payment Status</th>
                        <th>Sale Man</th>
                      <th>Created At</th>

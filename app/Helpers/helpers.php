@@ -176,6 +176,44 @@ function MessageFlashHelper($key, $message)
   Session::flash($key, $message);
 }
 
+if (!function_exists('orderStatusLabel')) {
+  /** Human label for an orders.order_status slug, e.g. partially_delivered -> "Partial Pending". */
+  function orderStatusLabel(?string $slug): string
+  {
+    $labels = ['rto' => 'RTO', 'on_the_way' => 'On the Way', 'partially_delivered' => 'Partial Pending'];
+    $slug = (string) $slug;
+
+    return $labels[$slug] ?? ucwords(str_replace('_', ' ', $slug));
+  }
+}
+
+
+if (!function_exists('paymentStatusLabel')) {
+  /** Human label for orders.payment_status: pending / partial / paid. */
+  function paymentStatusLabel(?string $status): string
+  {
+    return match (strtolower((string) $status)) {
+      'paid' => 'Paid',
+      'partial' => 'Partially Paid',
+      default => 'Pending',
+    };
+  }
+}
+
+if (!function_exists('paymentStatusBadge')) {
+  /** Bootstrap badge HTML for orders.payment_status. */
+  function paymentStatusBadge(?string $status): string
+  {
+    $class = match (strtolower((string) $status)) {
+      'paid' => 'badge-success',
+      'partial' => 'badge-warning',
+      default => 'badge-secondary',
+    };
+
+    return '<span class="badge ' . $class . '">' . e(paymentStatusLabel($status)) . '</span>';
+  }
+}
+
 
 function prx($arr)
 {

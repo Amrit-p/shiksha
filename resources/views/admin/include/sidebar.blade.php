@@ -29,7 +29,7 @@
                 <div class="nav-item {{ ($segment1 == 'pos') ? 'active' : '' }}">
                     <a href="{{url('pos')}}"><i class="ik ik-printer"></i><span>{{ __('POS')}}</span> <span class=" badge badge-success badge-right">{{ __('New')}}</span></a>
                 </div> --> --}}
-                {{-- @can('manage_user') --}}
+                @canany(['admin', 'manage_sales'])
                 <div class="nav-item {{ in_array($adminPage, ['users', 'roles', 'permission', 'user']) ? 'active open' : '' }} has-sub">
                     <a href="#"><i class="ik ik-users"></i><span>{{ __('Administrator')}}</span></a>
                     <div class="submenu-content">
@@ -48,8 +48,10 @@
                         {{-- @endcan --}}
                     </div>
                 </div>
-                {{-- @endcan --}}
+                @endcanany
 
+                {{-- Catalog: admins only --}}
+                @can('admin')
               <div class="nav-item {{ $adminPage == 'category' ? 'active' : '' }}">
                     <a href="{{route('admin.category')}}"><i class="ik ik-layers"></i><span>{{ __('Category')}}</span></a>
                 </div>
@@ -73,6 +75,14 @@
                             <a href="{{route('admin.banner')}}" class="menu-item {{ ($segment1 == 'customers') ? 'active' : '' }}">{{ __('List')}}</a>
                         </div> --}}
 
+               </div>
+               {{-- trust badges (salesman site) --}}
+              <div class="nav-item {{ $adminPage == 'trust-badges' ? 'active' : '' }}">
+                    <a href="{{route('admin.trust-badges.index')}}"><i class="ik ik-shield"></i><span>{{ __('Trust Badges')}}</span></a>
+               </div>
+               {{-- coupons --}}
+              <div class="nav-item {{ $adminPage == 'coupons' ? 'active' : '' }}">
+                    <a href="{{route('admin.coupons.index')}}"><i class="ik ik-percent"></i><span>{{ __('Coupons')}}</span></a>
                </div>
                {{-- brand --}}
               <div class="nav-item {{ $adminPage == 'brand' ? 'active' : '' }}">
@@ -119,20 +129,46 @@
               <div class="nav-item {{ $adminPage == 'color' ? 'active' : '' }}">
                     <a href="{{route('admin.color')}}"><i class="ik ik-droplet"></i><span>{{ __('Color')}}</span></a>
                </div>
+                @endcan
 
                <!-- Order -->
+               @canany(['admin', 'manage_orders'])
               <div class="nav-item {{ $adminPage == 'order' && !$segment3 ? 'active' : '' }}">
                     <a href="{{route('admin.order')}}"><i class="ik ik-shopping-cart"></i><span>{{ __('Order')}}</span></a>
                </div>
+               @endcanany
 
+               @canany(['admin', 'manage_enquiries'])
                <div class="nav-item {{ $adminPage == 'enquiries' ? 'active' : '' }}">
                     <a href="{{ route('admin.enquiries.index') }}"><i class="ik ik-mail"></i><span>{{ __('Enquiries')}}</span></a>
                </div>
+               @endcanany
+
+               @can('admin')
 
                @php
                    $unreadContacts = \Illuminate\Support\Facades\Schema::hasTable('contact_messages')
                        ? \App\Models\ContactMessage::where('is_read', false)->count() : 0;
                @endphp
+               @php
+                   $pendingPayments = \Illuminate\Support\Facades\Schema::hasTable('order_payments')
+                       ? \App\Models\OrderPayment::pending()->count() : 0;
+               @endphp
+               <div class="nav-item {{ in_array($adminPage, ['sales-report', 'sales-targets', 'payments']) ? 'active open' : '' }} has-sub">
+                    <a href="#">
+                        <i class="ik ik-trending-up"></i><span>{{ __('Sales & Collection')}}</span>
+                        @if($pendingPayments)<span class="badge badge-warning">{{ $pendingPayments }}</span>@endif
+                    </a>
+                    <div class="submenu-content">
+                        <a href="{{ route('admin.sales.report') }}" class="menu-item {{ $adminPage == 'sales-report' ? 'active' : '' }}">{{ __('Salesman Report')}}</a>
+                        <a href="{{ route('admin.payments.index') }}" class="menu-item {{ $adminPage == 'payments' ? 'active' : '' }}">
+                            {{ __('Payments')}}
+                            @if($pendingPayments)<span class="badge badge-warning">{{ $pendingPayments }}</span>@endif
+                        </a>
+                        <a href="{{ route('admin.sales.targets') }}" class="menu-item {{ $adminPage == 'sales-targets' ? 'active' : '' }}">{{ __('Targets')}}</a>
+                    </div>
+               </div>
+
                <div class="nav-item {{ $adminPage == 'contact-messages' ? 'active' : '' }}">
                     <a href="{{ route('admin.contact-messages.index') }}">
                         <i class="ik ik-message-square"></i><span>{{ __('Contact Messages')}}</span>
@@ -149,6 +185,7 @@
                         <a href="{{ url('/') }}" target="_blank" class="menu-item">{{ __('View Website')}}</a>
                     </div>
                </div>
+               @endcan
               {{-- <div class="nav-item {{ request()->routeIs('admin.order.salesmen') || request()->routeIs('admin.order.salesman') ? 'active' : '' }}">
                     <a href="{{ route('admin.order.salesmen') }}"><i class="ik ik-user-check"></i><span>{{ __('Salesman Orders')}}</span></a>
                </div> --}}

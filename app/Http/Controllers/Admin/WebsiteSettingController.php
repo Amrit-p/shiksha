@@ -34,12 +34,22 @@ class WebsiteSettingController extends Controller
             'linkedin' => ['social', 'url'],
             'meta_keywords' => ['seo', 'text'],
             'allow_order_beyond_stock' => ['orders', 'boolean'],
+            'show_stock_quantity' => ['orders', 'boolean'],
+            'whatsapp_notification_number' => ['whatsapp', 'text'],
+            'whatsapp_phone_number_id' => ['whatsapp', 'text'],
+            'whatsapp_template_name' => ['whatsapp', 'text'],
+            'whatsapp_template_language' => ['whatsapp', 'text'],
         ];
 
         foreach ($fields as $key => [$group, $type]) {
             if ($request->has($key)) {
                 WebsiteSetting::setValue($key, $request->input($key), $group, $type);
             }
+        }
+
+        // The token is never rendered back into the form, so a blank field means "keep the saved one".
+        if ($request->filled('whatsapp_access_token')) {
+            WebsiteSetting::setValue('whatsapp_access_token', trim($request->input('whatsapp_access_token')), 'whatsapp', 'secret');
         }
 
         if ($request->hasFile('logo')) {

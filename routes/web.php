@@ -32,11 +32,24 @@ use App\Http\Controllers\Admin\SmtpSettingController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\TrustBadgeController;
+use App\Http\Controllers\Admin\OrderPaymentController as AdminOrderPaymentController;
+use App\Http\Controllers\Admin\SalesReportController;
+use App\Http\Controllers\Admin\SalesmanTargetController;
+use App\Http\Controllers\Salesman\PaymentController as SalesmanPaymentController;
+use App\Http\Controllers\Salesman\PerformanceController as SalesmanPerformanceController;
+use App\Http\Controllers\Auth\AccountPasswordController;
 
 #test
 #test222
 $front_back_middleware = ['auth', 'permission:frontend_shop|admin'];
 $back_end_middleware = ['auth', 'permission:admin'];
+// Managers: orders, enquiries and salesman accounts only. `admin` keeps full access everywhere.
+$panel_middleware = ['auth', 'permission:admin|manage_orders|manage_enquiries|manage_sales'];
+$orders_middleware = ['auth', 'permission:admin|manage_orders'];
+$enquiries_middleware = ['auth', 'permission:admin|manage_enquiries'];
+$users_middleware = ['auth', 'permission:admin|manage_sales'];
 
 /*
 |--------------------------------------------------------------------------
@@ -88,6 +101,7 @@ Route::middleware($front_back_middleware)->prefix('salesman')->group(function ()
   Route::get('/category/{id}', [FrontController::class, 'category'])->name('front.category');
   Route::get('/checkout', [FrontController::class, 'checkout'])->name('front.checkout');
   Route::post('place_order', [FrontController::class, 'place_order'])->name('front.place.order');
+  Route::post('/apply-coupon', [FrontController::class, 'applyCoupon'])->middleware('throttle:30,1')->name('front.coupon.apply');
   Route::get('/order_placed', [FrontController::class, 'order_placed']);
 
   Route::get('/order', [FrontController::class, 'order'])->name('front.order');
@@ -100,9 +114,20 @@ Route::middleware($front_back_middleware)->prefix('salesman')->group(function ()
     ->name('front.cart.updateQty');
   Route::get('/order-success/{order}', [FrontController::class, 'orderSuccess'])
     ->name('front.order.success');
+  Route::get('/change-password', [AccountPasswordController::class, 'editSalesman'])->name('front.password.edit');
+
+  // Payments collected on the salesman's own orders + their sales / collection figures.
+  Route::post('/order/{order}/payments', [SalesmanPaymentController::class, 'store'])->name('front.payments.store');
+  Route::put('/payments/{payment}', [SalesmanPaymentController::class, 'update'])->name('front.payments.update');
+  Route::delete('/payments/{payment}', [SalesmanPaymentController::class, 'destroy'])->name('front.payments.destroy');
+  Route::get('/payments/{payment}/proof', [SalesmanPaymentController::class, 'proof'])->name('front.payments.proof');
+  Route::get('/performance', [SalesmanPerformanceController::class, 'index'])->name('front.performance');
+
+  Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('front.notifications.open');
+  Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('front.notifications.read_all');
 });
 
-Route::middleware($back_end_middleware)->group(function () {
+Route::middleware($panel_middleware)->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
   // Route::get('/admin/dashboard', function () {
@@ -134,15 +159,20 @@ Route::get('/register', function () {
 //   return view('admin.pages.login');
 // });
 
-//only those have manage_user permission will get access
-Route::middleware($back_end_middleware)->group(function () {
+// Admins manage every account; Managers only Sales Executives (enforced in UserController).
+Route::middleware($users_middleware)->group(function () {
   Route::get('/users', [UserController::class, 'index'])->name('users.index');
   Route::get('/user/get-list', [UserController::class, 'getUserList']);
   Route::get('/user/create', [UserController::class, 'create']);
   Route::post('/user/create', [UserController::class, 'store'])->name('create-user');
-  Route::get('/user/{id}', [UserController::class, 'edit']);
+  Route::get('/user/{id}', [UserController::class, 'edit'])->whereNumber('id');
   Route::post('/user/update', [UserController::class, 'update']);
+  Route::post('/user/{id}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle_active');
+  Route::post('/user/{id}/resend-invite', [UserController::class, 'resendInvite'])->name('users.resend_invite');
   Route::get('/user/delete/{id}', [UserController::class, 'delete']);
+});
+
+Route::middleware($back_end_middleware)->group(function () {
   Route::get('/clear-cache', [UserController::class, 'clearCache']);
 });
 
@@ -156,7 +186,7 @@ Route::middleware($back_end_middleware)->group(function () {
 });
 
 
-Route::get('get-role-permissions-badge', [PermissionController::class, 'getPermissionBadgeByRole']);
+Route::get('get-role-permissions-badge', [PermissionController::class, 'getPermissionBadgeByRole'])->middleware($users_middleware);
 
 //only those have manage_role permission will get access
 Route::middleware($back_end_middleware)->group(function () {
@@ -190,20 +220,12 @@ Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
   Route::delete('/product/delete/{id}', [ProductController::class, 'delete'])->name('admin.product.delete');
   Route::post('/product/store', [ProductController::class, 'store'])->name('admin.product.store');
   Route::get('/product/get-list', [ProductController::class, 'getProductList'])->name('admin.product.list');
+
+  // Recently deleted products (restore / permanent delete)
+  Route::get('/product/recently-deleted-page', [ProductController::class, 'recentlyDeletedpage'])->name('admin.product.recentlyDeletedPage');
+  Route::post('/product/permanently-delete/{id}', [ProductController::class, 'permanentlyDelete'])->name('admin.product.permanentlyDelete');
+  Route::post('/product/restore/{id}', [ProductController::class, 'restore'])->name('admin.product.restore');
 });
-
-    // product restore route
-// Route::get('/admin/product', [ProductController::class, 'index'])->name('admin.product.index');
-
-Route::get('/admin/product/recently-deleted-page', [ProductController::class, 'recentlyDeletedpage'])->name('admin.product.recentlyDeletedPage');
-
-// Route::get('/admin/product/permanentlyDelete/{id}', [ProductController::class, 'permanentlyDelete'])->name('admin.product.permanentlyDelete');
-Route::post('/admin/product/permanently-delete/{id}', [ProductController::class, 'permanentlyDelete'])
-     ->name('admin.product.permanentlyDelete');
-
-
-
-Route::post('/admin/product/restore/{id}', [ProductController::class, 'restore'])->name('admin.product.restore');
 
 
 
@@ -211,11 +233,32 @@ Route::post('/admin/product/restore/{id}', [ProductController::class, 'restore']
 
 Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
   Route::get('/banner', [BannerController::class, 'index'])->name('admin.banner');
+  Route::get('/banner/create', [BannerController::class, 'create'])->name('admin.banner.create');
   Route::post('/banner/store', [BannerController::class, 'store'])->name('admin.banner.store');
-  Route::get('/banner/get-list', [BannerController::class, 'getBannerList'])->name('admin.banner.list');
-  Route::delete('/banner/delete/{id}', [BannerController::class, 'delete'])->name('admin.banner.delete');
+  Route::get('/banner/{banner}/edit', [BannerController::class, 'edit'])->name('admin.banner.edit');
+  Route::put('/banner/{banner}', [BannerController::class, 'update'])->name('admin.banner.update');
+  Route::post('/banner/{banner}/toggle', [BannerController::class, 'toggle'])->name('admin.banner.toggle');
+  Route::delete('/banner/delete/{banner}', [BannerController::class, 'delete'])->name('admin.banner.delete');
 });
 
+
+Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
+  Route::get('/trust-badges', [TrustBadgeController::class, 'index'])->name('admin.trust-badges.index');
+  Route::get('/trust-badges/create', [TrustBadgeController::class, 'create'])->name('admin.trust-badges.create');
+  Route::post('/trust-badges', [TrustBadgeController::class, 'store'])->name('admin.trust-badges.store');
+  Route::get('/trust-badges/{trustBadge}/edit', [TrustBadgeController::class, 'edit'])->name('admin.trust-badges.edit');
+  Route::put('/trust-badges/{trustBadge}', [TrustBadgeController::class, 'update'])->name('admin.trust-badges.update');
+  Route::post('/trust-badges/{trustBadge}/toggle', [TrustBadgeController::class, 'toggle'])->name('admin.trust-badges.toggle');
+  Route::delete('/trust-badges/{trustBadge}', [TrustBadgeController::class, 'destroy'])->name('admin.trust-badges.destroy');
+
+  Route::get('/coupons', [CouponController::class, 'index'])->name('admin.coupons.index');
+  Route::get('/coupons/create', [CouponController::class, 'create'])->name('admin.coupons.create');
+  Route::post('/coupons', [CouponController::class, 'store'])->name('admin.coupons.store');
+  Route::get('/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('admin.coupons.edit');
+  Route::put('/coupons/{coupon}', [CouponController::class, 'update'])->name('admin.coupons.update');
+  Route::post('/coupons/{coupon}/toggle', [CouponController::class, 'toggle'])->name('admin.coupons.toggle');
+  Route::delete('/coupons/{coupon}', [CouponController::class, 'destroy'])->name('admin.coupons.destroy');
+});
 
 Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
   Route::get('/brand', [BrandController::class, 'index'])->name('admin.brand');
@@ -259,7 +302,7 @@ Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
 });
 
 #order section
-Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
+Route::middleware($orders_middleware)->prefix('admin')->group(function () {
   Route::get('/order', [OrderController::class, 'index'])->name('admin.order');
   Route::get('/order/order-detail/{id}', [OrderController::class, 'order_detail'])->name('admin.order.detail');
   Route::post('/order/store', [OrderController::class, 'store'])->name('admin.order.store');
@@ -274,6 +317,8 @@ Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
   Route::patch('/order/update', [OrderController::class, 'update'])->name('admin.order.update');
 
   Route::get('/order-detail/{id}', [OrderController::class, 'order_detail'])->name('admin.order_detail');
+  Route::post('/order/{id}/deliveries', [OrderController::class, 'storeDelivery'])->name('admin.order.delivery.store');
+  Route::get('/order/{id}/delivery-details', [OrderController::class, 'deliveryDetails'])->name('admin.order.delivery.details');
   Route::get('/order/{id}/invoice', [OrderController::class, 'invoicePreview'])
     ->name('admin.order.invoice.preview');
   Route::get('/order/{id}/invoice/pdf', [OrderController::class, 'invoicePdf'])
@@ -365,13 +410,36 @@ Route::get('/pos', function () {
   return view('admin.inventory.pos');
 });
 
-Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
+Route::middleware($enquiries_middleware)->prefix('admin')->group(function () {
   Route::get('/enquiries', [AdminEnquiryController::class, 'index'])->name('admin.enquiries.index');
   Route::get('/enquiries/list', [AdminEnquiryController::class, 'list'])->name('admin.enquiries.list');
   Route::get('/enquiries/{id}', [AdminEnquiryController::class, 'show'])->name('admin.enquiries.show');
   Route::post('/enquiries/{id}/status', [AdminEnquiryController::class, 'updateStatus'])->name('admin.enquiries.status');
   Route::post('/enquiries/{id}/assign', [AdminEnquiryController::class, 'assign'])->name('admin.enquiries.assign');
   Route::post('/enquiries/{id}/note', [AdminEnquiryController::class, 'addNote'])->name('admin.enquiries.note');
+});
+
+Route::middleware($panel_middleware)->prefix('admin')->group(function () {
+  Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('admin.notifications.open');
+  Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('admin.notifications.read_all');
+  Route::get('/change-password', [AccountPasswordController::class, 'edit'])->name('admin.password.edit');
+});
+
+Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
+
+  // Salesman sales & collection (super admin only).
+  Route::get('/sales-report', [SalesReportController::class, 'index'])->name('admin.sales.report');
+  Route::get('/sales-report/export', [SalesReportController::class, 'export'])->name('admin.sales.export');
+  Route::get('/sales-report/salesman/{user}', [SalesReportController::class, 'show'])->name('admin.sales.salesman');
+  Route::get('/sales-report/salesman/{user}/export', [SalesReportController::class, 'exportSalesman'])->name('admin.sales.salesman.export');
+  Route::get('/sales-targets', [SalesmanTargetController::class, 'index'])->name('admin.sales.targets');
+  Route::post('/sales-targets', [SalesmanTargetController::class, 'update'])->name('admin.sales.targets.update');
+  Route::get('/payments', [AdminOrderPaymentController::class, 'index'])->name('admin.payments.index');
+  Route::post('/order/{order}/payments', [AdminOrderPaymentController::class, 'store'])->name('admin.payments.store');
+  Route::post('/payments/{payment}/verify', [AdminOrderPaymentController::class, 'verify'])->name('admin.payments.verify');
+  Route::post('/payments/{payment}/reject', [AdminOrderPaymentController::class, 'reject'])->name('admin.payments.reject');
+  Route::post('/payments/{payment}/reverse', [AdminOrderPaymentController::class, 'reverse'])->name('admin.payments.reverse');
+  Route::get('/payments/{payment}/proof', [AdminOrderPaymentController::class, 'proof'])->name('admin.payments.proof');
 
   Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('admin.contact-messages.index');
   Route::get('/contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('admin.contact-messages.show');
@@ -398,9 +466,6 @@ Route::middleware($back_end_middleware)->prefix('admin')->group(function () {
   Route::get('/homepage-sections', [HomepageSectionController::class, 'index'])->name('admin.homepage.index');
   Route::get('/homepage-sections/{id}/edit', [HomepageSectionController::class, 'edit'])->name('admin.homepage.edit');
   Route::put('/homepage-sections/{id}', [HomepageSectionController::class, 'update'])->name('admin.homepage.update');
-
-  Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('admin.notifications.open');
-  Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('admin.notifications.read_all');
 });
 
 

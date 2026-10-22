@@ -698,8 +698,45 @@ select:focus,
               <div class="aa-header-top-right">
                 <ul class="aa-head-top-nav-right">
                   <li><a href="{{route('front.order')}}">My Order</a></li>
+                  @auth
+                  <li><a href="{{ route('front.performance') }}">My Performance</a></li>
+                  @php
+                      $salesmanUnread = auth()->user()->unreadNotifications()->count();
+                      $salesmanNotifications = auth()->user()->notifications()->latest()->limit(8)->get();
+                  @endphp
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Notifications">
+                      <span class="fa fa-bell"></span>
+                      @if($salesmanUnread)<span class="badge" style="background:#d9534f">{{ $salesmanUnread }}</span>@endif
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right" style="min-width:300px;max-height:380px;overflow-y:auto">
+                      @forelse($salesmanNotifications as $notification)
+                        <li>
+                          <a href="{{ route('front.notifications.open', $notification->id) }}" style="white-space:normal;{{ $notification->read_at ? 'opacity:.6' : '' }}">
+                            <span class="fa {{ $notification->data['icon'] ?? 'fa-bell' }}"></span>
+                            <b>{{ $notification->data['title'] ?? 'Notification' }}</b><br>
+                            <small>{{ $notification->data['message'] ?? '' }}</small><br>
+                            <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                          </a>
+                        </li>
+                      @empty
+                        <li><a href="javascript:void(0)">No notifications yet</a></li>
+                      @endforelse
+                      @if($salesmanUnread)
+                        <li role="separator" class="divider"></li>
+                        <li>
+                          <form method="POST" action="{{ route('front.notifications.read_all') }}" style="padding:4px 20px">
+                            @csrf
+                            <button type="submit" class="btn btn-link btn-xs" style="padding:0">Mark all as read</button>
+                          </form>
+                        </li>
+                      @endif
+                    </ul>
+                  </li>
+                  @endauth
 
                   <li class="hidden-xs"><a href="{{route('front.view.cart')}}">My Cart</a></li>
+                  <li><a href="{{route('front.password.edit')}}">Change Password</a></li>
                   {{-- <li><a href="" data-toggle="modal" data-target="#login-modal">Logout</a></li> --}}
                   <li><a href="{{route('logout') }}">Logout</a></li>
                 </ul>

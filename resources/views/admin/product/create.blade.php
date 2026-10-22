@@ -127,6 +127,23 @@
                         </div>
                     </div>
 
+                    {{-- PRODUCT VIDEO (portrait, optional) --}}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Product Video <small class="text-muted">(optional)</small></label>
+                            <input type="file" name="video" class="form-control shadow-sm @error('video') is-invalid @enderror"
+                                accept="video/mp4,video/webm"
+                                onchange="if (this.files[0] && this.files[0].size > 50 * 1024 * 1024) { alert('Video is larger than 50 MB. Please compress it and try again.'); this.value = ''; }">
+                            <small class="text-muted d-block mt-1">
+                                One <strong>portrait (vertical)</strong> video, MP4 or WebM, max <strong>50 MB</strong>.
+                                Shown under the product image on the salesman and website product pages.
+                            </small>
+                            @error('video')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
                     {{-- SIMPLE PRODUCT SECTION --}}
                     <div id="simple-section" class="{{ (string) old('product_type') === '1' ? '' : 'd-none' }}">
                         <hr class="my-4">
@@ -1176,7 +1193,8 @@
                 }
 
                 let imageValid = true;
-                const imageInputs = $('#product-form input[type="file"]').filter(function() {
+                // 600x600 check is for images only; the product video has its own size check.
+                const imageInputs = $('#product-form input[type="file"]').not('[name="video"]').filter(function() {
                     return this.files && this.files.length > 0;
                 });
 
