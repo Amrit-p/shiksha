@@ -757,7 +757,7 @@ select:focus,
               <!-- logo  -->
               <div class="aa-logo">
                 <a href="{{route('front.index')}}">
-                <img src="{{ asset('front_assets/img/logo.png') }}" alt="Shiksha Lights logo" style="width: 96px; height: 68px; object-fit: contain; margin-left: 8px;" />
+                <x-brand-logo :size="54" style="margin-left: 8px; color: #2b1a33;" />
                 </a>
               </div>
 
