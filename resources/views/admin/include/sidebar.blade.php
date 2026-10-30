@@ -1,9 +1,7 @@
 <div class="app-sidebar colored">
     <div class="sidebar-header">
-        <a class="header-brand d-block w-100 pl-5" href="{{route('admin.dashboard')}}">
-            <div class="logo-img">
-               <h4>Shiksha Light</h4>
-            </div>
+        <a class="header-brand d-flex w-100 justify-content-center" href="{{route('admin.dashboard')}}">
+            <x-brand-logo :size="34" />
         </a>
         <div class="sidebar-action"><i class="ik ik-arrow-left-circle"></i></div>
         <button id="sidebarClose" class="nav-close"><i class="ik ik-x"></i></button>

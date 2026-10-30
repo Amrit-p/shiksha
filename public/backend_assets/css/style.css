@@ -491,3 +491,8 @@ input[type=number]::-webkit-outer-spin-button {
     appearance: none;
     margin: 0; 
 }
+/* Animated brand mark in the sidebar header: keep the 60px header, trim padding so the wordmark fits */
+.wrapper .page-wrap .app-sidebar .sidebar-header {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}

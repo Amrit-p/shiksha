@@ -10,7 +10,6 @@
     $phone = $settings['phone'] ?? '+91 98765 43210';
     $phoneHref = preg_replace('/[^0-9+]/', '', $phone);
     $email = $settings['email'] ?? 'info@shiksha.local';
-    $logo = asset('theme/img/logo.png');
     $brandName = $settings['name'] ?? 'Shiksha';
 @endphp
 
@@ -36,7 +35,7 @@
     <div class="container">
       <div class="header-inner">
         <a class="brand" href="{{ route('shop.home') }}" aria-label="{{ $brandName }} home">
-          <img src="{{ $logo }}" alt="{{ $brandName }} logo">
+          <x-brand-logo :size="52" />
           <span class="brand-text d-none d-sm-flex">
             <span class="brand-name">{{ $brandName }}</span>
             <span class="brand-sub">Lighting</span>
@@ -95,7 +94,7 @@
 <aside class="mobile-nav" id="mobileNav" aria-hidden="true" aria-label="Mobile navigation">
   <div class="mobile-nav-head">
     <a class="brand" href="{{ route('shop.home') }}">
-      <img src="{{ $logo }}" alt="{{ $brandName }}">
+      <x-brand-logo :size="40" />
       <span class="brand-text">
         <span class="brand-name">{{ $brandName }}</span>
         <span class="brand-sub">Lighting</span>
