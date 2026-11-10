@@ -159,11 +159,6 @@
                     </a>
                     <div class="submenu-content">
                         <a href="{{ route('admin.sales.report') }}" class="menu-item {{ $adminPage == 'sales-report' ? 'active' : '' }}">{{ __('Salesman Report')}}</a>
-                        <a href="{{ route('admin.payments.index') }}" class="menu-item {{ $adminPage == 'payments' ? 'active' : '' }}">
-                            {{ __('Payments')}}
-                            @if($pendingPayments)<span class="badge badge-warning">{{ $pendingPayments }}</span>@endif
-                        </a>
-                        <a href="{{ route('admin.sales.targets') }}" class="menu-item {{ $adminPage == 'sales-targets' ? 'active' : '' }}">{{ __('Targets')}}</a>
                     </div>
                </div>
 

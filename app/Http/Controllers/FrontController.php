@@ -1499,7 +1499,7 @@ public function place_order(Request $request)
     }
 
     $deliveryLines = app(OrderDeliveryService::class)->lines($order);
-    $order->load('deliveries.items', 'payments');
+    $order->load('deliveries.items');
 
     return view('front.order_detail', compact('order', 'items', 'deliveryLines'));
   }

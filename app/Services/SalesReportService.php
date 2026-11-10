@@ -81,6 +81,7 @@ class SalesReportService
             ->groupBy('user_id')
             ->selectRaw("user_id,
                 COALESCE(SUM(CASE WHEN status = 'verified' THEN amount ELSE 0 END), 0) as collected,
+                COUNT(DISTINCT CASE WHEN status = 'verified' THEN order_id END) as collected_orders,
                 COALESCE(SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END), 0) as pending")
             ->get()->keyBy('user_id');
 
@@ -99,6 +100,8 @@ class SalesReportService
                     'orders' => (int) ($sales[$user->id]->orders ?? 0),
                     'sales' => (float) ($sales[$user->id]->sales ?? 0),
                     'collected' => (float) ($payments[$user->id]->collected ?? 0),
+                    // Orders that received at least one verified payment in the period (part-paid or fully paid).
+                    'collected_orders' => (int) ($payments[$user->id]->collected_orders ?? 0),
                     'pending' => (float) ($payments[$user->id]->pending ?? 0),
                     'outstanding' => $dues[$user->id]['outstanding'] ?? 0.0,
                     'overdue' => $dues[$user->id]['overdue'] ?? 0.0,
@@ -117,7 +120,7 @@ class SalesReportService
     /** Totals row for a summary() result. */
     public function totals(Collection $rows): array
     {
-        return collect(['orders', 'sales', 'collected', 'pending', 'outstanding', 'overdue', 'sales_target', 'collection_target'])
+        return collect(['orders', 'sales', 'collected', 'collected_orders', 'pending', 'outstanding', 'overdue', 'sales_target', 'collection_target'])
             ->mapWithKeys(fn ($key) => [$key => $rows->sum($key)])
             ->all();
     }
@@ -137,8 +140,10 @@ class SalesReportService
                 'end' => $weekEnd,
                 'label' => $cursor->format('d M').' – '.$weekEnd->format('d M'),
                 'orders' => 0,
+                'pieces' => 0,
                 'sales' => 0.0,
                 'collected' => 0.0,
+                'collected_orders' => 0,
                 'pending' => 0.0,
             ];
             $cursor = $weekEnd->addDay()->startOfDay();
@@ -155,23 +160,33 @@ class SalesReportService
         };
 
         $this->ordersQuery()->where('user_id', $userId)->whereBetween('created_at', [$from, $to])
-            ->get(['created_at', 'total_amount'])
+            ->get(['created_at', 'total_amount', 'total_qty'])
             ->each(function ($order) use (&$weeks, $bucket) {
                 $i = $bucket(CarbonImmutable::parse($order->created_at, 'UTC')->setTimezone(self::TZ));
                 if ($i !== null) {
                     $weeks[$i]['orders']++;
+                    $weeks[$i]['pieces'] += (int) $order->total_qty;
                     $weeks[$i]['sales'] += (float) $order->total_amount;
                 }
             });
 
+        $paidOrders = [];
         DB::table('order_payments')->where('user_id', $userId)
             ->whereIn('status', [OrderPayment::STATUS_VERIFIED, OrderPayment::STATUS_PENDING])
             ->where('paid_on', '>=', $this->dateBounds($period)[0])->where('paid_on', '<', $this->dateBounds($period)[1])
-            ->get(['paid_on', 'amount', 'status'])
-            ->each(function ($payment) use (&$weeks, $bucket) {
+            ->get(['order_id', 'paid_on', 'amount', 'status'])
+            ->each(function ($payment) use (&$weeks, &$paidOrders, $bucket) {
                 $i = $bucket(CarbonImmutable::parse(substr((string) $payment->paid_on, 0, 10), self::TZ));
-                if ($i !== null) {
-                    $weeks[$i][$payment->status === OrderPayment::STATUS_VERIFIED ? 'collected' : 'pending'] += (float) $payment->amount;
+                if ($i === null) {
+                    return;
+                }
+
+                if ($payment->status === OrderPayment::STATUS_VERIFIED) {
+                    $weeks[$i]['collected'] += (float) $payment->amount;
+                    $paidOrders[$i][$payment->order_id] = true;   // an order paid twice in a week counts once
+                    $weeks[$i]['collected_orders'] = count($paidOrders[$i]);
+                } else {
+                    $weeks[$i]['pending'] += (float) $payment->amount;
                 }
             });
 
