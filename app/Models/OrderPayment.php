@@ -16,13 +16,16 @@ class OrderPayment extends Model
 
     public const STATUS_REVERSED = 'reversed';
 
-    /** Modes a salesman/admin can pick. "other" is only used for backfilled rows. */
+    /** Modes an admin can pick when recording a payment. */
     public const MODES = [
         'cash' => 'Cash',
         'upi' => 'UPI',
         'cheque' => 'Cheque',
         'bank_transfer' => 'Bank Transfer',
     ];
+
+    /** Mode of payments logged by a salesman (their form has no mode choice) and of backfilled rows. */
+    public const MODE_OTHER = 'other';
 
     protected $fillable = [
         'order_id',

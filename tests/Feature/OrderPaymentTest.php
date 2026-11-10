@@ -18,7 +18,7 @@ function salesmanOrder(array $attributes = []): array
 
 function paymentData(array $overrides = []): array
 {
-    return $overrides + ['amount' => 400, 'paid_on' => now('Asia/Kolkata')->toDateString(), 'mode' => 'upi', 'reference' => 'UPI123'];
+    return $overrides + ['amount' => 400, 'paid_on' => now('Asia/Kolkata')->toDateString(), 'mode' => 'cheque', 'reference' => 'CHQ123'];
 }
 
 beforeEach(fn () => Notification::fake());
@@ -184,6 +184,71 @@ test('managers cannot verify payments or open the payment queue', function () {
     $this->actingAs($manager)->post(route('admin.payments.verify', OrderPayment::sole()))->assertForbidden();
 });
 
+test('the salesman form has no mode: new payments save as other and a posted mode is ignored', function () {
+    [$salesman, $order] = salesmanOrder();
+
+    $this->actingAs($salesman)->post(route('front.payments.store', $order->id), ['amount' => 300, 'paid_on' => now('Asia/Kolkata')->toDateString()])
+        ->assertSessionHasNoErrors();
+    $this->actingAs($salesman)->post(route('front.payments.store', $order->id), paymentData(['amount' => 300, 'mode' => 'cash']))
+        ->assertSessionHasNoErrors();
+
+    expect(OrderPayment::pluck('mode')->all())->toBe(['other', 'other']);
+
+    $form = view('front.partials.payment_form', [
+        'action' => '#', 'method' => 'POST', 'payment' => null, 'max' => 1000, 'submit' => 'Save',
+    ])->render();
+    expect($form)->not->toContain('name="mode"')->toContain('Reference no.');
+});
+
+test('an admin using the salesman panel must still pick a mode', function () {
+    [, $order] = salesmanOrder();
+    $admin = userWithRole('Admin');
+    $data = ['amount' => 300, 'paid_on' => now('Asia/Kolkata')->toDateString()];
+
+    $this->actingAs($admin)->post(route('front.payments.store', $order->id), $data)->assertSessionHasErrors('mode');
+    expect(OrderPayment::count())->toBe(0);
+
+    $this->actingAs($admin)->post(route('front.payments.store', $order->id), $data + ['mode' => 'cash'])->assertSessionHasNoErrors();
+    expect(OrderPayment::sole()->mode)->toBe('cash')->and(OrderPayment::sole()->status)->toBe('verified');
+
+    $form = view('front.partials.payment_form', [
+        'action' => '#', 'method' => 'POST', 'payment' => null, 'max' => 1000, 'submit' => 'Save',
+    ])->render();
+    expect($form)->toContain('name="mode"')->toContain('Bank Transfer');
+});
+
+test('a pending payment saved with an old mode keeps it when the salesman edits it', function () {
+    [$salesman, $order] = salesmanOrder();
+    $payment = OrderPayment::create([
+        'order_id' => $order->id, 'user_id' => $salesman->id, 'amount' => 400,
+        'paid_on' => now('Asia/Kolkata')->toDateString(), 'mode' => 'upi', 'status' => 'pending',
+    ]);
+
+    $this->actingAs($salesman)->put(route('front.payments.update', $payment), paymentData(['amount' => 500, 'mode' => 'cash']))
+        ->assertSessionHasNoErrors();
+
+    expect($payment->fresh()->mode)->toBe('upi')
+        ->and((float) $payment->fresh()->amount)->toBe(500.0)
+        ->and($payment->fresh()->modeLabel())->toBe('UPI');
+});
+
+test('admin must pick a mode, and all four modes are accepted', function (string $mode) {
+    [, $order] = salesmanOrder();
+    $admin = userWithRole('Admin');
+
+    $this->actingAs($admin)->postJson(route('admin.order.make_paid'), ['order_id' => $order->id] + paymentData(['amount' => 100, 'mode' => '']))
+        ->assertJsonValidationErrors('mode');
+    $this->actingAs($admin)->post(route('admin.payments.store', $order->id), paymentData(['amount' => 100, 'mode' => 'other']))
+        ->assertSessionHasErrors('mode');
+
+    $this->actingAs($admin)->postJson(route('admin.order.make_paid'), ['order_id' => $order->id] + paymentData(['amount' => 100, 'mode' => $mode]))
+        ->assertOk();
+    $this->actingAs($admin)->post(route('admin.payments.store', $order->id), paymentData(['amount' => 100, 'mode' => $mode]))
+        ->assertSessionHasNoErrors();
+
+    expect(OrderPayment::pluck('mode')->all())->toBe([$mode, $mode]);
+})->with(['cash', 'upi', 'cheque', 'bank_transfer']);
+
 test('pages render: salesman payments section, admin queue and order detail', function () {
     [$salesman, $order] = salesmanOrder();
     $this->actingAs($salesman)->post(route('front.payments.store', $order->id), paymentData());
@@ -197,6 +262,6 @@ test('pages render: salesman payments section, admin queue and order detail', fu
     expect($html)->toContain('Payments Collected')->toContain('Awaiting verification')->toContain('Log a payment');
 
     $admin = userWithRole('Admin');
-    $this->actingAs($admin)->get(route('admin.payments.index'))->assertOk()->assertSee('UPI123');
+    $this->actingAs($admin)->get(route('admin.payments.index'))->assertOk()->assertSee('CHQ123');
     $this->actingAs($admin)->get(route('admin.order.detail', $order->id))->assertOk()->assertSee('Payments Received');
 });

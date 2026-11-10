@@ -24,7 +24,7 @@ class OrderPaymentService
      * Record money received for an order. Admin entries are verified straight away;
      * salesman entries wait for verification.
      *
-     * @param  array{amount: numeric, paid_on: string, mode: string, reference?: ?string, note?: ?string}  $data
+     * @param  array{amount: numeric, paid_on: string, mode?: string, reference?: ?string, note?: ?string}  $data
      */
     public function log(Order $order, array $data, User $actor, ?UploadedFile $proof = null): OrderPayment
     {
@@ -49,7 +49,7 @@ class OrderPaymentService
                 'recorded_by' => $actor->id,
                 'amount' => $data['amount'],
                 'paid_on' => $data['paid_on'],
-                'mode' => $data['mode'],
+                'mode' => $data['mode'] ?? OrderPayment::MODE_OTHER,
                 'reference' => $data['reference'] ?? null,
                 'note' => $data['note'] ?? null,
                 'proof_path' => $proof?->store('payment-proofs', self::PROOF_DISK),
@@ -79,10 +79,10 @@ class OrderPaymentService
             $order = Order::query()->lockForUpdate()->findOrFail($payment->order_id);
             $this->assertWithinBalance($order, (float) $data['amount'], $payment->id);
 
+            // The saved mode is kept: the salesman's form has no mode choice.
             $attributes = [
                 'amount' => $data['amount'],
                 'paid_on' => $data['paid_on'],
-                'mode' => $data['mode'],
                 'reference' => $data['reference'] ?? null,
                 'note' => $data['note'] ?? null,
             ];

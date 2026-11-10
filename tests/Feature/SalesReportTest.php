@@ -57,7 +57,59 @@ test('monthly sales use Indian dates and skip cancelled orders; collection uses 
     expect($row['orders'])->toBe(3)
         ->and($row['sales'])->toBe(3000.0)
         ->and($row['collected'])->toBe(400.0)
+        ->and($row['collected_orders'])->toBe(1)
         ->and($row['pending'])->toBe(100.0);
+});
+
+test('collected counts orders with a verified payment in the period, each order once', function () {
+    $salesman = userWithRole('Sales Executive');
+    $base = ['user_id' => $salesman->id];
+
+    $twice = placedAt('2026-10-02 11:00', $base);
+    $once = placedAt('2026-09-10 11:00', $base);                          // booked in September, paid in October
+    $pendingOnly = placedAt('2026-10-03 11:00', $base);
+    placedAt('2026-10-20 11:00', $base);                                  // no payment at all: 3 orders booked, 2 collected
+    $other = placedAt('2026-10-04 11:00');                                // another salesman
+
+    payment($twice, 300, '2026-10-06');
+    payment($twice, 200, '2026-10-14');                                   // same order, a different week
+    payment($once, 500, '2026-10-07');
+    payment($pendingOnly, 100, '2026-10-08', 'pending');
+    payment($pendingOnly, 100, '2026-10-08', 'rejected');
+    payment($other, 400, '2026-10-09');
+
+    $reports = app(SalesReportService::class);
+    $rows = $reports->summary($reports->period('month', '2026-10'));
+
+    expect(rowFor($rows, $salesman->id)['collected_orders'])->toBe(2)
+        ->and($reports->totals($rows)['collected_orders'])->toBe(3);
+
+    $weeks = $reports->weekly($salesman->id, $reports->period('month', '2026-10')['start']);
+    expect(array_column($weeks, 'collected_orders'))->toBe([0, 2, 1, 0, 0]);
+
+    $admin = userWithRole('Admin');
+    $this->actingAs($admin)->get(route('admin.sales.salesman', [$salesman->id, 'date' => '2026-10']))
+        ->assertOk()->assertSee('3 order(s)')->assertDontSee('Collected');
+});
+
+test('salesman basic report: weekly sales and pieces sold for the month, skipping cancelled orders', function () {
+    $salesman = userWithRole('Sales Executive');
+    $base = ['user_id' => $salesman->id];
+
+    placedAt('2026-10-06 11:00', $base + ['total_qty' => 15, 'total_amount' => 800]);
+    placedAt('2026-10-19 01:00', $base);                                              // helper default: 18 pieces, 1000
+    placedAt('2026-10-12 10:00', $base + ['order_status' => 'cancelled']);
+    placedAt('2026-09-30 23:00', $base);                                              // September
+    placedAt('2026-10-07 10:00');                                                     // another salesman
+
+    $weeks = app(SalesReportService::class)->weekly($salesman->id, Carbon::parse('2026-10-01', 'Asia/Kolkata')->toImmutable());
+
+    expect(array_sum(array_column($weeks, 'pieces')))->toBe(33)
+        ->and(array_sum(array_column($weeks, 'orders')))->toBe(2)
+        ->and(array_sum(array_column($weeks, 'sales')))->toBe(1800.0);
+
+    $week = collect($weeks)->firstWhere('label', '05 Oct – 11 Oct');
+    expect($week['pieces'])->toBe(15)->and($week['sales'])->toBe(800.0);
 });
 
 test('weeks run Monday to Sunday in Indian time', function () {
@@ -133,17 +185,21 @@ test('admin report pages render and CSV downloads; managers are refused', functi
     payment($order, 400, '2026-10-12');
     $admin = userWithRole('Admin');
 
-    $this->actingAs($admin)->get(route('admin.sales.report'))->assertOk()->assertSee('Ravi Kumar')->assertSee('₹1,000.00');
+    $this->actingAs($admin)->get(route('admin.sales.report'))->assertOk()->assertSee('Ravi Kumar')->assertSee('₹1,000.00')
+        ->assertDontSee('Collected')->assertDontSee('Outstanding')->assertDontSee('Overdue')->assertDontSee('Pending verification')->assertDontSee('Targets')->assertDontSee('Sales target')->assertDontSee('Collection target')
+        ->assertDontSee(route('admin.payments.index'))->assertDontSee(route('admin.sales.targets'));
     $this->actingAs($admin)->get(route('admin.sales.report', ['type' => 'week', 'date' => '2026-10-07']))->assertOk();
-    $this->actingAs($admin)->get(route('admin.sales.salesman', [$salesman->id, 'date' => '2026-10']))->assertOk()->assertSee('Week by week');
+    $this->actingAs($admin)->get(route('admin.sales.salesman', [$salesman->id, 'date' => '2026-10']))->assertOk()->assertSee('Week by week')->assertSee('Orders this month')
+        ->assertDontSee('Pending verification')->assertDontSee('Outstanding')->assertDontSee('Payments received')->assertDontSee('Received');
     $this->actingAs($admin)->get(route('admin.sales.targets'))->assertOk()->assertSee('Ravi Kumar');
 
     $csv = $this->actingAs($admin)->get(route('admin.sales.export', ['type' => 'month', 'date' => '2026-10']));
     $csv->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
-    expect($csv->streamedContent())->toContain('"Ravi Kumar",1,1000,400,0,600,0');
+    expect($csv->streamedContent())->toContain('"Ravi Kumar",1,1000'."\n")->not->toContain('Outstanding')->not->toContain('Overdue')->not->toContain('Pending verification')->not->toContain('Collected')->not->toContain('target');
 
     $detail = $this->actingAs($admin)->get(route('admin.sales.salesman.export', [$salesman->id, 'date' => '2026-10']));
-    expect($detail->streamedContent())->toContain('"05 Oct – 11 Oct",1,1000,0,0')->toContain('"12 Oct – 18 Oct",0,0,400,0');
+    expect($detail->streamedContent())->toContain('"05 Oct – 11 Oct",1,1000'."\n")->toContain('"12 Oct – 18 Oct",0,0'."\n")->not->toContain('Pending verification')->not->toContain('Collected')
+        ->toContain('"Order #",Date,Shop,"Payment type",Total'."\n")->not->toContain('Payments')->not->toContain('Received');
 
     $manager = userWithRole('Manager');
     $this->actingAs($manager)->get(route('admin.sales.report'))->assertForbidden();

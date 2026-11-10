@@ -33,9 +33,9 @@
                         <td>{{ $payment->paid_on->format('d M Y') }}</td>
                         <td>₹{{ number_format((float) $payment->amount, 2) }}</td>
                         <td>
-                            {{ $payment->modeLabel() }}
-                            @if($payment->reference)<br><small class="text-muted">{{ $payment->reference }}</small>@endif
-                            @if($payment->note)<br><small class="text-muted">{{ $payment->note }}</small>@endif
+                            @if($payment->mode !== \App\Models\OrderPayment::MODE_OTHER){{ $payment->modeLabel() }}<br>@endif
+                            @if($payment->reference)<small class="text-muted">{{ $payment->reference }}</small><br>@endif
+                            @if($payment->note)<small class="text-muted">{{ $payment->note }}</small>@endif
                         </td>
                         <td>
                             @if($payment->proof_path)

@@ -203,11 +203,6 @@
                 </div>
             </div>
 
-            {{-- PAYMENTS COLLECTED --}}
-            <div class="col-md-12">
-                @include('front.partials.order_payments')
-            </div>
-
             {{-- DELIVERY STATUS (read-only) --}}
             <div class="col-md-12">
                 <div class="cart-view-area">
