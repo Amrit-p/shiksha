@@ -194,7 +194,9 @@
     /* The theme floats #aa-header and #menu, so this section must clear them or it slides underneath. */
     #scheme-banners { clear: both; width: 100%; padding: 24px 0 8px; }
     #scheme-banners .scheme-carousel { border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(23, 16, 31, .12); background: #f4effa; }
-    #scheme-banners .item { position: relative; aspect-ratio: 1920 / 700; }
+    /* No `position` here: this ID selector would override Bootstrap's `.carousel-inner > .next/.prev { position: absolute }`,
+       stacking the incoming slide below the active one mid-transition and pushing the page down on every slide. */
+    #scheme-banners .item { aspect-ratio: 1920 / 700; }
     #scheme-banners .item img { width: 100%; height: 100%; object-fit: cover; display: block; }
     #scheme-banners .scheme-caption {
       position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 40px 34px; text-align: left;
