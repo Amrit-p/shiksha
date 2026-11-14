@@ -15,16 +15,13 @@
       <div class="table-responsive">
         <table class="table table-bordered mb-0">
           <thead>
-            <tr><th style="width:110px;">Image</th><th>Title / Button</th><th>Dates</th><th>Order</th><th>Popup</th><th>Status</th><th style="width:120px;">Action</th></tr>
+            <tr><th style="width:110px;">Image</th><th>Title</th><th>Dates</th><th>Order</th><th>Popup</th><th>Status</th><th style="width:120px;">Action</th></tr>
           </thead>
           <tbody>
             @forelse ($banners as $banner)
               <tr>
                 <td><img src="{{ asset('storage/'.$banner->image) }}" alt="" style="width:100px;height:50px;object-fit:cover;"></td>
-                <td>
-                  <b>{{ $banner->title ?: '-' }}</b>
-                  @if ($banner->btn_text)<div><small>{{ $banner->btn_text }} &rarr; {{ $banner->btn_link ?: 'no link' }}</small></div>@endif
-                </td>
+                <td><b>{{ $banner->title ?: '-' }}</b></td>
                 <td>
                   {{ $banner->starts_at?->format('d M Y') ?? 'Any time' }} &ndash; {{ $banner->ends_at?->format('d M Y') ?? 'No end' }}
                   @if ($banner->ends_at && $banner->ends_at->lt(today()))<span class="badge badge-secondary">Expired</span>

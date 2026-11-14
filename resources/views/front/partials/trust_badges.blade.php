@@ -14,6 +14,9 @@
   .tb-slider:not(.slick-initialized) { display: flex; overflow: hidden; }
   .tb-slider:not(.slick-initialized) .tb-item { flex: 0 0 25%; }
   .tb-item { padding: 0 6px; outline: none; }
+  /* slick.css sets `.slick-slide { height: 100% }`. The home page renders in quirks mode (its <style> block is output
+     before the doctype), where that resolves to the full window height and leaves a screen of blank space below. */
+  .tb-slider .slick-slide { height: auto; }
   .tb-card {
     display: flex; align-items: center; gap: 12px; height: 76px; padding: 10px 14px;
     background: #fff; border: 1px solid #f1e3ee; border-radius: 12px; box-shadow: 0 3px 10px rgba(23, 16, 31, .05);

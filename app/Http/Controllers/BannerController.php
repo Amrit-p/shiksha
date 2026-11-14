@@ -74,8 +74,6 @@ class BannerController extends Controller
   {
     $data = $request->validate([
       'title' => 'nullable|string|max:255',
-      'btn_text' => 'nullable|string|max:50',
-      'btn_link' => 'nullable|url|max:255',
       'image' => [$imageRequired ? 'required' : 'nullable', 'image', 'max:4096'],
       'starts_at' => 'nullable|date',
       'ends_at' => 'nullable|date|after_or_equal:starts_at',
