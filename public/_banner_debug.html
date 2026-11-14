@@ -1,0 +1,1597 @@
+<style>
+  /* PROMO SECTION */
+#aa-promo {
+  padding: 50px 0;
+  background: linear-gradient(135deg, #f8f9fb, #ffffff);
+}
+
+.aa-promo-area {
+  overflow: hidden;
+}
+
+.aa-promo-right {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Promo Card */
+.aa-single-promo-right {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.35s ease;
+}
+
+.aa-single-promo-right:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+}
+
+/* Banner Image */
+.aa-promo-banner {
+  position: relative;
+      margin: 10;
+
+}
+
+.aa-promo-banner img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.aa-single-promo-right:hover img {
+  transform: scale(1.08);
+}
+
+/* Overlay */
+.aa-promo-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.65)
+  );
+}
+
+/* Text Content */
+.aa-prom-content {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  text-align: center;
+  z-index: 2;
+}
+
+.aa-prom-content h4 {
+  margin: 0;
+}
+
+.aa-prom-content a {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.4px;
+  transition: color 0.3s ease;
+}
+
+.aa-prom-content a:hover {
+  color: #ffd700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .aa-promo-banner img {
+    height: 200px;
+   }
+
+  .aa-prom-content a {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .aa-promo-banner img {
+    height: 170px;
+  }
+
+  .aa-prom-content a {
+    font-size: 16px;
+  }
+}
+
+</style>
+ 
+ <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home Page</title>
+    <link href="http://shiksha.test/front_assets/css/font-awesome.css" rel="stylesheet">
+    <link href="http://shiksha.test/front_assets/css/bootstrap.css" rel="stylesheet">
+    <link href="http://shiksha.test/front_assets/css/jquery.smartmenus.bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="http://shiksha.test/front_assets/css/jquery.simpleLens.css">
+    <link rel="stylesheet" type="text/css" href="http://shiksha.test/front_assets/css/slick.css">
+    <link rel="stylesheet" type="text/css" href="http://shiksha.test/front_assets/css/nouislider.css">
+    <link id="switcher" href="http://shiksha.test/front_assets/css/theme-color/default-theme.css" rel="stylesheet">
+    <link href="http://shiksha.test/front_assets/css/sequence-theme.modern-slide-in.css" rel="stylesheet" media="all">
+    <link href="http://shiksha.test/front_assets/css/style.css" rel="stylesheet">
+
+    <!-- Google Font -->
+    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+        <script>
+    var PRODUCT_IMAGE="http://shiksha.test/storage";
+    </script>
+
+    <style>
+:root {
+    --brand-primary: #ec008c;
+    --brand-secondary: #18a9e6;
+    --brand-accent: #f07db7;
+    --brand-dark: #232323;
+}
+
+.search-icon-inside form {
+    position: relative;
+    max-width: 400px;
+}
+.f-13{
+    font-size: 12px !important;
+}
+
+.search-icon-inside input {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    outline: none;
+}
+
+.search-icon-inside i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+/* Global search dropdown */
+.global-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    max-height: 360px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    z-index: 9999;
+}
+.global-search-dropdown .search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    text-decoration: none;
+    color: #333;
+}
+.global-search-dropdown .search-result-item:hover {
+    background: #f5f5f5;
+}
+.global-search-dropdown .search-result-item:last-child {
+    border-bottom: none;
+}
+.global-search-dropdown .search-result-item img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    margin-right: 12px;
+    border-radius: 4px;
+}
+.global-search-dropdown .search-result-item .search-result-info {
+    flex: 1;
+}
+.global-search-dropdown .search-result-item .search-result-title {
+    font-weight: 600;
+}
+.global-search-dropdown .search-result-item .search-result-cat {
+    font-size: 12px;
+    color: #777;
+}
+.global-search-dropdown .search-no-results {
+    padding: 16px;
+    color: #777;
+    text-align: center;
+}
+
+.navbar-nav li > a:not(.has-submenu) .caret {
+    display: none;
+}
+.cart-meta {
+    font-size: 13px;
+    color: #666;
+}
+.cart-meta span {
+    display: block;
+}
+
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cartbox-summary {
+ 
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#aa-header .aa-header-top {
+    border-top: 3px solid var(--brand-primary);
+    background: linear-gradient(90deg, #ffffff 0%, #f5fbff 100%);
+}
+
+#aa-header .aa-header-top .aa-head-top-nav-right li a:hover,
+#aa-header .aa-header-top .aa-head-top-nav-right li a:focus,
+#aa-header .aa-header-top .cellphone span {
+    color: var(--brand-secondary);
+}
+
+#aa-header .aa-header-top .cellphone p {
+    color: var(--brand-dark);
+}
+
+#aa-header .aa-header-bottom {
+    border-bottom: 1px solid #cfeefe;
+}
+
+#menu {
+    /* background: linear-gradient(90deg, var(--brand-secondary) 0%, var(--brand-primary) 100%);4 */
+
+        background: linear-gradient(90deg, #ec008c 0%, var(--brand-primary) 100%);
+}
+
+#menu .menu-area .navbar-default .navbar-nav li > a:hover,
+#menu .menu-area .navbar-default .navbar-nav li > a:focus {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cart-link .aa-cart-notify {
+    color: var(--brand-accent);
+    border-color: var(--brand-accent);
+}
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cart-link .aa-cart-notify:after {
+    border-top-color: var(--brand-accent);
+}
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cart-link {
+    color: var(--brand-primary);
+}
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cart-link .brand-cart-icon {
+    color: var(--brand-primary);
+    font-size: 34px;
+    line-height: 1;
+}
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cartbox-summary ul li .aa-cartbox-info a {
+    color: var(--brand-dark);
+}
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cartbox-summary ul li .aa-cartbox-info a:hover,
+#aa-header .aa-header-bottom .aa-cartbox .aa-cartbox-summary ul li .aa-cartbox-info a:focus {
+    color: var(--brand-primary);
+}
+
+.search-icon-inside input:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 2px rgba(47, 143, 213, 0.14);
+}
+
+.search-icon-inside i {
+    color: var(--brand-secondary);
+}
+
+.aa-primary-btn,
+.aa-browse-btn,
+.aa-filter-btn,
+.aa-cart-view-btn {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: #fff !important;
+}
+
+.aa-primary-btn:hover,
+.aa-primary-btn:focus,
+.aa-browse-btn:hover,
+.aa-browse-btn:focus {
+    color: #fff !important;
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+}
+
+.aa-footer-social a:hover,
+.aa-footer-social a:focus,
+#aa-footer .aa-footer-bottom .aa-footer-bottom-area > p a:hover,
+#aa-footer .aa-footer-bottom .aa-footer-bottom-area > p a:focus {
+    color: var(--brand-secondary);
+}
+
+/* Global brand consistency for all frontend pages */
+.aa-product-catg li .aa-product-title a:hover,
+.aa-product-catg li .aa-product-title a:focus,
+.aa-latest-blog-single .aa-blog-info .aa-blog-title a:hover,
+.aa-latest-blog-single .aa-blog-info .aa-read-mor-btn,
+#aa-product-category .aa-sidebar .aa-sidebar-widget .aa-catg-nav li a:hover,
+#aa-product-category .aa-sidebar .aa-sidebar-widget .aa-catg-nav li a:focus,
+#aa-product-details .aa-product-details-area .aa-product-details-content .aa-product-view-content .aa-prod-quantity .aa-prod-category a {
+    color: var(--brand-secondary);
+}
+
+a {
+    color: inherit;
+}
+
+a:hover,
+a:focus {
+    color: var(--brand-secondary);
+}
+
+h2,
+.aa-product-catg li .aa-product-price,
+#aa-checkout .checkout-area .checkout-right h4,
+#aa-product-category .aa-sidebar .aa-sidebar-widget h3,
+#aa-blog-archive .aa-blog-archive-area .aa-blog-sidebar .aa-sidebar-widget h3 {
+    color: var(--brand-primary);
+}
+
+.aa-products-tab li a:hover,
+.aa-products-tab li a:focus,
+.aa-products-tab li.active a,
+.aa-products-tab li.active a:hover,
+.aa-products-tab li.active a:focus {
+    border-bottom-color: var(--brand-secondary) !important;
+    color: var(--brand-secondary);
+}
+
+.aa-product-catg li .aa-product-hvr-content a:hover,
+.aa-product-catg li .aa-product-hvr-content a:focus,
+.aa-product-catg li figure .aa-add-card-btn:hover,
+.aa-product-catg li figure .aa-add-card-btn:focus {
+    color: var(--brand-accent);
+}
+
+.aa-secondary-btn {
+    color: var(--brand-secondary);
+}
+
+.aa-secondary-btn:hover,
+.aa-secondary-btn:focus,
+.aa-add-to-cart-btn:hover,
+.aa-add-to-cart-btn:focus {
+    color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+.scrollToTop,
+#wpf-loader-two,
+#wpf-loader-two .wpf-loader-two-inner:before,
+#wpf-loader-two .wpf-loader-two-inner:after {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+.scrollToTop:hover,
+.scrollToTop:focus {
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+    color: #fff;
+}
+
+.scrollToTop {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.scrollToTop .fa {
+    color: #fff;
+    line-height: 1;
+}
+
+/* Slider arrows: alignment + branded colors */
+#aa-slider .aa-slider-area .seq .seq-prev,
+#aa-slider .aa-slider-area .seq .seq-next {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
+    color: #fff;
+}
+
+#aa-slider .aa-slider-area .seq .seq-prev:hover,
+#aa-slider .aa-slider-area .seq .seq-prev:focus,
+#aa-slider .aa-slider-area .seq .seq-next:hover,
+#aa-slider .aa-slider-area .seq .seq-next:focus {
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+    color: #fff;
+}
+
+#aa-slider .aa-slider-area .seq .seq-prev .fa,
+#aa-slider .aa-slider-area .seq .seq-next .fa {
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+}
+
+.pagination > li > a:hover,
+.pagination > li > span:hover,
+.pagination > li > a:focus,
+.pagination > li > span:focus {
+    color: var(--brand-secondary);
+}
+
+.pagination > .disabled > span,
+.pagination > .disabled > span:hover,
+.pagination > .disabled > span:focus,
+.pagination > .disabled > a,
+.pagination > .disabled > a:hover,
+.pagination > .disabled > a:focus {
+    color: #b05f8f;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.form-control:focus {
+    border-color: var(--brand-accent) !important;
+    box-shadow: 0 0 0 2px rgba(47, 143, 213, 0.12);
+}
+
+.badge,
+.label {
+    background-color: var(--brand-secondary);
+}
+
+.noUi-connect {
+    background: var(--brand-accent) !important;
+}
+
+.aa-cartbox-checkout {
+    background-color: var(--brand-primary) !important;
+    border-color: var(--brand-primary) !important;
+    color: #fff !important;
+}
+
+.aa-cartbox-checkout:hover,
+.aa-cartbox-checkout:focus {
+    color: #fff !important;
+    background-color: var(--brand-secondary) !important;
+    border-color: var(--brand-secondary) !important;
+}
+
+/* Legacy frontend classes mapped to brand palette */
+.left_cat_active {
+    color: var(--brand-primary) !important;
+}
+
+.order_id_btn {
+    background-color: var(--brand-primary) !important;
+}
+
+.aa-product-view-content .aa-prod-view-size a:hover,
+.aa-product-view-content .aa-prod-view-size a:focus,
+#aa-product-details .aa-product-details-area .aa-product-details-content .aa-product-view-content .aa-prod-view-size a:hover,
+#aa-product-details .aa-product-details-area .aa-product-details-content .aa-product-view-content .aa-prod-view-size a:focus {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: #fff;
+}
+
+#aa-product-category .aa-sidebar .aa-sidebar-widget h3,
+#aa-blog-archive .aa-blog-archive-area .aa-blog-sidebar .aa-sidebar-widget h3 {
+    border-bottom-color: var(--brand-primary);
+}
+
+#aa-product-category .aa-sidebar .aa-sidebar-widget .tag-cloud a:hover,
+#aa-product-category .aa-sidebar .aa-sidebar-widget .tag-cloud a:focus,
+#aa-blog-archive .aa-blog-archive-area .aa-blog-sidebar .aa-sidebar-widget .tag-cloud a:hover,
+#aa-blog-archive .aa-blog-archive-area .aa-blog-sidebar .aa-sidebar-widget .tag-cloud a:focus {
+    background-color: var(--brand-secondary);
+    color: #fff;
+}
+
+.slick-prev,
+.slick-next {
+    background-color: var(--brand-secondary);
+}
+
+.aa-latest-blog-single .aa-blog-img:hover .aa-blog-img-caption,
+#aa-testimonial .aa-testimonial-area .aa-testimonial-slider li.slick-active {
+    background-color: var(--brand-primary);
+}
+
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+    color: #fff;
+}
+
+#aa-header .aa-header-bottom .aa-cartbox .aa-cartbox-summary ul li .aa-remove-product:hover,
+#aa-header .aa-header-bottom .aa-cartbox .aa-cartbox-summary ul li .aa-remove-product:focus {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+}
+
+#aa-error .aa-error-area,
+#aa-error .aa-error-area h2 {
+    border-color: var(--brand-primary);
+}
+
+#aa-error .aa-error-area a:hover,
+#aa-error .aa-error-area a:focus {
+    color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+}
+
+.global-search-dropdown .search-result-item:hover {
+    background: #f2fbff;
+}
+
+.global-search-dropdown .search-result-item .search-result-title {
+    color: var(--brand-dark);
+}
+
+.global-search-dropdown .search-result-item .search-result-cat {
+    color: #6a6a6a;
+}
+
+.aa-header-top .aa-head-top-nav-right li a {
+    color: var(--brand-dark);
+}
+
+.aa-header-top .aa-head-top-nav-right li a:hover,
+.aa-header-top .aa-head-top-nav-right li a:focus {
+    color: var(--brand-primary);
+}
+
+#menu .menu-area .navbar-default .navbar-nav > li > a {
+    color: #fff;
+}
+
+#menu .menu-area .navbar-default .navbar-nav .dropdown-menu li a {
+    color: var(--brand-dark);
+}
+
+#menu .menu-area .navbar-default .navbar-nav .dropdown-menu li a:hover,
+#menu .menu-area .navbar-default .navbar-nav .dropdown-menu li a:focus {
+    background-color: var(--brand-secondary);
+    color: #fff;
+}
+
+#aa-footer .aa-footer-top {
+    border-top: 3px solid var(--brand-secondary);
+}
+
+#aa-footer .aa-footer-bottom {
+    border-top: 1px solid #f1d6e8;
+}
+
+#aa-footer .aa-footer-widget h3 {
+    color: var(--brand-dark);
+}
+
+#aa-footer .aa-footer-social a {
+    color: var(--brand-primary);
+}
+
+#aa-footer .aa-footer-social a:hover,
+#aa-footer .aa-footer-social a:focus {
+    color: var(--brand-secondary);
+}
+
+#aa-footer .aa-footer-widget address .fa {
+    color: var(--brand-secondary);
+}
+
+#aa-footer .aa-footer-bottom .aa-footer-bottom-area > p {
+    color: #555;
+}
+
+.aa-product-catg li figure {
+    border-color: #f0e8ee;
+}
+
+.aa-product-catg li .aa-product-title a {
+    color: var(--brand-dark);
+}
+
+.aa-product-catg li .aa-product-title a:hover,
+.aa-product-catg li .aa-product-title a:focus {
+    color: var(--brand-primary);
+}
+
+.aa-add-to-cart-btn {
+    border-color: #d8d8d8;
+}
+
+.aa-add-to-cart-btn:hover,
+.aa-add-to-cart-btn:focus {
+    background-color: var(--brand-primary);
+    color: #fff;
+    border-color: var(--brand-primary);
+}
+
+.aa-product-catg li .aa-price-block .aa-product-price {
+    color: var(--brand-primary);
+}
+
+.aa-product-catg li .aa-price-block .aa-product-price del {
+    color: #888;
+}
+
+.aa-product-catg li .aa-product-hvr-content a {
+    color: #666;
+}
+
+.aa-product-catg li .aa-product-hvr-content a:hover,
+.aa-product-catg li .aa-product-hvr-content a:focus {
+    color: var(--brand-secondary);
+}
+
+.aa-sidebar-widget .aa-catg-nav li a,
+.aa-footer-widget .aa-footer-nav li a {
+    color: #555;
+}
+
+.aa-sidebar-widget .aa-catg-nav li a:hover,
+.aa-footer-widget .aa-footer-nav li a:hover {
+    color: var(--brand-primary);
+}
+
+#aa-support .aa-support-area .aa-support-single span {
+    color: var(--brand-secondary);
+}
+
+#aa-support .aa-support-area .aa-support-single h4 {
+    color: var(--brand-dark);
+}
+
+.aa-blog-details #respond .form-submit input,
+#aa-contact .aa-contact-area .aa-contact-address .aa-contact-address-left .comments-form button {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: #fff;
+}
+
+.aa-blog-details #respond .form-submit input:hover,
+#aa-contact .aa-contact-area .aa-contact-address .aa-contact-address-left .comments-form button:hover {
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+    color: #fff !important;
+}
+
+.aa-blog-details .aa-blog-navigation .aa-blog-prev,
+.aa-blog-details .aa-blog-navigation .aa-blog-next {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+.aa-blog-details .aa-blog-navigation .aa-blog-prev:hover,
+.aa-blog-details .aa-blog-navigation .aa-blog-next:hover {
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+}
+
+/* ===== 2-column product grid on category/listing pages (grid view), all screens ===== */
+#aa-product-category .aa-product-catg-content .aa-product-catg-body .aa-product-catg:not(.list) {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 0;
+    gap: 20px;
+}
+
+#aa-product-category .aa-product-catg-content .aa-product-catg-body .aa-product-catg:not(.list) li {
+    float: none;
+    width: calc(50% - 10px);
+    margin: 0;
+    height: auto;
+}
+
+#aa-product-category .aa-product-catg-content .aa-product-catg-body .aa-product-catg:not(.list) li figure {
+    height: auto;
+}
+
+/* ===== Back button (mobile only) ===== */
+.back-bar {
+    display: none;
+    padding: 12px 0 0;
+}
+
+@media (max-width: 767px) {
+    .back-bar {
+        display: block;
+    }
+}
+
+.back-bar .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    color: var(--brand-dark);
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.back-bar .back-btn:hover,
+.back-bar .back-btn:focus {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    text-decoration: none;
+}
+
+</style>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+  </head>
+  <body class="productPage">
+   <!-- wpf loader Two -->
+    <div id="wpf-loader-two">
+      <div class="wpf-loader-two-inner">
+        <span>Loading</span>
+      </div>
+    </div>
+    <!-- / wpf loader Two -->
+  <!-- SCROLL TOP BUTTON -->
+    <a class="scrollToTop" href="#"><i class="fa fa-chevron-up"></i></a>
+  <!-- END SCROLL TOP BUTTON -->
+
+
+  <!-- Start header section -->
+  <header id="aa-header">
+    <!-- start header top  -->
+    <div class="aa-header-top">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="aa-header-top-area">
+              <!-- start header top left -->
+              <div class="aa-header-top-left">
+
+                <!-- start cellphone -->
+                <div class="cellphone hidden-xs">
+                  <p><span class="fa fa-phone"></span>+91-9876543210</p>
+                </div>
+                <!-- / cellphone -->
+              </div>
+              <!-- / header top left -->
+              <div class="aa-header-top-right">
+                <ul class="aa-head-top-nav-right">
+                  <li><a href="http://shiksha.test/salesman/order">My Order</a></li>
+                                    <li><a href="http://shiksha.test/salesman/performance">My Performance</a></li>
+                                    <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Notifications">
+                      <span class="fa fa-bell"></span>
+                                          </a>
+                    <ul class="dropdown-menu dropdown-menu-right" style="min-width:300px;max-height:380px;overflow-y:auto">
+                                              <li><a href="javascript:void(0)">No notifications yet</a></li>
+                                                                </ul>
+                  </li>
+                  
+                  <li class="hidden-xs"><a href="http://shiksha.test/salesman/cart">My Cart</a></li>
+                  <li><a href="http://shiksha.test/salesman/change-password">Change Password</a></li>
+                  
+                  <li><a href="http://shiksha.test/logout">Logout</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- / header top  -->
+
+    <!-- start header bottom  -->
+    <div class="aa-header-bottom">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="aa-header-bottom-area">
+              <!-- logo  -->
+              <div class="aa-logo">
+                <a href="http://shiksha.test/salesman">
+                <style>
+  .sk-brand-mark {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    line-height: 1;
+    color: inherit;
+  }
+
+  .sk-brand-mark img {
+    display: block;
+    width: auto;
+    max-width: none;
+    transform: none !important;
+  }
+
+  .sk-brand-mark__word {
+    font-family: "Outfit", "Raleway", "Segoe UI", sans-serif;
+    font-weight: 600;
+    letter-spacing: .32em;
+    padding-left: .32em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+</style>
+
+<span class="sk-brand-mark" style="margin-left: 8px; color: #2b1a33;">
+  <picture>
+    <source srcset="http://shiksha.test/img/brand/logo-mark.png" media="(prefers-reduced-motion: reduce)">
+    <img src="http://shiksha.test/img/brand/logo-animated.webp" alt="SHIKSHA" style="height: 54px;">
+  </picture>
+      <span class="sk-brand-mark__word" style="font-size: 11px;">SHIKSHA</span>
+  </span>
+                </a>
+              </div>
+
+
+
+
+
+              <!-- / logo  -->
+               <!-- cart box -->
+              
+              <!-- / cart box -->
+
+
+
+               <!-- cart box -->
+                            <div class="aa-cartbox">
+                
+
+
+               <a class="aa-cart-link" href="#" id="cartBox">
+                  <span class="fa fa-shopping-cart brand-cart-icon" aria-hidden="true"></span>
+                  <!-- <span class="aa-cart-title">SHOPPING CART</span> -->
+                  <span class="aa-cart-notify">0</span>
+                </a>
+                <div class="aa-cartbox-summary">
+                               </div>
+              </div>
+              <!-- / cart box -->
+
+
+
+
+
+              <!-- search box (global product search) -->
+              <div class="aa-search-box search-icon-inside global-search-wrap" style="position: relative;">
+                  <form id="global-search-form" action="http://shiksha.test/salesman/search" method="get" role="search">
+                      <i class="fa fa-search"></i>
+                      <input type="text" name="q" id="global-search-input" placeholder="Search Shiksha Lights…" autocomplete="off" />
+                  </form>
+                  <div id="global-search-dropdown" class="global-search-dropdown" style="display: none;"></div>
+              </div>
+
+              <!-- / search box -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- / header bottom  -->
+  </header>
+  <!-- / header section -->
+  <!-- menu -->
+  <section id="menu">
+    <div class="container">
+      <div class="menu-area">
+        <!-- Navbar -->
+        <div class="navbar navbar-default" role="navigation">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <div class="navbar-collapse collapse">
+
+              <ul class="nav navbar-nav"><li><a href="http://shiksha.test/salesman/category/pvc-pipe">PVC Pipe<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/fan">Fan<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/mcbs">MCBS<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/geyser">Geyser<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/genral-accessories">Genral Accessories<span class="caret"></span></a><ul class="dropdown-menu"><li><a href="http://shiksha.test/salesman/category/2-pin-3-pin-tops">2 Pin & 3 Pin Tops<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/multiplug">Multiplug<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/holder">Holder<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/immersion-rod-and-heater-elements">Immersion Rod And Heater Elements<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/combined-with-back-box">Combined With Back Box<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/bells">Bells<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/water-bells">Water Bells<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/extension">Extension<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/tape">Tape<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/speakers-amplifier">Speakers & Amplifier<span class="caret"></span></a></li></ul></li><li><a href="http://shiksha.test/salesman/category/lighting">Lighting<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/box">Box<span class="caret"></span></a></li><li><a href="http://shiksha.test/salesman/category/wires">Wires<span class="caret"></span></a></li></ul>
+
+            <!-- Left nav -->
+            
+
+
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- / menu -->
+
+  
+  <!-- Start slider -->
+
+  
+ <!--default code -->
+ 
+  <!-- default section --> 
+
+
+  <!-- my custom desin -->
+  
+
+  <!--end my custom design -->
+
+  
+    <style>
+    /* The theme floats #aa-header and #menu, so this section must clear them or it slides underneath. */
+    #scheme-banners { clear: both; width: 100%; padding: 24px 0 8px; }
+    #scheme-banners .scheme-carousel { border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(23, 16, 31, .12); background: #f4effa; }
+    /* No `position` here: this ID selector would override Bootstrap's `.carousel-inner > .next/.prev { position: absolute }`,
+       stacking the incoming slide below the active one mid-transition and pushing the page down on every slide. */
+    #scheme-banners .item { aspect-ratio: 1920 / 700; }
+    #scheme-banners .item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    #scheme-banners .scheme-caption {
+      position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 40px 34px; text-align: left;
+      background: linear-gradient(180deg, rgba(23, 16, 31, 0) 0%, rgba(23, 16, 31, .72) 100%);
+    }
+    #scheme-banners .scheme-caption h3 { margin: 0; color: #fff; font-size: 28px; font-weight: 700; line-height: 1.25; max-width: 70%; }
+    #scheme-banners .carousel-control {
+      width: 44px; height: 44px; top: 50%; margin-top: -22px; border-radius: 50%; opacity: .9;
+      background: rgba(255, 255, 255, .9) !important; color: #ec008c; text-shadow: none;
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .18); transition: background .2s, color .2s;
+    }
+    #scheme-banners .carousel-control.left { left: 16px; }
+    #scheme-banners .carousel-control.right { right: 16px; }
+    #scheme-banners .carousel-control:hover { background: #ec008c !important; color: #fff; opacity: 1; }
+    #scheme-banners .carousel-indicators { bottom: 10px; margin-bottom: 0; }
+    #scheme-banners .carousel-indicators li { width: 9px; height: 9px; margin: 0 3px; border: 0; background: rgba(255, 255, 255, .55); transition: width .2s; }
+    #scheme-banners .carousel-indicators .active { width: 24px; height: 9px; margin: 0 3px; border-radius: 5px; background: #ec008c; }
+    @media (max-width: 767px) {
+      #scheme-banners { padding: 14px 0 4px; }
+      #scheme-banners .scheme-carousel { border-radius: 10px; }
+      #scheme-banners .item { aspect-ratio: 16 / 9; }
+      #scheme-banners .scheme-caption { padding: 36px 16px 30px; }
+      #scheme-banners .scheme-caption h3 { font-size: 17px; max-width: 100%; }
+      #scheme-banners .carousel-control { width: 34px; height: 34px; margin-top: -17px; font-size: 20px; }
+      #scheme-banners .carousel-control.left { left: 8px; }
+      #scheme-banners .carousel-control.right { right: 8px; }
+    }
+  </style>
+  <section id="scheme-banners">
+    <div class="container">
+      <div id="schemeCarousel" class="carousel slide scheme-carousel" data-ride="carousel" data-interval="5000">
+        <div class="carousel-inner" role="listbox">
+                      <div class="item active">
+              <img src="http://shiksha.test/storage/banners/oTQoLMBZUW68lHkvdE3ZJ3QIUnRuF29m3aKrZDsh.jpg" alt="Current scheme">
+                          </div>
+                      <div class="item ">
+              <img src="http://shiksha.test/storage/banners/tHpzrB6L6HoJoHS4raelQwNY9oeFagDJ3Ql7te3c.jpg" alt="Current scheme">
+                          </div>
+                  </div>
+                <ol class="carousel-indicators">
+                      <li data-target="#schemeCarousel" data-slide-to="0" class="active"></li>
+                      <li data-target="#schemeCarousel" data-slide-to="1" class=""></li>
+                  </ol>
+        <a class="left carousel-control" href="#schemeCarousel" role="button" data-slide="prev" aria-label="Previous"><span class="fa fa-angle-left"></span></a>
+        <a class="right carousel-control" href="#schemeCarousel" role="button" data-slide="next" aria-label="Next"><span class="fa fa-angle-right"></span></a>
+              </div>
+    </div>
+  </section>
+  
+  
+  <style>
+  .trust-badges { clear: both; width: 100%; }
+  .trust-badges--full { padding: 18px 0 6px; }
+  .trust-badges--compact { margin-top: 22px; }
+  .tb-slider { position: relative; margin: 0 -6px; }
+  /* Before Slick starts (or without JS) still show a tidy row. */
+  .tb-slider:not(.slick-initialized) { display: flex; overflow: hidden; }
+  .tb-slider:not(.slick-initialized) .tb-item { flex: 0 0 25%; }
+  .tb-item { padding: 0 6px; outline: none; }
+  /* slick.css sets `.slick-slide { height: 100% }`. The home page renders in quirks mode (its <style> block is output
+     before the doctype), where that resolves to the full window height and leaves a screen of blank space below. */
+  .tb-slider .slick-slide { height: auto; }
+  .tb-card {
+    display: flex; align-items: center; gap: 12px; height: 76px; padding: 10px 14px;
+    background: #fff; border: 1px solid #f1e3ee; border-radius: 12px; box-shadow: 0 3px 10px rgba(23, 16, 31, .05);
+  }
+  .tb-card img { width: 44px; height: 44px; flex: 0 0 44px; object-fit: contain; }
+  .tb-text { min-width: 0; line-height: 1.25; }
+  .tb-title { display: block; font-weight: 700; font-size: 14px; color: #17101f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tb-sub { display: block; margin-top: 2px; font-size: 12px; color: #6b6178; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .trust-badges--compact .tb-card { height: 64px; padding: 8px 10px; gap: 8px; }
+  .trust-badges--compact .tb-card img { width: 34px; height: 34px; flex-basis: 34px; }
+  .trust-badges--compact .tb-title { font-size: 13px; }
+  .trust-badges--compact .tb-sub { font-size: 11px; -webkit-line-clamp: 1; }
+  .tb-arrow {
+    position: absolute; top: 50%; z-index: 2; width: 28px; height: 28px; margin-top: -14px; padding: 0;
+    border: 0; border-radius: 50%; background: #ec008c; color: #fff; font-size: 16px; line-height: 28px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .18); cursor: pointer;
+  }
+  .tb-arrow:hover, .tb-arrow:focus { background: #c20073; outline: none; }
+  .tb-prev { left: -8px; }
+  .tb-next { right: -8px; }
+  @media (max-width: 767px) {
+    .tb-slider:not(.slick-initialized) .tb-item { flex-basis: 50%; }
+    .tb-card { height: 68px; padding: 8px 10px; gap: 8px; }
+    .tb-card img { width: 34px; height: 34px; flex-basis: 34px; }
+    .tb-title { font-size: 13px; }
+    .tb-sub { font-size: 11px; -webkit-line-clamp: 1; }
+  }
+</style>
+<script>
+  // jQuery + Slick load at the end of the layout; they have run by DOMContentLoaded.
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!window.jQuery || !jQuery.fn.slick) return;
+    jQuery('.tb-slider').each(function () {
+      var compact = this.getAttribute('data-variant') === 'compact';
+      jQuery(this).slick({
+        slidesToShow: 4,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        pauseOnHover: true,
+        pauseOnFocus: true,
+        infinite: true,
+        dots: false,
+        prevArrow: '<button type="button" class="tb-arrow tb-prev" aria-label="Previous"><span class="fa fa-angle-left"></span></button>',
+        nextArrow: '<button type="button" class="tb-arrow tb-next" aria-label="Next"><span class="fa fa-angle-right"></span></button>',
+        // Fewer badges than slidesToShow: Slick shows them in a row without sliding.
+        responsive: compact
+          ? [{ breakpoint: 1199, settings: { slidesToShow: 3 } }, { breakpoint: 991, settings: { slidesToShow: 4 } }, { breakpoint: 767, settings: { slidesToShow: 2 } }]
+          : [{ breakpoint: 991, settings: { slidesToShow: 3 } }, { breakpoint: 767, settings: { slidesToShow: 2 } }]
+      });
+    });
+  });
+</script>
+
+<div class="trust-badges trust-badges--full">
+  <div class="container">    <div class="tb-slider" data-variant="full">
+              <div class="tb-item">
+          <div class="tb-card">
+            <img src="http://shiksha.test/storage/trust_badges/none.png" alt="" loading="lazy">
+            <div class="tb-text">
+              <span class="tb-title" title="test">test</span>
+                          </div>
+          </div>
+        </div>
+          </div>
+  </div></div>
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!--my design -->
+
+  <section id="aa-promo" class="product-categories">
+    <div class="container">
+      <div class="product-categories-list">
+
+               <a href="http://shiksha.test/salesman/category/pvc-pipe">
+          <div class="product-categories-data">
+            <img class="img-fluid" src="http://shiksha.test/storage/category/YQTH6XZnGZO5LxEKmJiUIMUFy76A4PesmcMrhUZx.jpg" alt="img" />
+            <div class="product-categories-content">
+              <h4>PVC Pipe</h4>
+            </div>
+          </div>
+          </a>   
+                  <a href="http://shiksha.test/salesman/category/fan">
+          <div class="product-categories-data">
+            <img class="img-fluid" src="http://shiksha.test/storage/category/xx5ZlXzoMihLAtY5TvNFsjypd2q5FSrJxseyGm6W.jpg" alt="img" />
+            <div class="product-categories-content">
+              <h4>Fan</h4>
+            </div>
+          </div>
+          </a>   
+                  <a href="http://shiksha.test/salesman/category/mcbs">
+          <div class="product-categories-data">
+            <img class="img-fluid" src="http://shiksha.test/storage/category/83t2SiXpuMtssfLuhSZVevfIjUmdwdcwhhAaZtCb.jpg" alt="img" />
+            <div class="product-categories-content">
+              <h4>MCBS</h4>
+            </div>
+          </div>
+          </a>   
+                  <a href="http://shiksha.test/salesman/category/geyser">
+          <div class="product-categories-data">
+            <img class="img-fluid" src="http://shiksha.test/storage/category/pGqwa8tl9GB4bPqbJ3VvVtgiNPXJYIlFW8vmactP.jpg" alt="img" />
+            <div class="product-categories-content">
+              <h4>Geyser</h4>
+            </div>
+          </div>
+          </a>   
+                  <a href="http://shiksha.test/salesman/category/lighting">
+          <div class="product-categories-data">
+            <img class="img-fluid" src="http://shiksha.test/storage/category/XmvjCFQS1XVWmgnJdhVE7fOm0X31L8ZEU52ys1Ca.jpg" alt="img" />
+            <div class="product-categories-content">
+              <h4>Lighting</h4>
+            </div>
+          </div>
+          </a>   
+                  <a href="http://shiksha.test/salesman/category/box">
+          <div class="product-categories-data">
+            <img class="img-fluid" src="http://shiksha.test/storage/category/oWZfVfR4FtDjTOAXooIaEF346YgbiiRKsd2B3aVP.jpg" alt="img" />
+            <div class="product-categories-content">
+              <h4>Box</h4>
+            </div>
+          </div>
+          </a>   
+                  <a href="http://shiksha.test/salesman/category/wires">
+          <div class="product-categories-data">
+            <img class="img-fluid" src="http://shiksha.test/storage/category/4Of3z9W4bqoKlFQphxQNjsuH3RRxNQdYMscNoUk1.jpg" alt="img" />
+            <div class="product-categories-content">
+              <h4>Wires</h4>
+            </div>
+          </div>
+          </a>   
+                </div>
+    </div>
+  </section>
+
+  <!-- my section end -->
+
+
+
+
+  
+  <!-- / slider -->
+  <!-- Start Promo section -->
+  
+
+
+  
+                                                     
+
+  <!-- / Promo section -->
+  <!-- Products section -->
+  
+
+
+
+  
+  <!-- / Products section -->
+  <!-- banner section -->
+  
+
+  
+
+
+  <!-- popular section -->
+  
+
+
+
+  <!-- / popular section -->
+  <!-- Support section -->
+  
+  <!-- / Support section -->
+  
+  <!-- Client Brand -->
+  
+  <!-- / Client Brand -->
+
+   <input type="hidden" id="qty" value="1"/>
+  <form id="frmAddToCart">
+    <input type="hidden" id="wattage" name="wattage"/>
+     <input type="hidden" id="pqty" name="pqty"/>
+    <input type="hidden" id="product_id" name="product_id"/>           
+    <input type="hidden" name="_token" value="gkkgg2ckogxEOpcYlFwPqzfV1oPemNpj46coKVFS" autocomplete="off">  </form> 
+
+
+  <!-- footer -->
+<footer id="aa-footer">
+
+    <div class="aa-footer-top">
+     <div class="container">
+        <div class="row">
+        <div class="col-md-12">
+          <div class="aa-footer-top-area">
+             <div class="aa-footer-widget">
+                  <h3 style="text-align: center;">Get In Touch</h3>
+                   <div class="aa-footer-social custom-social">
+                      <a href="#"><span class="fa fa-facebook"></span></a>
+                      <a href="#"><span class="fa fa-twitter"></span></a>
+                      <a href="#"><span class="fa fa-google-plus"></span></a>
+                      <a href="#"><span class="fa fa-youtube"></span></a>
+                    </div>
+                     <address class="custom-address">
+                      <p>Amritsar, Punjab</p>
+                      <p><span class="fa fa-phone"></span>+91-9876543210</p>
+                      <p><span class="fa fa-envelope"></span>info@shikshlights.com</p>
+                    </address>
+                  <!-- <ul class="aa-footer-nav">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Our Services</a></li>
+                    <li><a href="#">Our Products</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                  </ul> -->
+                </div>
+
+            <!-- <div class="row">
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <h3>Main Menu</h3>
+                  <ul class="aa-footer-nav">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Our Services</a></li>
+                    <li><a href="#">Our Products</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <div class="aa-footer-widget">
+                    <h3>Knowledge Base</h3>
+                    <ul class="aa-footer-nav">
+                      <li><a href="#">Delivery</a></li>
+                      <li><a href="#">Returns</a></li>
+                      <li><a href="#">Services</a></li>
+                      <li><a href="#">Discount</a></li>
+                      <li><a href="#">Special Offer</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <div class="aa-footer-widget">
+                    <h3>Useful Links</h3>
+                    <ul class="aa-footer-nav">
+                      <li><a href="#">Site Map</a></li>
+                      <li><a href="#">Search</a></li>
+                      <li><a href="#">Advanced Search</a></li>
+                      <li><a href="#">Suppliers</a></li>
+                      <li><a href="#">FAQ</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <div class="aa-footer-widget">
+                    <h3>Contact Us</h3>
+                    <address>
+                      <p> 25 Astor Pl, NY 10003, USA</p>
+                      <p><span class="fa fa-phone"></span>+1 212-982-4589</p>
+                      <p><span class="fa fa-envelope"></span>dailyshop@gmail.com</p>
+                    </address>
+                    <div class="aa-footer-social">
+                      <a href="#"><span class="fa fa-facebook"></span></a>
+                      <a href="#"><span class="fa fa-twitter"></span></a>
+                      <a href="#"><span class="fa fa-google-plus"></span></a>
+                      <a href="#"><span class="fa fa-youtube"></span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- <div class="aa-footer-top">
+     <div class="container">
+        <div class="row">
+        <div class="col-md-12">
+          <div class="aa-footer-top-area">
+            <div class="row">
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <h3>Main Menu</h3>
+                  <ul class="aa-footer-nav">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Our Services</a></li>
+                    <li><a href="#">Our Products</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <div class="aa-footer-widget">
+                    <h3>Knowledge Base</h3>
+                    <ul class="aa-footer-nav">
+                      <li><a href="#">Delivery</a></li>
+                      <li><a href="#">Returns</a></li>
+                      <li><a href="#">Services</a></li>
+                      <li><a href="#">Discount</a></li>
+                      <li><a href="#">Special Offer</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <div class="aa-footer-widget">
+                    <h3>Useful Links</h3>
+                    <ul class="aa-footer-nav">
+                      <li><a href="#">Site Map</a></li>
+                      <li><a href="#">Search</a></li>
+                      <li><a href="#">Advanced Search</a></li>
+                      <li><a href="#">Suppliers</a></li>
+                      <li><a href="#">FAQ</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="aa-footer-widget">
+                  <div class="aa-footer-widget">
+                    <h3>Contact Us</h3>
+                    <address>
+                      <p> 25 Astor Pl, NY 10003, USA</p>
+                      <p><span class="fa fa-phone"></span>+1 212-982-4589</p>
+                      <p><span class="fa fa-envelope"></span>dailyshop@gmail.com</p>
+                    </address>
+                    <div class="aa-footer-social">
+                      <a href="#"><span class="fa fa-facebook"></span></a>
+                      <a href="#"><span class="fa fa-twitter"></span></a>
+                      <a href="#"><span class="fa fa-google-plus"></span></a>
+                      <a href="#"><span class="fa fa-youtube"></span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+    </div> -->
+    <!-- footer-bottom -->
+    <div class="aa-footer-bottom">
+      <div class="container">
+        <div class="row">
+        <div class="col-md-12">
+          <div style="text-align: center;" class="aa-footer-bottom-area">
+            <p style="text-align: center;">Designed by <a href="https://peerinfotech.com/">Peer Infotech</a></p>
+            <!-- <div class="aa-footer-payment">
+              <span class="fa fa-cc-mastercard"></span>
+              <span class="fa fa-cc-visa"></span>
+              <span class="fa fa-paypal"></span>
+              <span class="fa fa-cc-discover"></span>
+            </div> -->
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </footer>
+
+
+  
+  <!-- / footer -->
+
+  <!-- Login Modal -->
+  
+
+    <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://shiksha.test/front_assets/js/bootstrap.js"></script>
+  <script type="text/javascript" src="http://shiksha.test/front_assets/js/jquery.smartmenus.js"></script>
+  <script type="text/javascript" src="http://shiksha.test/front_assets/js/jquery.smartmenus.bootstrap.js"></script>
+  <script src="http://shiksha.test/front_assets/js/sequence.js"></script>
+  <script src="http://shiksha.test/front_assets/js/sequence-theme.modern-slide-in.js"></script>
+  <script type="text/javascript" src="http://shiksha.test/front_assets/js/jquery.simpleGallery.js"></script>
+  <script type="text/javascript" src="http://shiksha.test/front_assets/js/jquery.simpleLens.js"></script>
+  <script type="text/javascript" src="http://shiksha.test/front_assets/js/slick.js"></script>
+  <script type="text/javascript" src="http://shiksha.test/front_assets/js/nouislider.js"></script>
+  <script src="http://shiksha.test/front_assets/js/custom.js"></script>
+  <script>
+  // Back button: return to the previous page when it was on this site, otherwise follow the link (home)
+  document.querySelectorAll('[data-back-btn]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      var ref = document.referrer;
+      if (ref && ref.indexOf(window.location.origin + '/') === 0 && window.history.length > 1) {
+        e.preventDefault();
+        window.history.back();
+      }
+    });
+  });
+  </script>
+  <script>
+  (function () {
+    var searchUrl = 'http://shiksha.test/salesman/search';
+    var input = document.getElementById('global-search-input');
+    var dropdown = document.getElementById('global-search-dropdown');
+    var form = document.getElementById('global-search-form');
+    if (!input || !dropdown) return;
+
+    var debounceTimer;
+    function doSearch() {
+      var q = (input.value || '').trim();
+      if (q.length < 1) {
+        dropdown.style.display = 'none';
+        dropdown.innerHTML = '';
+        return;
+      }
+      fetch(searchUrl + '?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data.length) {
+            dropdown.innerHTML = '<div class="search-no-results">No products found</div>';
+            dropdown.style.display = 'block';
+            return;
+          }
+          dropdown.innerHTML = data.map(function (item) {
+            var img = item.image ? '<img src="' + item.image + '" alt="">' : '<img src="" alt="" style="background:#eee;min-width:48px;min-height:48px;">';
+            var cat = item.category_name ? '<div class="search-result-cat">' + escapeHtml(item.category_name) + '</div>' : '';
+            return '<a class="search-result-item" href="' + escapeHtml(item.url) + '">' + img + '<div class="search-result-info"><div class="search-result-title">' + escapeHtml(item.title) + '</div>' + cat + '</div></a>';
+          }).join('');
+          dropdown.style.display = 'block';
+        })
+        .catch(function () {
+          dropdown.innerHTML = '<div class="search-no-results">Search unavailable</div>';
+          dropdown.style.display = 'block';
+        });
+    }
+    function escapeHtml(s) {
+      var div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    input.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(doSearch, 300);
+    });
+    input.addEventListener('focus', function () {
+      if (dropdown.innerHTML) dropdown.style.display = 'block';
+    });
+    document.addEventListener('click', function (e) {
+      if (!input.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none';
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var q = (input.value || '').trim();
+      if (q.length > 0) doSearch();
+    });
+  })();
+  </script>
+
+  <!-- Global floating cart button -->
+  <a href="http://shiksha.test/salesman/cart" id="floating-cart" class="floating-cart" aria-label="View cart">
+    <span class="fa fa-shopping-cart" aria-hidden="true"></span>
+    <span class="aa-cart-notify floating-cart-badge">0</span>
+  </a>
+  <style>
+    .floating-cart {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--brand-primary, #ec008c);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      z-index: 2147483647;
+      text-decoration: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .floating-cart:hover,
+    .floating-cart:focus {
+      color: #fff;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+    }
+
+    .floating-cart .floating-cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 5px;
+      border-radius: 11px;
+      background: #fff;
+      color: var(--brand-primary, #ec008c);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 22px;
+      text-align: center;
+      border: 2px solid var(--brand-primary, #ec008c);
+    }
+
+    /* Keep the scroll-to-top button stacked above the floating cart */
+    .scrollToTop {
+      bottom: 90px;
+      z-index: 2147483646;
+    }
+
+    @media (max-width: 575px) {
+      .floating-cart {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+        right: 20px;
+        bottom: 16px;
+      }
+
+      .scrollToTop {
+        bottom: 80px;
+      }
+    }
+  </style>
+  </body>
+</html>

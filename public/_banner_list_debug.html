@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en" >
+<head>
+	<title>Banners &amp; Schemes | Admin - Shiksha light</title>
+	<!-- initiate head with meta tags, css and script -->
+	<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- CSRF Token -->
+<meta name="csrf-token" content="3CSWpcur94OsMUPR8P2JxeqVNUmPUqFgskcuJlP3">
+
+<link rel="icon" href="http://shiksha.test/backend_assets/favicon.png" />
+
+<!-- font awesome library -->
+<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,600,700,800" rel="stylesheet">
+
+<script src="http://shiksha.test/backend_assets/js/app.js"></script>
+
+<!-- themekit admin template asstes -->
+<link rel="stylesheet" href="http://shiksha.test/backend_assets/all.css">
+<link rel="stylesheet" href="http://shiksha.test/backend_assets/dist/css/theme.css">
+<link rel="stylesheet" href="http://shiksha.test/backend_assets/plugins/fontawesome-free/css/all.min.css">
+<link rel="stylesheet" href="http://shiksha.test/backend_assets/plugins/icon-kit/dist/css/iconkit.min.css">
+<link rel="stylesheet" href="http://shiksha.test/backend_assets/plugins/ionicons/dist/css/ionicons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+
+<!--Media manager css file-->
+<link rel="stylesheet" href="http://shiksha.test/backend_assets/vendor/file-manager/css/file-manager.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<!-- Stack array for including inline css or head elements -->
+
+<link rel="stylesheet" href="http://shiksha.test/backend_assets/css/style.css">
+
+<style>
+    .table tbody td .table-actions{
+        text-align:left;
+    }
+</style>
+
+
+</head>
+<body id="app">
+    <div class="wrapper">
+    	<!-- initiate header-->
+    	<header class="header-top" header-theme="light">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between">
+            <div class="top-menu d-flex align-items-center">
+                <button type="button" class="btn-icon mobile-nav-toggle d-lg-none"><span></span></button>
+                
+                
+                                <button class="nav-link" title="clear cache">
+                    <a  href="http://shiksha.test/clear-cache">
+                    <i class="ik ik-battery-charging"></i> 
+                </a>
+                </button> &nbsp;&nbsp;
+                                <button type="button" id="navbar-fullscreen" class="nav-link"><i class="ik ik-maximize"></i></button>
+            </div>
+            <div class="top-menu d-flex align-items-center">
+                
+                                                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="notiDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="ik ik-bell"></i>
+                                            </a>
+                    <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="notiDropdown">
+                        <h4 class="header">Notifications</h4>
+                        <div class="notifications-wrap">
+                                                            <span class="media"><span class="media-body"><span class="media-content">No notifications yet</span></span></span>
+                                                    </div>
+                                            </div>
+                </div>
+                                
+                
+                <div class="dropdown">
+                    <a class="dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhtMRbtowke9ZnnGtyYJmIuJaB2Q1y5I-3IA&s" alt=""></a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                        
+                        <a class="dropdown-item" href="http://shiksha.test/admin/change-password"><i class="ik ik-lock dropdown-icon"></i> Change Password</a>
+                        <a class="dropdown-item" href="http://shiksha.test/logout">
+                            <i class="ik ik-power dropdown-icon"></i> 
+                            Logout
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</header>    	<div class="page-wrap">
+	    	<!-- initiate sidebar-->
+	    	<div class="app-sidebar colored">
+    <div class="sidebar-header">
+        <a class="header-brand d-flex w-100 justify-content-center" href="http://shiksha.test/admin/dashboard">
+            <style>
+  .sk-brand-mark {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    line-height: 1;
+    color: inherit;
+  }
+
+  .sk-brand-mark img {
+    display: block;
+    width: auto;
+    max-width: none;
+    transform: none !important;
+  }
+
+  .sk-brand-mark__word {
+    font-family: "Outfit", "Raleway", "Segoe UI", sans-serif;
+    font-weight: 600;
+    letter-spacing: .32em;
+    padding-left: .32em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+</style>
+
+<span class="sk-brand-mark">
+  <picture>
+    <source srcset="http://shiksha.test/img/brand/logo-mark.png" media="(prefers-reduced-motion: reduce)">
+    <img src="http://shiksha.test/img/brand/logo-animated.webp" alt="SHIKSHA" style="height: 34px;">
+  </picture>
+      <span class="sk-brand-mark__word" style="font-size: 8px;">SHIKSHA</span>
+  </span>
+        </a>
+        <div class="sidebar-action"><i class="ik ik-arrow-left-circle"></i></div>
+        <button id="sidebarClose" class="nav-close"><i class="ik ik-x"></i></button>
+    </div>
+
+    
+    <div class="sidebar-content">
+        <div class="nav-container">
+            <nav id="main-menu-navigation" class="navigation-main">
+                <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/dashboard"><i class="ik ik-bar-chart-2"></i><span>Dashboard</span></a>
+                </div>
+                
+                                <div class="nav-item  has-sub">
+                    <a href="#"><i class="ik ik-users"></i><span>Administrator</span></a>
+                    <div class="submenu-content">
+                        <!-- only those have manage_user permission will get access -->
+                        
+                        <a href="http://shiksha.test/users" class="menu-item ">Users</a>
+                        <a href="http://shiksha.test/user/create" class="menu-item ">Add User</a>
+                         
+                         <!-- only those have manage_role permission will get access -->
+                        
+                        
+                        
+                        <!-- only those have manage_permission permission will get access -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                
+                              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/category"><i class="ik ik-layers"></i><span>Category</span></a>
+                </div>
+
+                
+              <div class="nav-item  has-sub">
+                    <a href="#"><i class="ik ik-package"></i><span>Product</span></a>
+                  <div class="submenu-content">
+                            <a href="http://shiksha.test/admin/product/create" class="menu-item ">Create</a>
+                            <a href="http://shiksha.test/admin/product" class="menu-item ">List</a>
+                            <a href="http://shiksha.test/admin/product/recently-deleted-page" class="menu-item ">Recently Deleted</a>
+
+                        </div>
+
+               </div>
+
+               
+              <div class="nav-item active">
+                    <a href="http://shiksha.test/admin/banner"><i class="ik ik-image"></i><span>Banner</span></a>
+                  
+
+               </div>
+               
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/trust-badges"><i class="ik ik-shield"></i><span>Trust Badges</span></a>
+               </div>
+               
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/coupons"><i class="ik ik-percent"></i><span>Coupons</span></a>
+               </div>
+               
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/brand"><i class="ik ik-award"></i><span>Brand</span></a>
+                  
+
+               </div>
+
+
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/attribute"><i class="ik ik-sliders"></i><span>Attribute</span></a>
+               </div>
+
+               
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/custom-field-type"><i class="ik ik-edit"></i><span>Custom Field Type</span></a>
+                  
+               </div> 
+
+               
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/unit"><i class="ik ik-align-left"></i><span>Unit</span></a>
+               </div>
+
+                <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/product-code-type"><i class="ik ik-hash"></i><span>Product Code Type</span></a>
+               </div>
+
+                
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/variant-name"><i class="ik ik-git-branch"></i><span>Variant</span></a>
+               </div>
+
+
+               
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/attribute_option"><i class="ik ik-list"></i><span>Attribute Option</span></a>
+               </div>
+               
+              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/color"><i class="ik ik-droplet"></i><span>Color</span></a>
+               </div>
+                
+               <!-- Order -->
+                             <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/order"><i class="ik ik-shopping-cart"></i><span>Order</span></a>
+               </div>
+               
+                              <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/enquiries"><i class="ik ik-mail"></i><span>Enquiries</span></a>
+               </div>
+               
+               
+                                             <div class="nav-item  has-sub">
+                    <a href="#">
+                        <i class="ik ik-trending-up"></i><span>Sales &amp; Collection</span>
+                                            </a>
+                    <div class="submenu-content">
+                        <a href="http://shiksha.test/admin/sales-report" class="menu-item ">Salesman Report</a>
+                    </div>
+               </div>
+
+               <div class="nav-item ">
+                    <a href="http://shiksha.test/admin/contact-messages">
+                        <i class="ik ik-message-square"></i><span>Contact Messages</span>
+                                            </a>
+               </div>
+
+               <div class="nav-item  has-sub">
+                    <a href="#"><i class="ik ik-globe"></i><span>Website</span></a>
+                    <div class="submenu-content">
+                        <a href="http://shiksha.test/admin/website-settings" class="menu-item ">Settings</a>
+                        <a href="http://shiksha.test/admin/email-templates" class="menu-item ">Email Templates</a>
+                        <a href="http://shiksha.test/admin/smtp-settings" class="menu-item ">SMTP</a>
+                        <a href="http://shiksha.test" target="_blank" class="menu-item">View Website</a>
+                    </div>
+               </div>
+                             
+               <!-- End Order Section -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+                
+
+                
+
+                
+
+                
+
+                
+
+                
+
+
+
+
+                
+
+
+
+
+                
+                
+                
+
+        </div>
+    </div>
+</div>
+
+	    	<div class="main-content">
+	    		<!-- yeild contents here -->
+	    		<div class="container-fluid">
+  <div class="row"><div class="col-md-12">
+        </div></div>
+  <div class="card">
+    <div class="card-header d-flex justify-content-between">
+      <div>
+        <h3 class="mb-0">Banners &amp; Schemes</h3>
+        <small class="text-muted">Active banners within their dates show in the salesman home slider. Tick "Schemes popup" to also show one in the daily popup after login.</small>
+      </div>
+      <a href="http://shiksha.test/admin/banner/create" class="btn btn-primary btn-sm align-self-start"><i class="ik ik-plus"></i> Add Banner</a>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-bordered mb-0">
+          <thead>
+            <tr><th style="width:110px;">Image</th><th>Title</th><th>Dates</th><th>Order</th><th>Popup</th><th>Status</th><th style="width:120px;">Action</th></tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td><img src="http://shiksha.test/storage/banners/oTQoLMBZUW68lHkvdE3ZJ3QIUnRuF29m3aKrZDsh.jpg" alt="" style="width:100px;height:50px;object-fit:cover;"></td>
+                <td><b>-</b></td>
+                <td>
+                  Any time &ndash; No end
+                                  </td>
+                <td>0</td>
+                <td>-</td>
+                <td>
+                  <span class="badge badge-success">Live</span>
+                </td>
+                <td>
+                  <a href="http://shiksha.test/admin/banner/12/edit" title="Edit"><i class="ik ik-edit-2 f-16 mr-10 text-green"></i></a>
+                  <form method="POST" action="http://shiksha.test/admin/banner/12/toggle" class="d-inline"><input type="hidden" name="_token" value="3CSWpcur94OsMUPR8P2JxeqVNUmPUqFgskcuJlP3" autocomplete="off">                    <button class="btn btn-link p-0 mr-10" title="Deactivate"><i class="ik ik-slash text-orange f-16"></i></button>
+                  </form>
+                  <form method="POST" action="http://shiksha.test/admin/banner/delete/12" class="d-inline" onsubmit="return confirm('Delete this banner?')"><input type="hidden" name="_token" value="3CSWpcur94OsMUPR8P2JxeqVNUmPUqFgskcuJlP3" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                    <button class="btn btn-link p-0" title="Delete"><i class="ik ik-trash-2 f-16 text-red"></i></button>
+                  </form>
+                </td>
+              </tr>
+                          <tr>
+                <td><img src="http://shiksha.test/storage/banners/tHpzrB6L6HoJoHS4raelQwNY9oeFagDJ3Ql7te3c.jpg" alt="" style="width:100px;height:50px;object-fit:cover;"></td>
+                <td><b>-</b></td>
+                <td>
+                  Any time &ndash; No end
+                                  </td>
+                <td>0</td>
+                <td>-</td>
+                <td>
+                  <span class="badge badge-success">Live</span>
+                </td>
+                <td>
+                  <a href="http://shiksha.test/admin/banner/11/edit" title="Edit"><i class="ik ik-edit-2 f-16 mr-10 text-green"></i></a>
+                  <form method="POST" action="http://shiksha.test/admin/banner/11/toggle" class="d-inline"><input type="hidden" name="_token" value="3CSWpcur94OsMUPR8P2JxeqVNUmPUqFgskcuJlP3" autocomplete="off">                    <button class="btn btn-link p-0 mr-10" title="Deactivate"><i class="ik ik-slash text-orange f-16"></i></button>
+                  </form>
+                  <form method="POST" action="http://shiksha.test/admin/banner/delete/11" class="d-inline" onsubmit="return confirm('Delete this banner?')"><input type="hidden" name="_token" value="3CSWpcur94OsMUPR8P2JxeqVNUmPUqFgskcuJlP3" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                    <button class="btn btn-link p-0" title="Delete"><i class="ik ik-trash-2 f-16 text-red"></i></button>
+                  </form>
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer"></div>
+  </div>
+</div>
+	    	</div>
+
+	    	<!-- initiate chat section-->
+	    	<aside class="right-sidebar">
+    <div class="sidebar-chat" data-plugin="chat-sidebar">
+        <div class="sidebar-chat-info">
+            <h6>Chat List</h6>
+            <form class="mr-t-10">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search for friends ..."> 
+                    <i class="ik ik-search"></i>
+                </div>
+            </form>
+        </div>
+        <div class="chat-list">
+            <div class="list-group row">
+                <a href="javascript:void(0)" class="list-group-item" data-chat-user="Gene Newman">
+                    <figure class="user--online">
+                        <img src="http://shiksha.test/backend_assets/img/users/1.jpg" class="rounded-circle" alt="">
+                    </figure><span><span class="name">Gene Newman</span>  <span class="username">@gene_newman</span> </span>
+                </a>
+                <a href="javascript:void(0)" class="list-group-item" data-chat-user="Billy Black">
+                    <figure class="user--online">
+                        <img src="http://shiksha.test/backend_assets/img/users/2.jpg" class="rounded-circle" alt="">
+                    </figure><span><span class="name">Billy Black</span>  <span class="username">@billyblack</span> </span>
+                </a>
+                <a href="javascript:void(0)" class="list-group-item" data-chat-user="Herbert Diaz">
+                    <figure class="user--online">
+                        <img src="http://shiksha.test/backend_assets/img/users/3.jpg" class="rounded-circle" alt="">
+                    </figure><span><span class="name">Herbert Diaz</span>  <span class="username">@herbert</span> </span>
+                </a>
+                <a href="javascript:void(0)" class="list-group-item" data-chat-user="Sylvia Harvey">
+                    <figure class="user--busy">
+                        <img src="http://shiksha.test/backend_assets/img/users/4.jpg" class="rounded-circle" alt="">
+                    </figure><span><span class="name">Sylvia Harvey</span>  <span class="username">@sylvia</span> </span>
+                </a>
+                <a href="javascript:void(0)" class="list-group-item active" data-chat-user="Marsha Hoffman">
+                    <figure class="user--busy">
+                        <img src="http://shiksha.test/backend_assets/img/users/5.jpg" class="rounded-circle" alt="">
+                    </figure><span><span class="name">Marsha Hoffman</span>  <span class="username">@m_hoffman</span> </span>
+                </a>
+                <a href="javascript:void(0)" class="list-group-item" data-chat-user="Mason Grant">
+                    <figure class="user--offline">
+                        <img src="http://shiksha.test/backend_assets/img/users/1.jpg" class="rounded-circle" alt="">
+                    </figure><span><span class="name">Mason Grant</span>  <span class="username">@masongrant</span> </span>
+                </a>
+                <a href="javascript:void(0)" class="list-group-item" data-chat-user="Shelly Sullivan">
+                    <figure class="user--offline">
+                        <img src="http://shiksha.test/backend_assets/img/users/2.jpg" class="rounded-circle" alt="">
+                    </figure><span><span class="name">Shelly Sullivan</span>  <span class="username">@shelly</span></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<div class="chat-panel" hidden>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between">
+            <a href="javascript:void(0);"><i class="ik ik-message-square text-success"></i></a>  
+            <span class="user-name">John Doe</span> 
+            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="card-body">
+            <div class="widget-chat-activity flex-1">
+                <div class="messages">
+                    <div class="message media reply">
+                        <figure class="user--online">
+                            <a href="#">
+                                <img src="http://shiksha.test/backend_assets/img/users/3.jpg" class="rounded-circle" alt="">
+                            </a>
+                        </figure>
+                        <div class="message-body media-body">
+                            <p>Epic Cheeseburgers come in all kind of styles.</p>
+                        </div>
+                    </div>
+                    <div class="message media">
+                        <figure class="user--online">
+                            <a href="#">
+                                <img src="http://shiksha.test/backend_assets/img/users/1.jpg" class="rounded-circle" alt="">
+                            </a>
+                        </figure>
+                        <div class="message-body media-body">
+                            <p>Cheeseburgers make your knees weak.</p>
+                        </div>
+                    </div>
+                    <div class="message media reply">
+                        <figure class="user--offline">
+                            <a href="#">
+                                <img src="http://shiksha.test/backend_assets/img/users/5.jpg" class="rounded-circle" alt="">
+                            </a>
+                        </figure>
+                        <div class="message-body media-body">
+                            <p>Cheeseburgers will never let you down.</p>
+                            <p>They will also never run around or desert you.</p>
+                        </div>
+                    </div>
+                    <div class="message media">
+                        <figure class="user--online">
+                            <a href="#">
+                                <img src="http://shiksha.test/backend_assets/img/users/1.jpg" class="rounded-circle" alt="">
+                            </a>
+                        </figure>
+                        <div class="message-body media-body">
+                            <p>A great cheeseburger is a gastronomical event.</p>
+                        </div>
+                    </div>
+                    <div class="message media reply">
+                        <figure class="user--busy">
+                            <a href="#">
+                                <img src="http://shiksha.test/backend_assets/img/users/5.jpg" class="rounded-circle" alt="">
+                            </a>
+                        </figure>
+                        <div class="message-body media-body">
+                            <p>There is a cheesy incarnation waiting for you no matter what you palete preferences are.</p>
+                        </div>
+                    </div>
+                    <div class="message media">
+                        <figure class="user--online">
+                            <a href="#">
+                                <img src="http://shiksha.test/backend_assets/img/users/1.jpg" class="rounded-circle" alt="">
+                            </a>
+                        </figure>
+                        <div class="message-body media-body">
+                            <p>If you are a vegan, we are sorry for you loss.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form action="javascript:void(0)" class="card-footer" method="post">
+            <div class="d-flex justify-content-end">
+                <textarea class="border-0 flex-1" rows="1" placeholder="Type your message here"></textarea>
+                <button class="btn btn-icon" type="submit"><i class="ik ik-arrow-right text-success"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+	    	<!-- initiate footer section-->
+	    	<footer class="footer">
+    <div class="w-100 clearfix">
+        <span class="text-center text-sm-left d-md-inline-block">
+        	
+        	<!-- <i class="fa fa-heart text-danger"></i> -->
+        </span>
+        <span class="float-none float-sm-right mt-1 mt-sm-0 text-center">
+        	Developed by
+        	<a href="https://peerinfotech.com/" class="text-dark" target="_blank">
+        		<strong>Peer infotech Pvt. Ltd.</strong>
+        	</a>
+        </span>
+    </div>
+</footer>
+
+    	</div>
+    </div>
+    
+	<!-- initiate modal menu section-->
+	<div class="modal fade apps-modal" id="appsModal" tabindex="-1" role="dialog" aria-labelledby="appsModalLabel" aria-hidden="true" data-backdrop="false">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="ik ik-x-circle"></i></button>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="quick-search">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4 ml-auto mr-auto">
+                            <div class="input-wrap">
+                                <input type="text" id="quick-search" class="form-control" placeholder="Search..." />
+                                <i class="ik ik-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body d-flex align-items-center">
+                <div class="container">
+                    <div class="apps-wrap">
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-bar-chart-2"></i><span>Dashboard</span></a>
+                        </div>
+                        <div class="app-item dropdown">
+                            <a href="#" class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="ik ik-command"></i><span>Ui</span></a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="#">Action</a>
+                                <a class="dropdown-item" href="#">Another action</a>
+                                <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-mail"></i><span>Message</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-users"></i><span>Accounts</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-shopping-cart"></i><span>Sales</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-briefcase"></i><span>Purchase</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-server"></i><span>Menus</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-clipboard"></i><span>Pages</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-message-square"></i><span>Chats</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-map-pin"></i><span>Contacts</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-box"></i><span>Blocks</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-calendar"></i><span>Events</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-bell"></i><span>Notifications</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-pie-chart"></i><span>Reports</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-layers"></i><span>Tasks</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-edit"></i><span>Blogs</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-settings"></i><span>Settings</span></a>
+                        </div>
+                        <div class="app-item">
+                            <a href="#"><i class="ik ik-more-horizontal"></i><span>More</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+	<!-- initiate scripts-->
+	<script src="http://shiksha.test/backend_assets/all.js"></script>
+<!-- Stack array for including inline js or scripts -->
+
+<script src="http://shiksha.test/backend_assets/dist/js/theme.js"></script>
+<script src="http://shiksha.test/backend_assets/js/chat.js"></script>
+
+<!--Media Manager Script file-->
+<script type="text/javascript" src="http://shiksha.test/backend_assets/vendor/file-manager/js/file-manager.js"></script>	
+</body>
+</html>
